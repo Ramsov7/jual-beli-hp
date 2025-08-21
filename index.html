@@ -1,38 +1,103 @@
-<!DOCTYPE html><html lang="id">
+<!DOCTYPE html>
+<html lang="id">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>HP Inventory</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Inventaris HP</title>
   <style>
     body { font-family: Arial, sans-serif; margin: 20px; }
-    form { margin-bottom: 20px; padding: 10px; border: 1px solid #ccc; }
-    ul { list-style: none; padding: 0; }
-    li { margin: 8px 0; padding: 10px; border: 1px solid #ddd; display: flex; justify-content: space-between; align-items: center; }
-    button { margin-left: 5px; }
-    #detailModal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); }
-    #detailContent { background: #fff; margin: 10% auto; padding: 20px; width: 400px; border-radius: 6px; }
+    .form-section { border: 1px solid #ccc; padding: 15px; margin-bottom: 20px; }
+    .cek-item { margin: 5px 0; }
+    button { margin-top: 5px; }
+    .unit { border: 1px solid #ddd; padding: 10px; margin: 10px 0; }
+    .status { font-weight: bold; }
+    .modal { display: none; position: fixed; top:0; left:0; width:100%; height:100%; 
+             background: rgba(0,0,0,0.6); justify-content:center; align-items:center; }
+    .modal-content { background:#fff; padding:20px; border-radius:8px; width:90%; max-width:500px; }
   </style>
 </head>
 <body>
-  <h1>HP Inventory</h1>  <!-- Form Beli -->  <form id="formBeli">
-    <h3>Input Data Beli</h3>
-    <input type="text" id="tipeVarian" placeholder="Tipe & Varian" required /> <br /><br />
-    <input type="date" id="tanggalMasuk" required /> <br /><br />
-    <input type="number" id="hargaBeli" placeholder="Harga Beli" required /> <br /><br />
-    <input type="url" id="lokasiTransaksiPenjual" placeholder="Lokasi Transaksi Penjual (URL)" required /> <br /><br />
-    <textarea id="pengecekanDenganPenjual" placeholder="Pengecekan dengan Penjual"></textarea> <br /><br />
-    <textarea id="pengecekanLanjutan" placeholder="Pengecekan Lanjutan"></textarea> <br /><br />
-    <button type="submit">Simpan</button>
-  </form>  <h2>Daftar Unit</h2>
-  <ul id="unitList"></ul>  <!-- Modal Detail -->  <div id="detailModal">
-    <div id="detailContent">
+  <h1>Inventaris HP</h1>
+
+  <!-- Form Beli HP -->
+  <div class="form-section">
+    <h2>Form Beli HP</h2>
+    <form id="formBeli">
+      <label>Tanggal Masuk: <input type="date" id="tanggalMasuk" required></label><br><br>
+      <label>Lokasi Transaksi Penjual: <input type="url" id="lokasiPenjual" required></label><br><br>
+      <label>Tipe & Varian: <input type="text" id="tipeVarian" required></label><br><br>
+      
+      <div id="pengecekanPenjualContainer">
+        <label>Pengecekan dengan Penjual:</label>
+        <div class="cek-item">
+          <input type="text" name="pengecekanPenjual[]" placeholder="Cek#1"/>
+        </div>
+      </div>
+      <button type="button" id="addCekPenjualBtn">+ Tambah Cek</button><br><br>
+
+      <label>Harga Beli: <input type="number" id="hargaBeli" required></label><br><br>
+      <button type="submit">Simpan</button>
+    </form>
+  </div>
+
+  <!-- Form Perbaikan -->
+  <div class="form-section" id="formPerbaikanSection" style="display:none;">
+    <h2>Form Perbaikan</h2>
+    <form id="formPerbaikan">
+      <input type="hidden" id="unitIdPerbaikan">
+      
+      <div id="pengecekanLanjutanContainer">
+        <label>Pengecekan Lanjutan:</label>
+        <div class="cek-item">
+          <input type="text" name="pengecekanLanjutan[]" placeholder="Cek#1"/>
+        </div>
+      </div>
+      <button type="button" id="addCekLanjutanBtn">+ Tambah Cek</button><br><br>
+
+      <label>Total Biaya Perbaikan: <input type="number" id="biayaPerbaikan" required></label><br><br>
+      <button type="submit">Simpan Perbaikan</button>
+    </form>
+  </div>
+
+  <!-- Form Jual -->
+  <div class="form-section" id="formJualSection" style="display:none;">
+    <h2>Form Jual HP</h2>
+    <form id="formJual">
+      <input type="hidden" id="unitIdJual">
+
+      <label>Tanggal Jual: <input type="date" id="tanggalJual" required></label><br><br>
+      <label>Lokasi Transaksi Pembeli: <input type="url" id="lokasiPembeli" required></label><br><br>
+      
+      <div id="minusReadyContainer">
+        <label>Minus ketika ready dijual:</label>
+        <div class="cek-item">
+          <input type="text" name="minusReady[]" placeholder="Minus#1"/>
+        </div>
+      </div>
+      <button type="button" id="addMinusBtn">+ Tambah Minus</button><br><br>
+
+      <label>Harga Jual: <input type="number" id="hargaJual" required></label><br><br>
+      <label>Beban Operasional: <input type="number" id="bebanOperasional" required></label><br><br>
+      <button type="submit">Simpan Penjualan</button>
+    </form>
+  </div>
+
+  <h2>Daftar Unit</h2>
+  <div id="unitList"></div>
+
+  <!-- Modal Detail -->
+  <div class="modal" id="detailModal">
+    <div class="modal-content">
       <h3>Detail Unit</h3>
-      <div id="detailBody"></div>
-      <button onclick="closeDetail()">Tutup</button>
+      <div id="detailContent"></div>
+      <button onclick="closeModal()">Tutup</button>
     </div>
-  </div>  <script type="module">
+  </div>
+
+  <!-- Firebase SDK -->
+  <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/12.1.0/firebase-app.js";
-    import { getFirestore, collection, addDoc, onSnapshot, deleteDoc, doc } from "https://www.gstatic.com/firebasejs/12.1.0/firebase-firestore.js";
+    import { getFirestore, collection, addDoc, getDocs, doc, updateDoc, deleteDoc } from "https://www.gstatic.com/firebasejs/12.1.0/firebase-firestore.js";
 
     const firebaseConfig = {
       apiKey: "AIzaSyA-taZOYNdqrPqfaA3ObSAC2hJ7UzMTaQs",
@@ -42,71 +107,123 @@
       messagingSenderId: "384818720368",
       appId: "1:384818720368:web:ae61ec9869da0c83b9ceb5"
     };
-
     const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
-    const unitsCol = collection(db, "units");
+    const unitRef = collection(db, "units");
 
-    const formBeli = document.getElementById("formBeli");
-    const unitList = document.getElementById("unitList");
-    const detailModal = document.getElementById("detailModal");
-    const detailBody = document.getElementById("detailBody");
+    // === Tambah field dinamis ===
+    function addDynamicField(containerId, inputName, countVar) {
+      const container = document.getElementById(containerId);
+      const div = document.createElement("div");
+      div.classList.add("cek-item");
+      div.innerHTML = `<input type="text" name="${inputName}[]" placeholder="${inputName.split('[')[0]}#${countVar}" />`;
+      container.appendChild(div);
+    }
 
-    // Submit form beli → simpan ke Firestore
-    formBeli.addEventListener("submit", async (e) => {
+    let cekPenjualCount = 1;
+    document.getElementById("addCekPenjualBtn").addEventListener("click", () => {
+      cekPenjualCount++;
+      addDynamicField("pengecekanPenjualContainer","pengecekanPenjual", cekPenjualCount);
+    });
+
+    let cekLanjutanCount = 1;
+    document.getElementById("addCekLanjutanBtn").addEventListener("click", () => {
+      cekLanjutanCount++;
+      addDynamicField("pengecekanLanjutanContainer","pengecekanLanjutan", cekLanjutanCount);
+    });
+
+    let minusCount = 1;
+    document.getElementById("addMinusBtn").addEventListener("click", () => {
+      minusCount++;
+      addDynamicField("minusReadyContainer","minusReady", minusCount);
+    });
+
+    // Ambil array dari field dinamis
+    function getArrayFromInputs(name) {
+      return [...document.querySelectorAll(`input[name="${name}[]"]`)]
+        .map(i => i.value.trim())
+        .filter(v => v !== "");
+    }
+
+    // ===== Simpan Beli =====
+    document.getElementById("formBeli").addEventListener("submit", async (e) => {
       e.preventDefault();
-      const data = {
-        tipeVarian: document.getElementById("tipeVarian").value,
-        tanggalMasuk: new Date(document.getElementById("tanggalMasuk").value),
-        hargaBeli: parseInt(document.getElementById("hargaBeli").value),
-        lokasiTransaksiPenjual: document.getElementById("lokasiTransaksiPenjual").value,
-        pengecekanDenganPenjual: document.getElementById("pengecekanDenganPenjual").value,
-        pengecekanLanjutan: document.getElementById("pengecekanLanjutan").value,
+      const tanggalMasuk = document.getElementById("tanggalMasuk").value;
+      const lokasiPenjual = document.getElementById("lokasiPenjual").value;
+      const tipeVarian = document.getElementById("tipeVarian").value;
+      const hargaBeli = +document.getElementById("hargaBeli").value;
+      const pengecekanDenganPenjual = getArrayFromInputs("pengecekanPenjual");
+
+      await addDoc(unitRef, {
+        tanggalMasuk,
+        lokasiTransaksiPenjual: lokasiPenjual,
+        tipeVarian,
+        hargaBeli,
+        pengecekanDenganPenjual,
         status: "Belum Selesai"
-      };
-      await addDoc(unitsCol, data);
-      formBeli.reset();
-    });
-
-    // Listen realtime data
-    onSnapshot(unitsCol, (snapshot) => {
-      unitList.innerHTML = "";
-      snapshot.forEach((docSnap) => {
-        const unit = docSnap.data();
-        const li = document.createElement("li");
-        li.textContent = `${unit.tipeVarian} - ${unit.status}`;
-
-        // Tombol Detail
-        const detailBtn = document.createElement("button");
-        detailBtn.textContent = "Detail";
-        detailBtn.onclick = () => showDetail(docSnap);
-        li.appendChild(detailBtn);
-
-        // Tombol Hapus
-        const deleteBtn = document.createElement("button");
-        deleteBtn.textContent = "Hapus";
-        deleteBtn.onclick = async () => {
-          if (confirm("Yakin hapus unit ini?")) {
-            await deleteDoc(doc(db, "units", docSnap.id));
-          }
-        };
-        li.appendChild(deleteBtn);
-
-        unitList.appendChild(li);
       });
+      loadUnits();
+      e.target.reset();
     });
 
-    function showDetail(docSnap) {
-      const data = docSnap.data();
-      detailBody.innerHTML = "";
-      for (const key in data) {
-        detailBody.innerHTML += `<p><b>${key}:</b> ${data[key]}</p>`;
-      }
-      detailModal.style.display = "block";
+    // ===== Load Units =====
+    async function loadUnits() {
+      const snapshot = await getDocs(unitRef);
+      const list = document.getElementById("unitList");
+      list.innerHTML = "";
+      snapshot.forEach(docSnap => {
+        const data = docSnap.data();
+        const div = document.createElement("div");
+        div.classList.add("unit");
+        div.innerHTML = `
+          <div><b>${data.tipeVarian}</b> - <span class="status">${data.status}</span></div>
+          <button onclick="showDetail('${docSnap.id}')">Detail</button>
+          ${data.status === "Belum Selesai" ? `
+            <button onclick="showPerbaikanForm('${docSnap.id}')">Perbaiki</button>
+            <button onclick="jadikanBangkai('${docSnap.id}')">Jadikan Bangkai</button>
+          ` : ""}
+        `;
+        list.appendChild(div);
+      });
     }
 
-    window.closeDetail = function() {
-      detailModal.style.display = "none";
-    }
-  </script></body>
+    // ===== Detail Modal =====
+    window.showDetail = async (id) => {
+      const snap = await getDocs(unitRef);
+      let data;
+      snap.forEach(s => { if (s.id === id) data = s.data(); });
+      const detail = document.getElementById("detailContent");
+      detail.innerHTML = JSON.stringify(data, null, 2).replace(/\n/g,"<br>").replace(/ /g,"&nbsp;");
+      document.getElementById("detailModal").style.display = "flex";
+    };
+    window.closeModal = () => document.getElementById("detailModal").style.display = "none";
+
+    // ===== Perbaikan Form =====
+    window.showPerbaikanForm = (id) => {
+      document.getElementById("unitIdPerbaikan").value = id;
+      document.getElementById("formPerbaikanSection").style.display = "block";
+    };
+    document.getElementById("formPerbaikan").addEventListener("submit", async (e)=>{
+      e.preventDefault();
+      const id = document.getElementById("unitIdPerbaikan").value;
+      const biayaPerbaikan = +document.getElementById("biayaPerbaikan").value;
+      const pengecekanLanjutan = getArrayFromInputs("pengecekanLanjutan");
+      await updateDoc(doc(db,"units",id),{
+        biayaPerbaikan,
+        pengecekanLanjutan
+      });
+      loadUnits();
+      e.target.reset();
+      document.getElementById("formPerbaikanSection").style.display = "none";
+    });
+
+    // ===== Bangkai =====
+    window.jadikanBangkai = async (id) => {
+      await updateDoc(doc(db,"units",id),{ status:"Selesai", jenis:"Bangkai" });
+      loadUnits();
+    };
+
+    loadUnits();
+  </script>
+</body>
 </html>
