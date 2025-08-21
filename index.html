@@ -4,61 +4,139 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Dashboard HP Inventory</title>
   <style>
-    body { font-family: Arial, sans-serif; margin: 0; padding: 0; display: flex; flex-direction: column; align-items: center; height: 100vh; }
-    h1 { margin: 20px 0; }
-    table { width: 90%; border-collapse: collapse; margin-top: 20px; }
-    th, td { border: 1px solid #ccc; padding: 8px; text-align: center; }
-    .btn { padding: 6px 12px; margin: 2px; cursor: pointer; border: none; border-radius: 4px; }
-    .btn-primary { background: #007bff; color: #fff; }
-    .btn-danger { background: #dc3545; color: #fff; }
-    .btn-warning { background: #ffc107; color: #000; }
-    .btn-success { background: #28a745; color: #fff; }
-    .popup { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); justify-content: center; align-items: center; }
-    .popup-content { background: #fff; padding: 20px; border-radius: 8px; width: 400px; max-height: 90vh; overflow-y: auto; }
-    .close { float: right; font-size: 18px; cursor: pointer; }
+    :root { --primary:#1976d2; --danger:#dc3545; --warn:#ff9800; --success:#2e7d32; }
+    * { box-sizing: border-box; }
+    body { font-family: Arial, sans-serif; margin: 0; padding: 0; display: flex; flex-direction: column; align-items: center; min-height: 100vh; background:#f7f7f7; }
+    header { width:100%; background: var(--primary); color:#fff; padding:14px 20px; text-align:center; }
+    main { width: 100%; max-width: 1100px; padding: 20px; flex:1; display:flex; flex-direction:column; }.btn { padding: 8px 12px; margin: 2px; cursor: pointer; border: none; border-radius: 6px; font-weight:600; }
+.btn-primary { background: var(--primary); color: #fff; }
+.btn-danger { background: var(--danger); color: #fff; }
+.btn-warn { background: var(--warn); color: #111; }
+.btn-success { background: var(--success); color: #fff; }
+.btn-ghost { background:#e0e0e0; }
+
+table { width: 100%; border-collapse: collapse; margin-top: 12px; background:#fff; border-radius:10px; overflow:hidden; box-shadow:0 2px 8px rgba(0,0,0,.06); }
+th, td { border-bottom: 1px solid #eee; padding: 10px; text-align: center; }
+th { background: #fafafa; font-weight:700; }
+tr:last-child td { border-bottom:none; }
+
+/* Popup / Modal */
+.popup { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.45); justify-content: center; align-items: center; padding: 20px; }
+.popup-content { background: #fff; width: 95%; max-width: 560px; max-height: 90vh; overflow: auto; padding: 18px; border-radius: 12px; box-shadow:0 12px 40px rgba(0,0,0,.25); }
+.popup-header { display:flex; align-items:center; justify-content:space-between; margin-bottom: 10px; }
+.close { font-size: 22px; cursor: pointer; user-select:none; }
+
+.field { margin: 8px 0 14px; }
+.field label { display:block; font-size: 13px; font-weight:700; margin-bottom:6px; text-align:left; }
+.field input, .field textarea { width: 100%; padding: 10px; border-radius: 8px; border: 1px solid #ddd; font-size: 14px; }
+
+.row { display:flex; gap:10px; }
+.row > * { flex:1; }
+
+.subtle { color:#666; font-size:12px; }
+.pill { padding:4px 8px; border-radius:999px; font-size:12px; display:inline-block; }
+.pill.pending { background:#e3f2fd; color:#0d47a1; }
+.pill.bangkai { background:#ffebee; color:#b71c1c; }
+.pill.done { background:#e8f5e9; color:#1b5e20; }
+
+ul.clean { margin:6px 0 0 18px; padding:0; text-align:left; }
+
   </style>
 </head>
 <body>
-  <h1>Dashboard HP Inventory</h1>  <!-- Tombol Tambah Unit --><button id="addUnitBtn" class="btn btn-primary">Tambah Unit</button>
+  <header>
+    <h2>Dashboard HP Inventory</h2>
+  </header>  <main>
+    <div>
+      <button id="addUnitBtn" class="btn btn-primary">+ Tambah Unit</button>
+    </div><table id="unitsTable">
+  <thead>
+    <tr>
+      <th style="width:60px">No</th>
+      <th>Nama Unit</th>
+      <th style="width:160px">Status</th>
+      <th style="width:320px">Aksi</th>
+    </tr>
+  </thead>
+  <tbody></tbody>
+</table>
 
-  <!-- Daftar Unit -->  <table id="unitsTable">
-    <thead>
-      <tr>
-        <th>Nama Unit</th>
-        <th>Status</th>
-        <th>Aksi</th>
-      </tr>
-    </thead>
-    <tbody></tbody>
-  </table>  <!-- Popup Tambah Unit -->  <div id="addUnitPopup" class="popup">
+  </main>  <!-- Popup: Tambah Unit -->  <div id="addUnitPopup" class="popup">
     <div class="popup-content">
-      <span id="closeAddUnitPopup" class="close">&times;</span>
-      <h2>Tambah Unit</h2>
+      <div class="popup-header">
+        <h3>Tambah Unit</h3>
+        <span id="closeAddUnitPopup" class="close">×</span>
+      </div>
       <form id="addUnitForm">
-        <label>Tanggal Masuk:</label><br>
-        <input type="date" id="tanggalMasuk" required><br><br><label>Tipe & Varian:</label><br>
-    <input type="text" id="tipeVarian" required><br><br>
-
-    <label>Pengecekan dengan Penjual:</label>
-    <div id="pengecekanList">
-      <input type="text" class="pengecekan-input" placeholder="Cek#1" />
+        <div class="row">
+          <div class="field">
+            <label>Tanggal Masuk</label>
+            <input type="date" id="tanggalMasuk" required />
+          </div>
+          <div class="field">
+            <label>Harga Beli (Rp)</label>
+            <input type="number" id="hargaBeli" min="0" required />
+          </div>
+        </div>
+        <div class="field">
+          <label>Tipe & Varian</label>
+          <input type="text" id="tipeVarian" placeholder="Contoh: Oppo A7 4/64" required />
+        </div>
+        <div class="field">
+          <label>Lokasi Transaksi Penjual (URL Maps)</label>
+          <input type="url" id="lokasiTransaksiPenjual" placeholder="https://maps.app.goo.gl/..." required />
+        </div>
+        <div class="field">
+          <label>Pengecekan dengan Penjual</label>
+          <div id="pengecekanList"></div>
+          <button type="button" id="addPengecekanBtn" class="btn btn-ghost">+ Tambah Cek</button>
+          <div class="subtle">Contoh: Lupa password, Backdoor lecet 10%, dst.</div>
+        </div>
+        <div style="display:flex; gap:8px; justify-content:flex-end">
+          <button type="button" class="btn btn-ghost" id="cancelAdd">Batal</button>
+          <button type="submit" class="btn btn-primary">Simpan</button>
+        </div>
+      </form>
     </div>
-    <button type="button" id="addPengecekanBtn" class="btn btn-success">+ Tambah Cek</button>
-    <br><br>
-
-    <label>Lokasi Transaksi Penjual (URL Maps):</label><br>
-    <input type="url" id="lokasiTransaksiPenjual" required><br><br>
-
-    <label>Harga Beli:</label><br>
-    <input type="number" id="hargaBeli" required><br><br>
-
-    <button type="submit" class="btn btn-primary">Simpan</button>
-  </form>
-</div>
-
-  </div>  <!-- Firebase -->  <script type="module">
+  </div>  <!-- Popup: Perbaikan Unit -->  <div id="repairPopup" class="popup">
+    <div class="popup-content">
+      <div class="popup-header">
+        <h3>Perbaikan Unit</h3>
+        <span id="closeRepairPopup" class="close">×</span>
+      </div>
+      <form id="repairForm">
+        <input type="hidden" id="repairUnitId" />
+        <div class="field">
+          <label>Pengecekan Lanjutan</label>
+          <div id="lanjutanContainer"></div>
+          <button type="button" id="addLanjutanBtn" class="btn btn-ghost">+ Tambah Cek</button>
+        </div>
+        <div class="field">
+          <label>Ongkos Perbaikan</label>
+          <div id="ongkosContainer"></div>
+          <button type="button" id="addOngkosBtn" class="btn btn-ghost">+ Tambah Ongkos</button>
+        </div>
+        <div class="field">
+          <label>Total Biaya Perbaikan</label>
+          <input type="text" id="totalBiaya" value="Rp0" disabled />
+        </div>
+        <div style="display:flex; gap:8px; justify-content:flex-end">
+          <button type="button" class="btn btn-ghost" id="cancelRepair">Batal</button>
+          <button type="submit" class="btn btn-success">Simpan Perbaikan</button>
+        </div>
+      </form>
+    </div>
+  </div>  <!-- Popup: Detail Unit -->  <div id="detailPopup" class="popup">
+    <div class="popup-content">
+      <div class="popup-header">
+        <h3>Detail Unit</h3>
+        <span id="closeDetailPopup" class="close">×</span>
+      </div>
+      <div id="detailBody"></div>
+    </div>
+  </div>  <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/12.1.0/firebase-app.js";
-    import { getFirestore, collection, addDoc, getDocs, deleteDoc, doc, onSnapshot } from "https://www.gstatic.com/firebasejs/12.1.0/firebase-firestore.js";
+    import { getFirestore, collection, addDoc, deleteDoc, doc, onSnapshot, updateDoc, getDoc } from "https://www.gstatic.com/firebasejs/12.1.0/firebase-firestore.js";
 
     const firebaseConfig = {
       apiKey: "AIzaSyA-taZOYNdqrPqfaA3ObSAC2hJ7UzMTaQs",
@@ -71,77 +149,195 @@
 
     const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
+    const unitsCol = collection(db, "units");
 
-    // Popup controls
-    const addUnitBtn = document.getElementById("addUnitBtn");
-    const addUnitPopup = document.getElementById("addUnitPopup");
-    const closeAddUnitPopup = document.getElementById("closeAddUnitPopup");
+    // ===== Helpers =====
+    const fmtIDR = n => new Intl.NumberFormat('id-ID',{style:'currency', currency:'IDR', maximumFractionDigits:0}).format(Number(n||0));
 
-    addUnitBtn.addEventListener("click", () => addUnitPopup.style.display = "flex");
-    closeAddUnitPopup.addEventListener("click", () => addUnitPopup.style.display = "none");
+    const qs = s => document.querySelector(s);
+    const qsa = s => Array.from(document.querySelectorAll(s));
 
-    // Tambah pengecekan field
-    const pengecekanList = document.getElementById("pengecekanList");
-    const addPengecekanBtn = document.getElementById("addPengecekanBtn");
-    let cekCount = 1;
-    addPengecekanBtn.addEventListener("click", () => {
-      cekCount++;
-      const input = document.createElement("input");
-      input.type = "text";
-      input.className = "pengecekan-input";
-      input.placeholder = `Cek#${cekCount}`;
-      pengecekanList.appendChild(document.createElement("br"));
-      pengecekanList.appendChild(input);
-    });
+    // ===== UI: Popup controls =====
+    const addUnitBtn = qs('#addUnitBtn');
+    const addUnitPopup = qs('#addUnitPopup');
+    const closeAddUnitPopup = qs('#closeAddUnitPopup');
+    const cancelAdd = qs('#cancelAdd');
+    const repairPopup = qs('#repairPopup');
+    const closeRepairPopup = qs('#closeRepairPopup');
+    const cancelRepair = qs('#cancelRepair');
+    const detailPopup = qs('#detailPopup');
+    const closeDetailPopup = qs('#closeDetailPopup');
 
-    // Simpan Unit
-    const addUnitForm = document.getElementById("addUnitForm");
-    addUnitForm.addEventListener("submit", async (e) => {
+    addUnitBtn.addEventListener('click', () => { resetAddUnitForm(); addUnitPopup.style.display = 'flex'; });
+    closeAddUnitPopup.addEventListener('click', () => addUnitPopup.style.display = 'none');
+    cancelAdd.addEventListener('click', () => addUnitPopup.style.display = 'none');
+    closeRepairPopup.addEventListener('click', () => repairPopup.style.display = 'none');
+    cancelRepair.addEventListener('click', () => repairPopup.style.display = 'none');
+    closeDetailPopup.addEventListener('click', () => detailPopup.style.display = 'none');
+
+    // ===== Add Unit Form =====
+    const addUnitForm = qs('#addUnitForm');
+    const pengecekanList = qs('#pengecekanList');
+    const addPengecekanBtn = qs('#addPengecekanBtn');
+
+    function resetAddUnitForm(){
+      addUnitForm.reset();
+      pengecekanList.innerHTML = '';
+      addPengecekanField();
+    }
+    function addPengecekanField(){
+      const idx = pengecekanList.querySelectorAll('.cek-item').length + 1;
+      const wrap = document.createElement('div');
+      wrap.className = 'cek-item field';
+      wrap.innerHTML = `<input type="text" class="pengecekan-input" placeholder="Cek#${idx}" />`;
+      pengecekanList.appendChild(wrap);
+    }
+    addPengecekanBtn.addEventListener('click', addPengecekanField);
+
+    addUnitForm.addEventListener('submit', async (e) => {
       e.preventDefault();
-      const tanggalMasuk = document.getElementById("tanggalMasuk").value;
-      const tipeVarian = document.getElementById("tipeVarian").value;
-      const lokasiTransaksiPenjual = document.getElementById("lokasiTransaksiPenjual").value;
-      const hargaBeli = parseInt(document.getElementById("hargaBeli").value);
-      const pengecekanInputs = document.querySelectorAll(".pengecekan-input");
-      const pengecekanDenganPenjual = Array.from(pengecekanInputs).map(i => i.value).filter(Boolean);
+      const tanggalMasuk = qs('#tanggalMasuk').value; // simpan string (YYYY-MM-DD)
+      const tipeVarian = qs('#tipeVarian').value.trim();
+      const lokasiTransaksiPenjual = qs('#lokasiTransaksiPenjual').value.trim();
+      const hargaBeli = Number(qs('#hargaBeli').value || 0);
+      const pengecekanDenganPenjual = qsa('.pengecekan-input').map(i=>i.value.trim()).filter(Boolean);
 
-      await addDoc(collection(db, "units"), {
+      await addDoc(unitsCol, {
         tanggalMasuk,
         tipeVarian,
         lokasiTransaksiPenjual,
         hargaBeli,
         pengecekanDenganPenjual,
-        status: "Belum Selesai"
+        status: 'Belum Selesai'
       });
-
-      addUnitForm.reset();
-      addUnitPopup.style.display = "none";
+      addUnitPopup.style.display = 'none';
     });
 
-    // Load data realtime
-    const unitsTableBody = document.querySelector("#unitsTable tbody");
-    onSnapshot(collection(db, "units"), (snapshot) => {
-      unitsTableBody.innerHTML = "";
-      snapshot.forEach((docSnap) => {
-        const data = docSnap.data();
-        const tr = document.createElement("tr");
-        tr.innerHTML = `
-          <td>${data.tipeVarian}</td>
-          <td>${data.status}</td>
-          <td>
-            <button class="btn btn-warning">Detail</button>
-            <button class="btn btn-danger" onclick="deleteUnit('${docSnap.id}')">Hapus</button>
-          </td>
-        `;
-        unitsTableBody.appendChild(tr);
+    // ===== Perbaikan Form =====
+    const repairForm = qs('#repairForm');
+    const lanjutanContainer = qs('#lanjutanContainer');
+    const addLanjutanBtn = qs('#addLanjutanBtn');
+    const ongkosContainer = qs('#ongkosContainer');
+    const addOngkosBtn = qs('#addOngkosBtn');
+    const totalBiayaInput = qs('#totalBiaya');
+
+    function resetRepairForm(){
+      lanjutanContainer.innerHTML = '';
+      ongkosContainer.innerHTML = '';
+      totalBiayaInput.value = fmtIDR(0);
+      addLanjutanField();
+    }
+    function addLanjutanField(){
+      const idx = lanjutanContainer.querySelectorAll('.lanjutan-item').length + 1;
+      const wrap = document.createElement('div');
+      wrap.className = 'lanjutan-item field';
+      wrap.innerHTML = `<input type="text" placeholder="Cek#${idx}" class="lanjutan-input" />`;
+      lanjutanContainer.appendChild(wrap);
+    }
+    function addOngkosField(desc='', biaya=0, readonly=false){
+      const wrap = document.createElement('div');
+      wrap.className = 'ongkos-item field';
+      wrap.innerHTML = `
+        <div class="row">
+          <input type="text" class="ongkos-desc" placeholder="Deskripsi" value="${desc.replace(/"/g,'&quot;')}" ${readonly?'readonly':''}>
+          <input type="number" class="ongkos-biaya" min="0" value="${Number(biaya)||0}">
+        </div>`;
+      ongkosContainer.appendChild(wrap);
+      wrap.querySelector('.ongkos-biaya').addEventListener('input', updateTotalBiaya);
+    }
+    function updateTotalBiaya(){
+      const vals = qsa('.ongkos-biaya').map(i=>Number(i.value||0));
+      const total = vals.reduce((a,b)=>a+b,0);
+      totalBiayaInput.value = fmtIDR(total);
+    }
+    addLanjutanBtn.addEventListener('click', addLanjutanField);
+    addOngkosBtn.addEventListener('click', ()=>addOngkosField());
+
+    repairForm.addEventListener('submit', async (e)=>{
+      e.preventDefault();
+      const id = qs('#repairUnitId').value;
+      const lanjutan = qsa('.lanjutan-input').map(i=>i.value.trim()).filter(Boolean);
+      const ongkosDescs = qsa('.ongkos-desc').map(i=>i.value.trim());
+      const ongkosVals = qsa('.ongkos-biaya').map(i=>Number(i.value||0));
+      const ongkosPerbaikan = ongkosDescs.map((d,idx)=>({ deskripsi:d, biaya: ongkosVals[idx]||0 }));
+      const biayaPerbaikan = ongkosVals.reduce((a,b)=>a+b,0);
+
+      await updateDoc(doc(db,'units', id), {
+        pengecekanLanjutan: lanjutan,
+        ongkosPerbaikan,
+        biayaPerbaikan
       });
+      repairPopup.style.display = 'none';
     });
 
-    // Hapus unit
-    window.deleteUnit = async (id) => {
-      if(confirm("Yakin ingin menghapus unit ini?")){
-        await deleteDoc(doc(db, "units", id));
+    // ===== Render Table (Realtime) =====
+    let cache = new Map();
+    const tbody = document.querySelector('#unitsTable tbody');
+
+    onSnapshot(unitsCol, (snap)=>{
+      cache.clear();
+      const rows = [];
+      let idx=1;
+      snap.forEach(d=>{
+        const data = d.data();
+        cache.set(d.id, data);
+        const statusHtml = data.status==='Belum Selesai' ? '<span class="pill pending">Belum Selesai</span>' : (data.status==='Bangkai' ? '<span class="pill bangkai">Bangkai</span>' : '<span class="pill done">Selesai</span>');
+
+        let actions = `<button class="btn btn-warn" onclick="showDetail('${d.id}')">Detail</button>`;
+        if(data.status === 'Belum Selesai'){
+          actions += ` <button class="btn btn-primary" onclick="openRepair('${d.id}')">Perbaiki</button>`;
+          actions += ` <button class="btn btn-danger" onclick="jadikanBangkai('${d.id}')">Jadikan Bangkai</button>`;
+        }
+        actions += ` <button class="btn btn-ghost" onclick="hapusUnit('${d.id}')">Hapus</button>`;
+
+        rows.push(`<tr>
+          <td>${idx++}</td>
+          <td>${data.tipeVarian||'-'}</td>
+          <td>${statusHtml}</td>
+          <td>${actions}</td>
+        </tr>`);
+      });
+      tbody.innerHTML = rows.join('');
+    });
+
+    // ===== Global actions (must be on window because of type=module + inline onclick) =====
+    window.hapusUnit = async (id)=>{
+      if(confirm('Hapus unit ini?')){
+        await deleteDoc(doc(db,'units',id));
       }
+    }
+    window.jadikanBangkai = async (id)=>{
+      await updateDoc(doc(db,'units',id), { status: 'Bangkai' });
+    }
+    window.openRepair = async (id)=>{
+      // Reset form first
+      resetRepairForm();
+      // Isi ongkos awal berdasarkan pengecekan dengan penjual
+      const data = cache.get(id) || (await (await getDoc(doc(db,'units',id))).data());
+      (data.pengecekanDenganPenjual||[]).forEach(item=> addOngkosField(item, 0, true));
+      qs('#repairUnitId').value = id;
+      repairPopup.style.display = 'flex';
+      updateTotalBiaya();
+    }
+    window.showDetail = async (id)=>{
+      const data = cache.get(id) || (await (await getDoc(doc(db,'units',id))).data());
+      const html = `
+        <div class="field"><b>Tipe & Varian:</b> ${data.tipeVarian||'-'}</div>
+        <div class="field"><b>Status:</b> ${data.status||'-'}</div>
+        <div class="field row">
+          <div><b>Tanggal Masuk:</b><br><span class="subtle">${data.tanggalMasuk||'-'}</span></div>
+          <div><b>Harga Beli:</b><br>${fmtIDR(data.hargaBeli||0)}</div>
+        </div>
+        <div class="field"><b>Lokasi Transaksi Penjual:</b><br><a href="${data.lokasiTransaksiPenjual||'#'}" target="_blank">${data.lokasiTransaksiPenjual||'-'}</a></div>
+        <div class="field"><b>Pengecekan dengan Penjual:</b>
+          <ul class="clean">${(data.pengecekanDenganPenjual||[]).map(x=>`<li>${x}</li>`).join('')||'<li>-</li>'}</ul>
+        </div>
+        ${data.pengecekanLanjutan?`<div class="field"><b>Pengecekan Lanjutan:</b><ul class="clean">${(data.pengecekanLanjutan||[]).map(x=>`<li>${x}</li>`).join('')||'<li>-</li>'}</ul></div>`:''}
+        ${data.ongkosPerbaikan?`<div class="field"><b>Ongkos Perbaikan:</b><ul class="clean">${(data.ongkosPerbaikan||[]).map(o=>`<li>${o.deskripsi||o.desc||'-'} — ${fmtIDR(o.biaya||0)}</li>`).join('')||'<li>-</li>'}</ul>
+        <div class="subtle"><b>Total:</b> ${fmtIDR(data.biayaPerbaikan||0)}</div></div>`:''}
+      `;
+      qs('#detailBody').innerHTML = html;
+      detailPopup.style.display = 'flex';
     }
   </script></body>
 </html>
