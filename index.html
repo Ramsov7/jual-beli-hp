@@ -1,180 +1,152 @@
 <!DOCTYPE html><html lang="id">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Ramsov HP Inventory</title>
   <style>
-    body {
-      font-family: Arial, sans-serif;
-      margin: 30px;
-      background: #f8f9fa;
-    }
-    h1 {
-      text-align: center;
-      margin-bottom: 20px;
-    }
-    form {
-      max-width: 500px;
-      margin: 20px auto;
-      background: #fff;
-      padding: 20px;
-      border-radius: 10px;
-      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
-    }
-    input, textarea, button, select {
-      width: 100%;
-      margin: 8px 0;
-      padding: 10px;
-      border: 1px solid #ccc;
-      border-radius: 6px;
-    }
-    button {
-      background: #007bff;
-      color: white;
-      cursor: pointer;
-    }
-    button:hover {
-      background: #0056b3;
-    }
-    .list {
-      max-width: 800px;
-      margin: 30px auto;
-      background: #fff;
-      padding: 20px;
-      border-radius: 10px;
-      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
-    }
-    .unit {
-      border-bottom: 1px solid #ddd;
-      padding: 10px 0;
-    }
-    .actions button {
-      width: auto;
-      margin-right: 10px;
-    }
+    body { font-family: Arial, sans-serif; margin: 30px; background: #f8f9fa; }
+    h1 { text-align: center; margin-bottom: 20px; }
+    form { max-width: 500px; margin: auto; background: #fff; padding: 20px; border-radius: 10px; box-shadow: 0 2px 6px rgba(0,0,0,0.1); }
+    input, textarea, button, select { width: 100%; margin: 8px 0; padding: 10px; border: 1px solid #ccc; border-radius: 6px; }
+    button { background: #007bff; color: white; cursor: pointer; }
+    button:hover { background: #0056b3; }
+    .list { max-width: 700px; margin: 30px auto; background: #fff; padding: 20px; border-radius: 10px; box-shadow: 0 2px 6px rgba(0,0,0,0.1); }
+    .unit { border-bottom: 1px solid #ddd; padding: 10px 0; }
+    .status { font-weight: bold; }
+    .actions button { margin-right: 5px; }/* Modal */
+.modal { display: none; position: fixed; z-index: 999; left: 0; top: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); }
+.modal-content { background: #fff; margin: 10% auto; padding: 20px; border-radius: 10px; width: 80%; max-width: 600px; position: relative; }
+.close { position: absolute; top: 10px; right: 15px; font-size: 20px; font-weight: bold; cursor: pointer; }
+
   </style>
 </head>
 <body>
-  <h1>Ramsov HP Inventory</h1>  <!-- Form Beli -->  <form id="formBeli">
-    <h3>Form Beli</h3>
-    <input type="text" id="tipeVarian" placeholder="Tipe & Varian (contoh: Oppo A7 4/64)" required />
+  <h1>Ramsov HP Inventory</h1>  <!-- Form Input HP Baru -->  <form id="formBeli">
+    <h3>Form Pembelian HP</h3>
     <input type="date" id="tanggalMasuk" required />
-    <input type="url" id="lokasiPenjual" placeholder="Link lokasi transaksi penjual" required />
-    <textarea id="pengecekanPenjual" placeholder="Pengecekan dengan penjual"></textarea>
-    <button type="submit">Simpan Data Beli</button>
-  </form>  <!-- Form Perbaikan -->  <form id="formPerbaikan" style="display:none;">
-    <h3>Form Perbaikan</h3>
+    <input type="text" id="lokasiPenjual" placeholder="Lokasi Transaksi Penjual (URL)" required />
+    <input type="text" id="tipeVarian" placeholder="Tipe & Varian (contoh: Oppo A7 4/64)" required />
+    <textarea id="pengecekanPenjual" placeholder="Pengecekan dengan penjual" required></textarea>
     <textarea id="pengecekanLanjutan" placeholder="Pengecekan lanjutan"></textarea>
-    <input type="number" id="biayaPerbaikan" placeholder="Total biaya perbaikan" />
-    <button type="submit">Simpan Data Perbaikan</button>
-  </form>  <!-- Form Penjualan -->  <form id="formPenjualan" style="display:none;">
-    <h3>Form Penjualan</h3>
-    <input type="date" id="tanggalJual" required />
-    <input type="url" id="lokasiPembeli" placeholder="Link lokasi transaksi pembeli" required />
-    <input type="number" id="hargaJual" placeholder="Harga Jual (Rp)" required />
-    <textarea id="minusReady" placeholder="Minus ketika ready dijual"></textarea>
-    <button type="submit">Simpan Data Penjualan</button>
-  </form>  <!-- Daftar Unit -->  <div class="list">
+    <input type="number" id="hargaBeli" placeholder="Harga Beli Unit" required />
+    <button type="submit">Simpan Unit</button>
+  </form>  <!-- List Data HP -->  <div class="list">
     <h2>Daftar Unit</h2>
     <div id="unitList"></div>
+  </div>  <!-- Modal Detail -->  <div id="detailModal" class="modal">
+    <div class="modal-content">
+      <span class="close" onclick="closeModal()">&times;</span>
+      <div id="detailContent"></div>
+    </div>
   </div>  <script>
     let units = [];
-    let currentUnitIndex = null;
 
     // Generate kode unit otomatis
-    function generateKodeUnit(tanggal, count) {
-      const tgl = tanggal.split('-').reverse().join(''); // ddmmyyyy
-      return `HP-${tgl}-${String(count).padStart(3,'0')}`;
+    function generateKode(tanggal, index) {
+      const tgl = tanggal.split('-').reverse().join('');
+      return `HP-${tgl}-${String(index).padStart(3,'0')}`;
     }
 
-    // Render unit list
-    function renderUnits() {
-      const unitList = document.getElementById("unitList");
-      unitList.innerHTML = "";
-      units.forEach((u, index) => {
-        unitList.innerHTML += `
-          <div class="unit">
-            <b>${u.kodeUnit} - ${u.tipeVarian}</b><br>
-            Status: ${u.status}<br>
-            ${u.hargaJual ? "Harga Jual: Rp"+u.hargaJual : ""}<br>
-            <div class="actions">
-              ${u.status === 'Belum Selesai' && !u.perbaikan ? `<button onclick="showPerbaikan(${index})">Perbaiki</button> <button onclick="jadikanBangkai(${index})">Jadikan Bangkai</button>` : ""}
-              ${u.status === 'Belum Selesai' && u.perbaikan ? `<button onclick="showPenjualan(${index})">Tetapkan Terjual</button> <button onclick="jadikanBangkai(${index})">Jadikan Bangkai</button>` : ""}
-            </div>
-          </div>
-        `;
-      });
-    }
-
-    // Form Beli submit
+    // Form pembelian HP
     document.getElementById("formBeli").addEventListener("submit", e => {
       e.preventDefault();
-      const tipeVarian = document.getElementById("tipeVarian").value;
+
       const tanggalMasuk = document.getElementById("tanggalMasuk").value;
       const lokasiPenjual = document.getElementById("lokasiPenjual").value;
+      const tipeVarian = document.getElementById("tipeVarian").value;
       const pengecekanPenjual = document.getElementById("pengecekanPenjual").value;
+      const pengecekanLanjutan = document.getElementById("pengecekanLanjutan").value;
+      const hargaBeli = parseInt(document.getElementById("hargaBeli").value);
 
-      const kodeUnit = generateKodeUnit(tanggalMasuk, units.filter(u=>u.tanggalMasuk===tanggalMasuk).length+1);
+      const kodeUnit = generateKode(tanggalMasuk, units.filter(u => u.tanggalMasuk===tanggalMasuk).length+1);
 
-      units.push({
+      const newUnit = {
         kodeUnit,
-        tipeVarian,
         tanggalMasuk,
         lokasiPenjual,
+        tipeVarian,
         pengecekanPenjual,
+        pengecekanLanjutan,
+        hargaBeli,
         status: "Belum Selesai"
-      });
-      renderUnits();
-      e.target.reset();
-      alert("Data beli tersimpan");
-    });
-
-    // Show Perbaikan form
-    function showPerbaikan(index) {
-      currentUnitIndex = index;
-      document.getElementById("formPerbaikan").style.display = 'block';
-    }
-
-    document.getElementById("formPerbaikan").addEventListener("submit", e => {
-      e.preventDefault();
-      const u = units[currentUnitIndex];
-      u.perbaikan = {
-        pengecekanLanjutan: document.getElementById("pengecekanLanjutan").value,
-        biayaPerbaikan: document.getElementById("biayaPerbaikan").value
       };
+
+      units.push(newUnit);
       renderUnits();
       e.target.reset();
-      document.getElementById("formPerbaikan").style.display = 'none';
-      alert("Data perbaikan tersimpan");
     });
 
-    // Show Penjualan form
-    function showPenjualan(index) {
-      currentUnitIndex = index;
-      document.getElementById("formPenjualan").style.display = 'block';
+    function renderUnits() {
+      const list = document.getElementById("unitList");
+      list.innerHTML = "";
+      units.forEach((u,i) => {
+        let actions = "";
+        if (u.status === "Belum Selesai") {
+          if (!u.perbaikan) {
+            actions = `<button onclick="perbaiki(${i})">Perbaiki</button> <button onclick="jadikanBangkai(${i})">Jadikan Bangkai</button>`;
+          } else if (!u.penjualan) {
+            actions = `<button onclick="tetapkanTerjual(${i})">Tetapkan Terjual</button> <button onclick="jadikanBangkai(${i})">Jadikan Bangkai</button>`;
+          }
+        }
+        list.innerHTML += `
+          <div class="unit">
+            <b>${u.tipeVarian}</b><br>
+            <span class="status">Status: ${u.status}</span><br>
+            <div class="actions">
+              <button onclick="showDetail(${i})">Detail</button>
+              ${actions}
+            </div>
+          </div>`;
+      });
     }
 
-    document.getElementById("formPenjualan").addEventListener("submit", e => {
-      e.preventDefault();
-      const u = units[currentUnitIndex];
-      u.tanggalJual = document.getElementById("tanggalJual").value;
-      u.lokasiPembeli = document.getElementById("lokasiPembeli").value;
-      u.hargaJual = document.getElementById("hargaJual").value;
-      u.minusReady = document.getElementById("minusReady").value;
-      u.status = "Selesai";
-      renderUnits();
-      e.target.reset();
-      document.getElementById("formPenjualan").style.display = 'none';
-      alert("Data penjualan tersimpan");
-    });
-
-    // Jadikan Bangkai
-    function jadikanBangkai(index) {
-      if(confirm("Yakin jadikan unit ini bangkai?")) {
-        units[index].status = "Selesai";
-        units[index].bangkai = true;
-        renderUnits();
+    function showDetail(index) {
+      const u = units[index];
+      let html = `
+        <h3>${u.tipeVarian}</h3>
+        <p><b>Kode Unit:</b> ${u.kodeUnit}</p>
+        <p><b>Tanggal Masuk:</b> ${u.tanggalMasuk}</p>
+        <p><b>Lokasi Penjual:</b> ${u.lokasiPenjual}</p>
+        <p><b>Pengecekan dengan Penjual:</b> ${u.pengecekanPenjual}</p>
+        <p><b>Pengecekan Lanjutan:</b> ${u.pengecekanLanjutan}</p>
+        <p><b>Harga Beli:</b> Rp${u.hargaBeli}</p>
+      `;
+      if (u.perbaikan) {
+        html += `<hr><p><b>Biaya Perbaikan:</b> Rp${u.perbaikan.biaya}</p>`;
       }
+      if (u.penjualan) {
+        html += `<hr><p><b>Harga Jual:</b> Rp${u.penjualan.hargaJual}</p>
+                 <p><b>Minus ketika ready dijual:</b> ${u.penjualan.minus}</p>
+                 <p><b>Laba Bersih:</b> Rp${u.penjualan.labaBersih}</p>`;
+      }
+      if (u.status === "Selesai" && u.bangkai) {
+        html += `<hr><p><b>Status:</b> Ditetapkan Bangkai (Rugi Rp${u.rugi})</p>`;
+      }
+      document.getElementById("detailContent").innerHTML = html;
+      document.getElementById("detailModal").style.display = "block";
+    }
+
+    function closeModal() {
+      document.getElementById("detailModal").style.display = "none";
+    }
+
+    // Dummy perbaikan, bangkai, jual (sementara contoh)
+    function perbaiki(i) {
+      units[i].perbaikan = { biaya: 85000 };
+      renderUnits();
+    }
+
+    function jadikanBangkai(i) {
+      units[i].status = "Selesai";
+      units[i].bangkai = true;
+      units[i].rugi = units[i].hargaBeli;
+      renderUnits();
+    }
+
+    function tetapkanTerjual(i) {
+      units[i].penjualan = { hargaJual: 550000, minus: "Bekas, Tanpa Dos", labaBersih: 200000 };
+      units[i].status = "Selesai";
+      renderUnits();
     }
   </script></body>
 </html>
