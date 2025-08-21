@@ -1,56 +1,94 @@
-<!DOCTYPE html>
-<html lang="id">
+<!DOCTYPE html><html lang="id">
 <head>
   <meta charset="UTF-8">
-  <title>HP Inventory Dashboard</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>HP Inventory</title>
   <style>
-    body { margin:0; padding:0; font-family:Arial, sans-serif; display:flex; flex-direction:column; height:100vh; }
-    header { padding:15px; background:#1976d2; color:#fff; text-align:center; }
-    main { flex:1; display:flex; flex-direction:column; padding:20px; overflow:hidden; }
-    button { padding:7px 12px; border:none; background:#1976d2; color:#fff; border-radius:4px; cursor:pointer; margin:2px; }
-    button:hover { background:#0d47a1; }
-    table { width:100%; border-collapse:collapse; }
-    th, td { padding:8px; border:1px solid #ccc; text-align:center; }
-    th { background:#f2f2f2; }
-    #pagination { margin-top:10px; text-align:center; }
-    #pagination button { margin:0 3px; background:#e0e0e0; color:#000; }
-    #pagination button.active { background:#1976d2; color:#fff; }
-    .popup { display:none; position:fixed; top:10%; left:50%; transform:translateX(-50%); background:#fff; padding:20px; border:1px solid #ccc; width:400px; max-height:80vh; overflow-y:auto; box-shadow:0 4px 10px rgba(0,0,0,0.3); }
-    .dynamic-field { display:flex; gap:5px; margin:5px 0; }
-    .dynamic-field input { flex:1; }
+    body { font-family: Arial, sans-serif; margin: 0; padding: 0; }
+    header { background: #4CAF50; color: white; padding: 1rem; text-align: center; }
+    main { padding: 1rem; height: calc(100vh - 70px); box-sizing: border-box; display: flex; flex-direction: column; }
+    .btn { padding: 6px 12px; margin: 2px; cursor: pointer; }
+    table { width: 100%; border-collapse: collapse; margin-top: 1rem; }
+    th, td { border: 1px solid #ddd; padding: 8px; text-align: center; }
+    th { background: #f2f2f2; }
+    .pagination { margin-top: 10px; text-align: center; }
+    .modal { display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); justify-content:center; align-items:center; }
+    .modal-content { background:#fff; padding:20px; border-radius:8px; width:90%; max-width:500px; max-height:90%; overflow-y:auto; }
+    .close { float:right; cursor:pointer; font-size:18px; }
+    .field-group { margin-bottom: 10px; }
+    label { display:block; margin-bottom:4px; text-align:left; }
   </style>
 </head>
 <body>
-  <header><h2>Dashboard HP Inventory</h2></header>
-
+  <header>
+    <h1>HP Inventory Dashboard</h1>
+  </header>
   <main>
-    <button onclick="openForm()">+ Tambah Unit</button>
-    <div style="flex:1; overflow:auto;">
-      <table>
-        <thead>
-          <tr>
-            <th>No</th>
-            <th>Nama Unit</th>
-            <th>Status</th>
-            <th>Aksi</th>
-          </tr>
-        </thead>
-        <tbody id="unitTable"></tbody>
-      </table>
+    <button class="btn" onclick="openAddUnit()">Tambah Unit</button>
+    <table>
+      <thead>
+        <tr>
+          <th>No</th>
+          <th>Nama Unit</th>
+          <th>Status</th>
+          <th>Aksi</th>
+        </tr>
+      </thead>
+      <tbody id="unitTable"></tbody>
+    </table>
+    <div class="pagination" id="pagination"></div>
+  </main>  <!-- Modal Tambah Unit -->  <div class="modal" id="addUnitModal">
+    <div class="modal-content">
+      <span class="close" onclick="closeModal('addUnitModal')">&times;</span>
+      <h3>Tambah Unit</h3>
+      <div class="field-group">
+        <label>Tanggal Masuk</label>
+        <input type="date" id="tanggalMasuk">
+      </div>
+      <div class="field-group">
+        <label>Tipe & Varian</label>
+        <input type="text" id="tipeVarian">
+      </div>
+      <div class="field-group">
+        <label>Lokasi Transaksi Penjual</label>
+        <input type="text" id="lokasiTransaksiPenjual">
+      </div>
+      <div class="field-group">
+        <label>Pengecekan dengan Penjual</label>
+        <div id="pengecekanPenjualContainer"></div>
+        <button type="button" onclick="addPengecekanPenjual()">+ Tambah Cek</button>
+      </div>
+      <div class="field-group">
+        <label>Harga Beli</label>
+        <input type="number" id="hargaBeli">
+      </div>
+      <button onclick="simpanUnit()">Simpan</button>
     </div>
-    <div id="pagination"></div>
-  </main>
-
-  <!-- Popup Form Tambah/Edit -->
-  <div id="formPopup" class="popup"></div>
-  <!-- Popup Detail -->
-  <div id="detailPopup" class="popup"></div>
-  <!-- Popup Perbaikan -->
-  <div id="repairPopup" class="popup"></div>
-
-  <script type="module">
+  </div>  <!-- Modal Perbaikan Unit -->  <div class="modal" id="repairModal">
+    <div class="modal-content">
+      <span class="close" onclick="closeModal('repairModal')">&times;</span>
+      <h3>Form Perbaikan Unit</h3>
+      <div class="field-group">
+        <label>Pengecekan Lanjutan</label>
+        <div id="pengecekanLanjutanContainer"></div>
+        <button type="button" onclick="addPengecekanLanjutan()">+ Tambah Cek</button>
+      </div>
+      <div class="field-group">
+        <label>Ongkos Perbaikan</label>
+        <div id="ongkosPerbaikanContainer"></div>
+        <button type="button" onclick="addOngkosPerbaikan()">+ Tambah Ongkos</button>
+      </div>
+      <button onclick="simpanPerbaikan()">Simpan Perbaikan</button>
+    </div>
+  </div>  <!-- Modal Detail Unit -->  <div class="modal" id="detailModal">
+    <div class="modal-content">
+      <span class="close" onclick="closeModal('detailModal')">&times;</span>
+      <h3>Detail Unit</h3>
+      <div id="detailContent"></div>
+    </div>
+  </div>  <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/12.1.0/firebase-app.js";
-    import { getFirestore, collection, addDoc, getDocs, doc, updateDoc, deleteDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/12.1.0/firebase-firestore.js";
+    import { getFirestore, collection, addDoc, getDocs, deleteDoc, doc, updateDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/12.1.0/firebase-firestore.js";
 
     const firebaseConfig = {
       apiKey: "AIzaSyA-taZOYNdqrPqfaA3ObSAC2hJ7UzMTaQs",
@@ -62,68 +100,56 @@
     };
     const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
-    const unitRef = collection(db,"units");
 
-    let allUnits=[]; let currentPage=1; const perPage=5;
+    let allUnits=[];
+    let currentPage=1;
+    const perPage=5;
+    let selectedUnitId=null;
 
-    // Tambah field dinamis
-    window.addField=function(containerId,name){
-      const container=document.getElementById(containerId);
-      const index=container.querySelectorAll("input").length+1;
-      const div=document.createElement("div");
-      div.className="dynamic-field";
-      div.innerHTML=`<input type="text" name="${name}" placeholder="Cek#${index}">
-                     <button type="button" onclick="this.parentNode.remove()">x</button>`;
+    function openAddUnit(){
+      document.getElementById('pengecekanPenjualContainer').innerHTML="";
+      addPengecekanPenjual();
+      document.getElementById('addUnitModal').style.display='flex';
+    }
+    function closeModal(id){ document.getElementById(id).style.display='none'; }
+
+    function addPengecekanPenjual(){
+      const container=document.getElementById('pengecekanPenjualContainer');
+      const idx=container.children.length+1;
+      const div=document.createElement('div');
+      div.innerHTML=`<input type='text' placeholder='Cek#${idx}'>`;
       container.appendChild(div);
     }
-    function getArrayFromInputs(name){
-      return Array.from(document.getElementsByName(name)).map(i=>i.value).filter(v=>v);
+    function addPengecekanLanjutan(){
+      const container=document.getElementById('pengecekanLanjutanContainer');
+      const idx=container.children.length+1;
+      const div=document.createElement('div');
+      div.innerHTML=`<input type='text' placeholder='Cek#${idx}'>`;
+      container.appendChild(div);
+    }
+    function addOngkosPerbaikan(){
+      const container=document.getElementById('ongkosPerbaikanContainer');
+      const div=document.createElement('div');
+      div.innerHTML=`<input type='text' placeholder='Deskripsi Ongkos'> <input type='number' placeholder='Biaya'>`;
+      container.appendChild(div);
     }
 
-    // Tambah Unit
-    window.openForm=()=>{
-      const formPopup=document.getElementById("formPopup");
-      formPopup.innerHTML=`
-        <h3>Tambah Unit</h3>
-        <form id="formBeli">
-          <label>Tanggal Masuk: <input type="date" id="tanggalMasuk" required></label>
-          <label>Lokasi Penjual: <input type="text" id="lokasiPenjual" required></label>
-          <label>Tipe & Varian: <input type="text" id="tipeVarian" required></label>
-          <label>Harga Beli: <input type="number" id="hargaBeli" required></label>
-          <div id="pengecekanPenjualContainer">
-            <label>Pengecekan dengan Penjual:</label>
-          </div>
-          <button type="button" onclick="addField('pengecekanPenjualContainer','pengecekanPenjual')">+ Tambah Cek</button>
-          <button type="submit">Simpan</button>
-          <button type="button" onclick="closeForm()">Batal</button>
-        </form>`;
-      formPopup.style.display="block";
-      document.getElementById("formBeli").addEventListener("submit",async(e)=>{
-        e.preventDefault();
-        const data={
-          tanggalMasuk:document.getElementById("tanggalMasuk").value,
-          lokasiTransaksiPenjual:document.getElementById("lokasiPenjual").value,
-          tipeVarian:document.getElementById("tipeVarian").value,
-          hargaBeli:+document.getElementById("hargaBeli").value,
-          pengecekanDenganPenjual:getArrayFromInputs("pengecekanPenjual"),
-          status:"Belum Selesai",
-          perbaikan:[]
-        };
-        await addDoc(unitRef,data);
-        closeForm();
-      });
-    }
-    window.closeForm=()=>document.getElementById("formPopup").style.display="none";
+    async function simpanUnit(){
+      const tanggalMasuk=document.getElementById('tanggalMasuk').value;
+      const tipeVarian=document.getElementById('tipeVarian').value;
+      const lokasiTransaksiPenjual=document.getElementById('lokasiTransaksiPenjual').value;
+      const hargaBeli=parseInt(document.getElementById('hargaBeli').value);
+      const pengecekanEls=document.getElementById('pengecekanPenjualContainer').querySelectorAll('input');
+      const pengecekanDenganPenjual=[...pengecekanEls].map(e=>e.value).filter(Boolean);
 
-    // Load realtime
-    function loadUnits(){
-      onSnapshot(unitRef,(snapshot)=>{
-        allUnits=[];
-        snapshot.forEach(docSnap=>allUnits.push({id:docSnap.id,...docSnap.data()}));
-        renderTable();
+      await addDoc(collection(db,"units"),{
+        tanggalMasuk:new Date(tanggalMasuk),
+        tipeVarian, lokasiTransaksiPenjual,
+        hargaBeli, pengecekanDenganPenjual,
+        status:"Belum Selesai"
       });
+      closeModal('addUnitModal');
     }
-    loadUnits();
 
     function renderTable(){
       const table=document.getElementById("unitTable");
@@ -133,82 +159,87 @@
       const pageItems=allUnits.slice(start,end);
       pageItems.forEach((u,i)=>{
         const tr=document.createElement("tr");
-        tr.innerHTML=`
-          <td>${start+i+1}</td>
-          <td>${u.tipeVarian}</td>
-          <td>${u.status}</td>
-          <td>
-            <button onclick="showDetail('${u.id}')">Detail</button>
-            <button onclick="openRepair('${u.id}')">Perbaiki</button>
-            <button onclick="jadikanBangkai('${u.id}')">Jadikan Bangkai</button>
-            <button onclick="hapusUnit('${u.id}')">Hapus</button>
-          </td>`;
+        let actions=`<button onclick="showDetail('${u.id}')">Detail</button>`;
+        if(u.status==="Belum Selesai"){
+          actions+=`<button onclick="openRepair('${u.id}')">Perbaiki</button>`;
+          actions+=`<button onclick="jadikanBangkai('${u.id}')">Jadikan Bangkai</button>`;
+        }
+        actions+=`<button onclick="hapusUnit('${u.id}')">Hapus</button>`;
+        tr.innerHTML=`<td>${start+i+1}</td><td>${u.tipeVarian}</td><td>${u.status}</td><td>${actions}</td>`;
         table.appendChild(tr);
       });
-      renderPagination();
     }
 
     function renderPagination(){
-      const pageCount=Math.ceil(allUnits.length/perPage);
-      const pag=document.getElementById("pagination");
+      const pag=document.getElementById('pagination');
       pag.innerHTML="";
-      for(let i=1;i<=pageCount;i++){
-        const btn=document.createElement("button");
+      const totalPages=Math.ceil(allUnits.length/perPage);
+      for(let i=1;i<=totalPages;i++){
+        const btn=document.createElement('button');
         btn.textContent=i;
-        if(i===currentPage) btn.classList.add("active");
-        btn.onclick=()=>{currentPage=i; renderTable();}
+        btn.onclick=()=>{currentPage=i; renderTable();};
         pag.appendChild(btn);
       }
     }
 
-    // Hapus
-    window.hapusUnit=async(id)=>{
-      if(confirm("Yakin hapus unit ini?")) await deleteDoc(doc(db,"units",id));
-    }
-
-    // Detail
-    window.showDetail=(id)=>{
-      const u=allUnits.find(x=>x.id===id);
-      const popup=document.getElementById("detailPopup");
-      popup.innerHTML=`
-        <h3>Detail Unit</h3>
-        <p>Tipe & Varian: ${u.tipeVarian}</p>
-        <p>Tanggal Masuk: ${u.tanggalMasuk}</p>
-        <p>Lokasi Penjual: ${u.lokasiTransaksiPenjual}</p>
-        <p>Harga Beli: ${u.hargaBeli}</p>
-        <p>Pengecekan: ${(u.pengecekanDenganPenjual||[]).join(", ")}</p>
-        <p>Status: ${u.status}</p>
-        <p>Perbaikan: ${(u.perbaikan||[]).join(", ")}</p>
-        <button onclick="document.getElementById('detailPopup').style.display='none'">Tutup</button>`;
-      popup.style.display="block";
-    }
-
-    // Perbaikan
-    window.openRepair=(id)=>{
-      const popup=document.getElementById("repairPopup");
-      popup.innerHTML=`
-        <h3>Perbaikan Unit</h3>
-        <form id="formRepair">
-          <div id="perbaikanContainer"></div>
-          <button type="button" onclick="addField('perbaikanContainer','perbaikan')">+ Tambah Cek</button>
-          <button type="submit">Simpan</button>
-          <button type="button" onclick="document.getElementById('repairPopup').style.display='none'">Batal</button>
-        </form>`;
-      popup.style.display="block";
-      document.getElementById("formRepair").addEventListener("submit",async(e)=>{
-        e.preventDefault();
-        const perbaikan=getArrayFromInputs("perbaikan");
-        await updateDoc(doc(db,"units",id),{perbaikan});
-        document.getElementById("repairPopup").style.display="none";
-      });
-    }
-
-    // Jadikan Bangkai
-    window.jadikanBangkai=async(id)=>{
-      if(confirm("Yakin jadikan bangkai?")){
-        await updateDoc(doc(db,"units",id),{status:"Bangkai"});
+    async function hapusUnit(id){
+      if(confirm('Yakin hapus unit ini?')){
+        await deleteDoc(doc(db,'units',id));
       }
     }
-  </script>
-</body>
+    async function jadikanBangkai(id){
+      await updateDoc(doc(db,'units',id),{status:'Bangkai'});
+    }
+
+    window.showDetail=(id)=>{
+      const u=allUnits.find(x=>x.id===id);
+      let html=`<p><b>Tanggal Masuk:</b> ${u.tanggalMasuk?.toDate?.().toLocaleDateString()}</p>`;
+      html+=`<p><b>Tipe & Varian:</b> ${u.tipeVarian}</p>`;
+      html+=`<p><b>Status:</b> ${u.status}</p>`;
+      html+=`<p><b>Lokasi Transaksi Penjual:</b> ${u.lokasiTransaksiPenjual}</p>`;
+      html+=`<p><b>Harga Beli:</b> ${u.hargaBeli}</p>`;
+      html+=`<b>Pengecekan dengan Penjual:</b><ul>`;
+      (u.pengecekanDenganPenjual||[]).forEach(c=>{ html+=`<li>${c}</li>` });
+      html+='</ul>';
+      if(u.pengecekanLanjutan){
+        html+=`<b>Pengecekan Lanjutan:</b><ul>`;
+        u.pengecekanLanjutan.forEach(c=>{ html+=`<li>${c}</li>` });
+        html+='</ul>';
+      }
+      if(u.ongkosPerbaikan){
+        html+=`<b>Ongkos Perbaikan:</b><ul>`;
+        u.ongkosPerbaikan.forEach(o=>{ html+=`<li>${o.desc}: Rp${o.biaya}</li>` });
+        html+='</ul>';
+      }
+      document.getElementById('detailContent').innerHTML=html;
+      document.getElementById('detailModal').style.display='flex';
+    }
+
+    window.openRepair=(id)=>{
+      selectedUnitId=id;
+      document.getElementById('pengecekanLanjutanContainer').innerHTML="";
+      document.getElementById('ongkosPerbaikanContainer').innerHTML="";
+      addPengecekanLanjutan();
+      addOngkosPerbaikan();
+      document.getElementById('repairModal').style.display='flex';
+    }
+
+    window.simpanPerbaikan=async()=>{
+      const cekEls=document.getElementById('pengecekanLanjutanContainer').querySelectorAll('input');
+      const pengecekanLanjutan=[...cekEls].map(e=>e.value).filter(Boolean);
+      const ongkosEls=document.getElementById('ongkosPerbaikanContainer').querySelectorAll('div');
+      const ongkosPerbaikan=[...ongkosEls].map(div=>{
+        const [desc,biaya]=div.querySelectorAll('input');
+        return {desc:desc.value, biaya:parseInt(biaya.value)||0};
+      }).filter(o=>o.desc);
+      await updateDoc(doc(db,'units',selectedUnitId),{pengecekanLanjutan,ongkosPerbaikan});
+      closeModal('repairModal');
+    }
+
+    onSnapshot(collection(db,'units'),snap=>{
+      allUnits=snap.docs.map(d=>({id:d.id,...d.data()}));
+      renderTable();
+      renderPagination();
+    });
+  </script></body>
 </html>
