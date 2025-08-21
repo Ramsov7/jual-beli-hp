@@ -1,181 +1,153 @@
 <!DOCTYPE html><html lang="id">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Ramsov HP Inventory</title>
   <style>
-    body { font-family: Arial, sans-serif; background: #f8f9fa; margin: 30px; }
-    h1, h2 { text-align: center; }
-    .form-step { display: none; max-width: 600px; margin: 20px auto; background: #fff; padding: 20px; border-radius: 10px; box-shadow: 0 2px 6px rgba(0,0,0,0.1); }
-    input, textarea, button, select { width: 100%; margin: 8px 0; padding: 10px; border: 1px solid #ccc; border-radius: 6px; }
+    body { font-family: Arial, sans-serif; margin: 30px; background: #f8f9fa; }
+    h1 { text-align: center; margin-bottom: 20px; }
+    form { max-width: 500px; margin: auto; background: #fff; padding: 20px; border-radius: 10px; box-shadow: 0 2px 6px rgba(0,0,0,0.1); display:none; }
+    input, textarea, select, button { width: 100%; margin: 8px 0; padding: 10px; border: 1px solid #ccc; border-radius: 6px; }
     button { background: #007bff; color: white; cursor: pointer; }
     button:hover { background: #0056b3; }
-    .list { max-width: 900px; margin: 30px auto; background: #fff; padding: 20px; border-radius: 10px; box-shadow: 0 2px 6px rgba(0,0,0,0.1); }
-    .unit { border-bottom: 1px solid #ddd; padding: 10px 0; white-space: pre-line; }
-    .actions button { width: auto; margin-right: 10px; }
+    .list { max-width: 800px; margin: 30px auto; background: #fff; padding: 20px; border-radius: 10px; box-shadow: 0 2px 6px rgba(0,0,0,0.1); }
+    .unit { border-bottom: 1px solid #ddd; padding: 10px 0; }
+    .status-belum { color: orange; font-weight: bold; }
+    .status-selesai { color: green; font-weight: bold; }
   </style>
 </head>
 <body>
-  <h1>Ramsov HP Inventory</h1>  <!-- Step 1: HP Masuk -->  <div id="formMasuk" class="form-step" style="display:block;">
-    <h2>Form HP Masuk</h2>
+  <h1>Ramsov HP Inventory</h1>  <!-- Step 1: Form Beli -->  <form id="formBeli">
+    <h2>Form Beli HP</h2>
     <input type="date" id="tanggalMasuk" required />
-    <input type="text" id="tipeVarian" placeholder="Tipe & Varian (contoh: Oppo A7 4/64)" required />
-    <input type="url" id="lokasiPenjual" placeholder="Lokasi Transaksi Penjual (link maps)" />
-    <textarea id="pengecekanPenjual" placeholder="Pengecekan dengan penjual"></textarea>
-    <textarea id="pengecekanLanjutan" placeholder="Pengecekan lanjutan"></textarea>
-    <textarea id="minusReady" placeholder="Minus ketika ready dijual"></textarea>
-    <input type="number" id="hargaBeli" placeholder="Harga Beli (Rp)" required />
-    <button onclick="simpanHP()">Simpan HP Masuk</button>
-  </div>  <!-- Step 2: Pilihan Bangkai/Perbaiki -->  <div id="formPilihan" class="form-step">
-    <h2>Pilihan Unit</h2>
-    <button onclick="jadikanBangkai()">Jadikan Bangkai</button>
-    <button onclick="lanjutPerbaiki()">Lanjut Perbaiki</button>
-  </div>  <!-- Step 3: Form Perbaikan -->  <div id="formPerbaikan" class="form-step">
-    <h2>Form Perbaikan</h2>
-    <textarea id="biayaPerbaikan" placeholder="Rincian biaya perbaikan"></textarea>
-    <input type="number" id="totalPerbaikan" placeholder="Total biaya perbaikan (Rp)" />
-    <button onclick="simpanPerbaikan()">Simpan Perbaikan</button>
-  </div>  <!-- Step 4: Form Penjualan -->  <div id="formPenjualan" class="form-step">
+    <input type="text" id="tipeVarian" placeholder="Tipe & Varian" required />
+    <input type="url" id="lokasiPenjual" placeholder="Link Lokasi Penjual" required />
+    <textarea id="cekPenjual" placeholder="Pengecekan dengan penjual"></textarea>
+    <textarea id="cekLanjutan" placeholder="Pengecekan lanjutan"></textarea>
+    <textarea id="minus" placeholder="Minus ketika ready dijual"></textarea>
+    <input type="number" id="hargaBeli" placeholder="Harga Beli" required />
+    <button type="submit">Simpan Beli</button>
+  </form>  <!-- Step 2: Perbaikan atau Bangkai -->  <form id="formPerbaikan">
+    <h2>Perbaikan atau Bangkai</h2>
+    <input type="number" id="biayaPerbaikan" placeholder="Total Biaya Perbaikan" />
+    <button type="button" onclick="jadikanBangkai()">Jadikan Bangkai</button>
+    <button type="button" onclick="lanjutJual()">Lanjut Penjualan</button>
+  </form>  <!-- Step 3: Penjualan -->  <form id="formJual">
     <h2>Form Penjualan</h2>
     <input type="date" id="tanggalJual" />
-    <input type="url" id="lokasiPembeli" placeholder="Lokasi Transaksi Pembeli (link maps)" />
-    <input type="number" id="hargaJual" placeholder="Harga Jual (Rp)" />
-    <input type="number" id="transport" placeholder="Transport / bensin (Rp)" />
-    <input type="number" id="pajak" placeholder="Pajak (Rp)" value="0" />
-    <input type="number" id="bunga" placeholder="Bunga (Rp)" value="0" />
-    <button onclick="simpanPenjualan()">Simpan Penjualan</button>
-  </div>  <!-- List Data -->  <div class="list">
+    <input type="url" id="lokasiPembeli" placeholder="Link Lokasi Pembeli" />
+    <input type="number" id="hargaJual" placeholder="Harga Jual" />
+    <input type="number" id="transport" placeholder="Transport/Bensin" />
+    <button type="submit">Simpan Jual</button>
+  </form>  <!-- List Data -->  <div class="list">
     <h2>Daftar Unit</h2>
     <div id="unitList"></div>
   </div>  <script>
-    let units = JSON.parse(localStorage.getItem("units") || "[]");
-    let currentUnit = null;
+    let units = [];
+    let counter = {}; // untuk menghitung nomor urut per tanggal masuk
+
+    const formBeli = document.getElementById("formBeli");
+    const formPerbaikan = document.getElementById("formPerbaikan");
+    const formJual = document.getElementById("formJual");
+    const unitList = document.getElementById("unitList");
+
+    formBeli.style.display = 'block';
 
     function generateKodeUnit(tanggal) {
-      const tgl = tanggal.replaceAll("-", ""); // 28042025
-      const countToday = units.filter(u => u.tanggalMasuk === tanggal).length + 1;
-      return `HP-${tgl}-${String(countToday).padStart(3,'0')}`;
+      const tgl = tanggal.replace(/-/g, ""); // yyyyMMdd
+      if (!counter[tgl]) counter[tgl] = 0;
+      counter[tgl]++;
+      const no = String(counter[tgl]).padStart(3, '0');
+      return `HP-${tgl}-${no}`;
     }
 
-    function simpanHP() {
+    formBeli.addEventListener("submit", (e) => {
+      e.preventDefault();
       const tanggalMasuk = document.getElementById("tanggalMasuk").value;
       const tipeVarian = document.getElementById("tipeVarian").value;
       const lokasiPenjual = document.getElementById("lokasiPenjual").value;
-      const pengecekanPenjual = document.getElementById("pengecekanPenjual").value;
-      const pengecekanLanjutan = document.getElementById("pengecekanLanjutan").value;
-      const minusReady = document.getElementById("minusReady").value;
+      const cekPenjual = document.getElementById("cekPenjual").value;
+      const cekLanjutan = document.getElementById("cekLanjutan").value;
+      const minus = document.getElementById("minus").value;
       const hargaBeli = parseInt(document.getElementById("hargaBeli").value);
+      const kodeUnit = generateKodeUnit(tanggalMasuk.split("-").reverse().join(""));
 
-      const kodeUnit = generateKodeUnit(tanggalMasuk);
-
-      currentUnit = {
+      units.push({
         kodeUnit,
         tanggalMasuk,
         tipeVarian,
         lokasiPenjual,
-        pengecekanPenjual,
-        pengecekanLanjutan,
-        minusReady,
+        cekPenjual,
+        cekLanjutan,
+        minus,
         hargaBeli,
-        status: "baru"
-      };
+        status: "Belum Selesai"
+      });
 
-      showForm("formPilihan");
-    }
+      renderUnits();
+      formBeli.reset();
+      formBeli.style.display = 'none';
+      formPerbaikan.style.display = 'block';
+    });
 
     function jadikanBangkai() {
-      currentUnit.status = "bangkai";
-      currentUnit.kerugian = currentUnit.hargaBeli;
-      units.push(currentUnit);
-      saveAndRender();
-      resetForms();
+      const unit = units[units.length-1];
+      unit.status = "Selesai";
+      unit.catatan = "Dijadikan Bangkai (kerugian: Rp" + unit.hargaBeli + ")";
+      renderUnits();
+      formPerbaikan.style.display = 'none';
+      formBeli.style.display = 'block';
     }
 
-    function lanjutPerbaiki() {
-      showForm("formPerbaikan");
+    function lanjutJual() {
+      const unit = units[units.length-1];
+      unit.biayaPerbaikan = parseInt(document.getElementById("biayaPerbaikan").value) || 0;
+      renderUnits();
+      formPerbaikan.style.display = 'none';
+      formJual.style.display = 'block';
     }
 
-    function simpanPerbaikan() {
-      currentUnit.status = "perbaikan";
-      currentUnit.biayaPerbaikan = document.getElementById("biayaPerbaikan").value;
-      currentUnit.totalPerbaikan = parseInt(document.getElementById("totalPerbaikan").value||0);
-      units.push(currentUnit);
-      saveAndRender();
-      resetForms();
-    }
-
-    function simpanPenjualan() {
-      const unit = units.find(u => u.kodeUnit === currentUnit.kodeUnit);
+    formJual.addEventListener("submit", (e) => {
+      e.preventDefault();
+      const unit = units[units.length-1];
       unit.tanggalJual = document.getElementById("tanggalJual").value;
       unit.lokasiPembeli = document.getElementById("lokasiPembeli").value;
-      unit.hargaJual = parseInt(document.getElementById("hargaJual").value||0);
-      unit.transport = parseInt(document.getElementById("transport").value||0);
-      unit.pajak = parseInt(document.getElementById("pajak").value||0);
-      unit.bunga = parseInt(document.getElementById("bunga").value||0);
+      unit.hargaJual = parseInt(document.getElementById("hargaJual").value);
+      unit.transport = parseInt(document.getElementById("transport").value) || 0;
 
-      const hpp = unit.hargaBeli + (unit.totalPerbaikan||0);
-      const labaKotor = unit.hargaJual - hpp;
-      const labaUsaha = labaKotor - unit.transport;
-      const labaBersih = labaUsaha - unit.pajak - unit.bunga;
-      const margin = unit.hargaJual ? (labaBersih/unit.hargaJual*100).toFixed(2) : 0;
+      const hpp = unit.hargaBeli + (unit.biayaPerbaikan || 0);
+      unit.labaKotor = unit.hargaJual - hpp;
+      unit.labaUsaha = unit.labaKotor - unit.transport;
+      unit.labaBersih = unit.labaUsaha;
+      unit.margin = ((unit.labaBersih / unit.hargaJual) * 100).toFixed(2) + "%";
+      unit.status = "Selesai";
 
-      unit.hpp = hpp;
-      unit.labaKotor = labaKotor;
-      unit.labaUsaha = labaUsaha;
-      unit.labaBersih = labaBersih;
-      unit.margin = margin;
-      unit.status = "terjual";
-
-      saveAndRender();
-      resetForms();
-    }
-
-    function editUnit(kode) {
-      alert("Edit fitur belum diimplementasikan penuh, tapi bisa ditambahkan nanti");
-    }
-
-    function deleteUnit(kode) {
-      if(confirm("Hapus unit?")){
-        units = units.filter(u => u.kodeUnit !== kode);
-        saveAndRender();
-      }
-    }
-
-    function saveAndRender() {
-      localStorage.setItem("units", JSON.stringify(units));
       renderUnits();
-    }
+      formJual.reset();
+      formJual.style.display = 'none';
+      formBeli.style.display = 'block';
+    });
 
     function renderUnits() {
-      const list = document.getElementById("unitList");
-      list.innerHTML = "";
-      units.forEach(u => {
-        let detail = `Kode Unit = ${u.kodeUnit}\nTanggal Masuk = ${u.tanggalMasuk}\nTipe & Varian = ${u.tipeVarian}\nLokasi Transaksi Penjual = ${u.lokasiPenjual}\nPengecekan dengan penjual = ${u.pengecekanPenjual}\nPengecekan lanjutan = ${u.pengecekanLanjutan}\nMinus ketika ready dijual = ${u.minusReady}`;
-        if(u.status==="bangkai"){
-          detail += `\nStatus: Bangkai\nKerugian = ${u.kerugian}`;
-        }
-        if(u.status==="perbaikan"){
-          detail += `\nStatus: Belum Terjual\nBiaya Perbaikan: ${u.biayaPerbaikan}\nTotal Biaya: ${u.totalPerbaikan}`;
-        }
-        if(u.status==="terjual"){
-          detail += `\nTanggal Jual = ${u.tanggalJual}\nLokasi Transaksi Pembeli = ${u.lokasiPembeli}\n\nHarga Jual = ${u.hargaJual}\nHarga Beli = ${u.hargaBeli}\nBiaya Perbaikan = ${u.totalPerbaikan}\nLaba Kotor = ${u.labaKotor}\nLaba Usaha = ${u.labaUsaha}\nLaba Bersih = ${u.labaBersih}\nMargin = ${u.margin}%`;
-        }
-
-        list.innerHTML += `<div class='unit'>${detail}\n<div class='actions'><button onclick="editUnit('${u.kodeUnit}')">Edit</button><button onclick="deleteUnit('${u.kodeUnit}')">Hapus</button></div></div>`;
+      unitList.innerHTML = "";
+      units.forEach((u, i) => {
+        unitList.innerHTML += `
+          <div class="unit">
+            <b>${u.kodeUnit}</b> - ${u.tipeVarian}<br>
+            Tanggal Masuk: ${u.tanggalMasuk}<br>
+            Harga Beli: Rp${u.hargaBeli}<br>
+            Status: <span class="${u.status === 'Selesai' ? 'status-selesai' : 'status-belum'}">${u.status}</span><br>
+            ${u.hargaJual ? `Harga Jual: Rp${u.hargaJual}<br> Laba Bersih: Rp${u.labaBersih} (${u.margin})` : ""}
+            ${u.catatan ? `<br>Catatan: ${u.catatan}` : ""}
+            <button onclick="hapusUnit(${i})">Hapus</button>
+          </div>
+        `;
       });
     }
 
-    function resetForms(){
-      document.querySelectorAll(".form-step").forEach(f=>f.style.display="none");
-      document.getElementById("formMasuk").style.display="block";
-      currentUnit=null;
+    function hapusUnit(i) {
+      units.splice(i, 1);
+      renderUnits();
     }
-
-    function showForm(id){
-      document.querySelectorAll(".form-step").forEach(f=>f.style.display="none");
-      document.getElementById(id).style.display="block";
-    }
-
-    renderUnits();
   </script></body>
 </html>
