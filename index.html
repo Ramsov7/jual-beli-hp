@@ -62,8 +62,7 @@
     <label>Tanggal Jual</label>
     <input type="date" id="tglJual" required />
 
-    <input type="text" id="merk" placeholder="Merk HP" required />
-    <input type="text" id="model" placeholder="Model HP" required />
+    <input type="text" id="tipeVarian" placeholder="Tipe & Varian (contoh: Oppo A7 4/64)" required />
 
     <input type="number" id="hargaBeli" placeholder="Harga Beli (Rp)" required />
     <input type="number" id="biayaPerbaikan" placeholder="Total Biaya Perbaikan (Rp)" required />
@@ -107,8 +106,7 @@
       const kodeUnit = document.getElementById("kodeUnit").value;
       const tglMasuk = document.getElementById("tglMasuk").value;
       const tglJual = document.getElementById("tglJual").value;
-      const merk = document.getElementById("merk").value;
-      const model = document.getElementById("model").value;
+      const tipeVarian = document.getElementById("tipeVarian").value;
       const hargaBeli = parseInt(document.getElementById("hargaBeli").value);
       const biayaPerbaikan = parseInt(document.getElementById("biayaPerbaikan").value);
       const transport = parseInt(document.getElementById("transport").value);
@@ -123,7 +121,7 @@
 
       try {
         await db.collection("units").add({
-          kodeUnit, tglMasuk, tglJual, merk, model,
+          kodeUnit, tglMasuk, tglJual, tipeVarian,
           hargaBeli, biayaPerbaikan, transport, hargaJual,
           HPP, labaKotor, labaUsaha, labaBersih, margin,
           createdAt: firebase.firestore.FieldValue.serverTimestamp()
@@ -144,7 +142,7 @@
         const data = doc.data();
         unitList.innerHTML += `
           <div class="unit">
-            <b>${data.kodeUnit} | ${data.merk} ${data.model}</b><br>
+            <b>${data.kodeUnit} | ${data.tipeVarian}</b><br>
             Masuk: ${data.tglMasuk} | Jual: ${data.tglJual}<br>
             Beli: Rp${data.hargaBeli} | Jual: Rp${data.hargaJual}<br>
             HPP: Rp${data.HPP} | Laba Bersih: Rp${data.labaBersih}<br>
