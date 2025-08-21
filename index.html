@@ -1,182 +1,181 @@
-<!DOCTYPE html>
-<html lang="id">
+<!DOCTYPE html><html lang="id">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Ramsov HP Inventory</title>
   <style>
-    body { font-family: Arial, sans-serif; margin: 30px; background: #f8f9fa; }
-    h1 { text-align: center; margin-bottom: 20px; }
-    form { max-width: 600px; margin: auto; background: #fff; padding: 20px; border-radius: 10px; box-shadow: 0 2px 6px rgba(0,0,0,0.1); }
-    label { font-weight: bold; margin-top: 10px; display: block; }
-    input, textarea, button {
-      width: 100%; margin: 6px 0 12px; padding: 10px; border: 1px solid #ccc; border-radius: 6px;
-    }
-    textarea { resize: vertical; min-height: 60px; }
+    body { font-family: Arial, sans-serif; background: #f8f9fa; margin: 30px; }
+    h1, h2 { text-align: center; }
+    .form-step { display: none; max-width: 600px; margin: 20px auto; background: #fff; padding: 20px; border-radius: 10px; box-shadow: 0 2px 6px rgba(0,0,0,0.1); }
+    input, textarea, button, select { width: 100%; margin: 8px 0; padding: 10px; border: 1px solid #ccc; border-radius: 6px; }
     button { background: #007bff; color: white; cursor: pointer; }
     button:hover { background: #0056b3; }
     .list { max-width: 900px; margin: 30px auto; background: #fff; padding: 20px; border-radius: 10px; box-shadow: 0 2px 6px rgba(0,0,0,0.1); }
-    .unit { border-bottom: 1px solid #ddd; padding: 10px 0; }
+    .unit { border-bottom: 1px solid #ddd; padding: 10px 0; white-space: pre-line; }
+    .actions button { width: auto; margin-right: 10px; }
   </style>
 </head>
 <body>
-  <h1>Ramsov HP Inventory</h1>
-
-  <!-- Form Input -->
-  <form id="unitForm">
-    <!-- Bagian Identitas -->
-    <label>Tanggal Masuk</label>
-    <input type="date" id="tglMasuk" required />
-
-    <label>Tanggal Jual</label>
-    <input type="date" id="tglJual" required />
-
-    <label>Tipe & Varian</label>
-    <input type="text" id="tipeVarian" placeholder="Contoh: Oppo A7 4/64" required />
-
-    <label>Lokasi Transaksi Penjual (Google Maps URL)</label>
-    <input type="url" id="lokasiPenjual" placeholder="https://maps.app.goo.gl/..." />
-
-    <label>Lokasi Transaksi Pembeli (Google Maps URL)</label>
-    <input type="url" id="lokasiPembeli" placeholder="https://maps.app.goo.gl/..." />
-
-    <!-- Bagian Kondisi -->
-    <label>Pengecekan dengan Penjual</label>
-    <textarea id="cekPenjual"></textarea>
-
-    <label>Pengecekan Lanjutan</label>
-    <textarea id="cekLanjutan"></textarea>
-
-    <label>Minus ketika Ready Dijual</label>
-    <textarea id="minusReady"></textarea>
-
-    <!-- Bagian Finansial -->
-    <label>Harga Beli Unit (Rp)</label>
-    <input type="number" id="hargaBeli" required />
-
-    <label>Rincian Biaya Perbaikan</label>
-    <textarea id="rincianPerbaikan"></textarea>
-
-    <label>Total Biaya Perbaikan (Rp)</label>
-    <input type="number" id="biayaPerbaikan" required />
-
-    <label>Transport / Bensin (Rp)</label>
-    <input type="number" id="transport" required />
-
-    <label>Pajak (Rp)</label>
-    <input type="number" id="pajak" value="0" />
-
-    <label>Bunga (Rp)</label>
-    <input type="number" id="bunga" value="0" />
-
-    <label>Harga Jual (Rp)</label>
-    <input type="number" id="hargaJual" required />
-
-    <button type="submit">Simpan</button>
-  </form>
-
-  <!-- List Data -->
-  <div class="list">
+  <h1>Ramsov HP Inventory</h1>  <!-- Step 1: HP Masuk -->  <div id="formMasuk" class="form-step" style="display:block;">
+    <h2>Form HP Masuk</h2>
+    <input type="date" id="tanggalMasuk" required />
+    <input type="text" id="tipeVarian" placeholder="Tipe & Varian (contoh: Oppo A7 4/64)" required />
+    <input type="url" id="lokasiPenjual" placeholder="Lokasi Transaksi Penjual (link maps)" />
+    <textarea id="pengecekanPenjual" placeholder="Pengecekan dengan penjual"></textarea>
+    <textarea id="pengecekanLanjutan" placeholder="Pengecekan lanjutan"></textarea>
+    <textarea id="minusReady" placeholder="Minus ketika ready dijual"></textarea>
+    <input type="number" id="hargaBeli" placeholder="Harga Beli (Rp)" required />
+    <button onclick="simpanHP()">Simpan HP Masuk</button>
+  </div>  <!-- Step 2: Pilihan Bangkai/Perbaiki -->  <div id="formPilihan" class="form-step">
+    <h2>Pilihan Unit</h2>
+    <button onclick="jadikanBangkai()">Jadikan Bangkai</button>
+    <button onclick="lanjutPerbaiki()">Lanjut Perbaiki</button>
+  </div>  <!-- Step 3: Form Perbaikan -->  <div id="formPerbaikan" class="form-step">
+    <h2>Form Perbaikan</h2>
+    <textarea id="biayaPerbaikan" placeholder="Rincian biaya perbaikan"></textarea>
+    <input type="number" id="totalPerbaikan" placeholder="Total biaya perbaikan (Rp)" />
+    <button onclick="simpanPerbaikan()">Simpan Perbaikan</button>
+  </div>  <!-- Step 4: Form Penjualan -->  <div id="formPenjualan" class="form-step">
+    <h2>Form Penjualan</h2>
+    <input type="date" id="tanggalJual" />
+    <input type="url" id="lokasiPembeli" placeholder="Lokasi Transaksi Pembeli (link maps)" />
+    <input type="number" id="hargaJual" placeholder="Harga Jual (Rp)" />
+    <input type="number" id="transport" placeholder="Transport / bensin (Rp)" />
+    <input type="number" id="pajak" placeholder="Pajak (Rp)" value="0" />
+    <input type="number" id="bunga" placeholder="Bunga (Rp)" value="0" />
+    <button onclick="simpanPenjualan()">Simpan Penjualan</button>
+  </div>  <!-- List Data -->  <div class="list">
     <h2>Daftar Unit</h2>
     <div id="unitList"></div>
-  </div>
+  </div>  <script>
+    let units = JSON.parse(localStorage.getItem("units") || "[]");
+    let currentUnit = null;
 
-  <!-- Firebase SDK -->
-  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
-
-  <script>
-    const firebaseConfig = {
-      apiKey: "AIzaSyA-taZOYNdqrPqfaA3ObSAC2hJ7UzMTaQs",
-      authDomain: "ramsov-hp-inventory.firebaseapp.com",
-      projectId: "ramsov-hp-inventory",
-      storageBucket: "ramsov-hp-inventory.appspot.com",
-      messagingSenderId: "384818720368",
-      appId: "1:384818720368:web:ae61ec9869da0c83b9ceb5"
-    };
-
-    firebase.initializeApp(firebaseConfig);
-    const db = firebase.firestore();
-
-    const form = document.getElementById("unitForm");
-    const unitList = document.getElementById("unitList");
-
-    // Fungsi generate kode unit otomatis
-    async function generateKodeUnit(tglMasuk) {
-      const dateStr = tglMasuk.split("-").reverse().join(""); // yyyy-mm-dd -> ddMMyyyy
-      const snapshot = await db.collection("units").where("tglMasuk","==",tglMasuk).get();
-      const count = snapshot.size + 1;
-      const nomor = String(count).padStart(3,"0"); // jadi 001, 002, 003
-      return `HP-${dateStr}-${nomor}`;
+    function generateKodeUnit(tanggal) {
+      const tgl = tanggal.replaceAll("-", ""); // 28042025
+      const countToday = units.filter(u => u.tanggalMasuk === tanggal).length + 1;
+      return `HP-${tgl}-${String(countToday).padStart(3,'0')}`;
     }
 
-    form.addEventListener("submit", async (e) => {
-      e.preventDefault();
-
-      const tglMasuk = document.getElementById("tglMasuk").value;
-      const tglJual = document.getElementById("tglJual").value;
+    function simpanHP() {
+      const tanggalMasuk = document.getElementById("tanggalMasuk").value;
       const tipeVarian = document.getElementById("tipeVarian").value;
       const lokasiPenjual = document.getElementById("lokasiPenjual").value;
-      const lokasiPembeli = document.getElementById("lokasiPembeli").value;
-      const cekPenjual = document.getElementById("cekPenjual").value;
-      const cekLanjutan = document.getElementById("cekLanjutan").value;
+      const pengecekanPenjual = document.getElementById("pengecekanPenjual").value;
+      const pengecekanLanjutan = document.getElementById("pengecekanLanjutan").value;
       const minusReady = document.getElementById("minusReady").value;
-
       const hargaBeli = parseInt(document.getElementById("hargaBeli").value);
-      const rincianPerbaikan = document.getElementById("rincianPerbaikan").value;
-      const biayaPerbaikan = parseInt(document.getElementById("biayaPerbaikan").value);
-      const transport = parseInt(document.getElementById("transport").value);
-      const pajak = parseInt(document.getElementById("pajak").value);
-      const bunga = parseInt(document.getElementById("bunga").value);
-      const hargaJual = parseInt(document.getElementById("hargaJual").value);
 
-      // Hitung otomatis
-      const HPP = hargaBeli + biayaPerbaikan;
-      const labaKotor = hargaJual - HPP;
-      const labaUsaha = labaKotor - transport;
-      const labaBersih = labaUsaha - pajak - bunga;
-      const margin = ((labaBersih / hargaJual) * 100).toFixed(2);
+      const kodeUnit = generateKodeUnit(tanggalMasuk);
 
-      // Generate kode unit otomatis
-      const kodeUnit = await generateKodeUnit(tglMasuk);
+      currentUnit = {
+        kodeUnit,
+        tanggalMasuk,
+        tipeVarian,
+        lokasiPenjual,
+        pengecekanPenjual,
+        pengecekanLanjutan,
+        minusReady,
+        hargaBeli,
+        status: "baru"
+      };
 
-      try {
-        await db.collection("units").add({
-          kodeUnit, tglMasuk, tglJual, tipeVarian,
-          lokasiPenjual, lokasiPembeli,
-          cekPenjual, cekLanjutan, minusReady,
-          hargaBeli, rincianPerbaikan, biayaPerbaikan,
-          transport, pajak, bunga, hargaJual,
-          HPP, labaKotor, labaUsaha, labaBersih, margin,
-          createdAt: firebase.firestore.FieldValue.serverTimestamp()
-        });
+      showForm("formPilihan");
+    }
 
-        alert("Data berhasil disimpan!");
-        form.reset();
-      } catch (err) {
-        console.error(err);
-        alert("Gagal menyimpan data! Cek console.");
+    function jadikanBangkai() {
+      currentUnit.status = "bangkai";
+      currentUnit.kerugian = currentUnit.hargaBeli;
+      units.push(currentUnit);
+      saveAndRender();
+      resetForms();
+    }
+
+    function lanjutPerbaiki() {
+      showForm("formPerbaikan");
+    }
+
+    function simpanPerbaikan() {
+      currentUnit.status = "perbaikan";
+      currentUnit.biayaPerbaikan = document.getElementById("biayaPerbaikan").value;
+      currentUnit.totalPerbaikan = parseInt(document.getElementById("totalPerbaikan").value||0);
+      units.push(currentUnit);
+      saveAndRender();
+      resetForms();
+    }
+
+    function simpanPenjualan() {
+      const unit = units.find(u => u.kodeUnit === currentUnit.kodeUnit);
+      unit.tanggalJual = document.getElementById("tanggalJual").value;
+      unit.lokasiPembeli = document.getElementById("lokasiPembeli").value;
+      unit.hargaJual = parseInt(document.getElementById("hargaJual").value||0);
+      unit.transport = parseInt(document.getElementById("transport").value||0);
+      unit.pajak = parseInt(document.getElementById("pajak").value||0);
+      unit.bunga = parseInt(document.getElementById("bunga").value||0);
+
+      const hpp = unit.hargaBeli + (unit.totalPerbaikan||0);
+      const labaKotor = unit.hargaJual - hpp;
+      const labaUsaha = labaKotor - unit.transport;
+      const labaBersih = labaUsaha - unit.pajak - unit.bunga;
+      const margin = unit.hargaJual ? (labaBersih/unit.hargaJual*100).toFixed(2) : 0;
+
+      unit.hpp = hpp;
+      unit.labaKotor = labaKotor;
+      unit.labaUsaha = labaUsaha;
+      unit.labaBersih = labaBersih;
+      unit.margin = margin;
+      unit.status = "terjual";
+
+      saveAndRender();
+      resetForms();
+    }
+
+    function editUnit(kode) {
+      alert("Edit fitur belum diimplementasikan penuh, tapi bisa ditambahkan nanti");
+    }
+
+    function deleteUnit(kode) {
+      if(confirm("Hapus unit?")){
+        units = units.filter(u => u.kodeUnit !== kode);
+        saveAndRender();
       }
-    });
+    }
 
-    // Render daftar unit
-    db.collection("units").orderBy("createdAt","desc").onSnapshot(snapshot => {
-      unitList.innerHTML = "";
-      snapshot.forEach(doc => {
-        const data = doc.data();
-        unitList.innerHTML += `
-          <div class="unit">
-            <b>${data.kodeUnit} | ${data.tipeVarian}</b><br>
-            Masuk: ${data.tglMasuk} | Jual: ${data.tglJual}<br>
-            Beli: Rp${data.hargaBeli} | Jual: Rp${data.hargaJual}<br>
-            HPP: Rp${data.HPP} | Laba Bersih: Rp${data.labaBersih}<br>
-            Margin: ${data.margin}%<br>
-            <a href="${data.lokasiPenjual}" target="_blank">Lokasi Penjual</a> | 
-            <a href="${data.lokasiPembeli}" target="_blank">Lokasi Pembeli</a>
-          </div>
-        `;
+    function saveAndRender() {
+      localStorage.setItem("units", JSON.stringify(units));
+      renderUnits();
+    }
+
+    function renderUnits() {
+      const list = document.getElementById("unitList");
+      list.innerHTML = "";
+      units.forEach(u => {
+        let detail = `Kode Unit = ${u.kodeUnit}\nTanggal Masuk = ${u.tanggalMasuk}\nTipe & Varian = ${u.tipeVarian}\nLokasi Transaksi Penjual = ${u.lokasiPenjual}\nPengecekan dengan penjual = ${u.pengecekanPenjual}\nPengecekan lanjutan = ${u.pengecekanLanjutan}\nMinus ketika ready dijual = ${u.minusReady}`;
+        if(u.status==="bangkai"){
+          detail += `\nStatus: Bangkai\nKerugian = ${u.kerugian}`;
+        }
+        if(u.status==="perbaikan"){
+          detail += `\nStatus: Belum Terjual\nBiaya Perbaikan: ${u.biayaPerbaikan}\nTotal Biaya: ${u.totalPerbaikan}`;
+        }
+        if(u.status==="terjual"){
+          detail += `\nTanggal Jual = ${u.tanggalJual}\nLokasi Transaksi Pembeli = ${u.lokasiPembeli}\n\nHarga Jual = ${u.hargaJual}\nHarga Beli = ${u.hargaBeli}\nBiaya Perbaikan = ${u.totalPerbaikan}\nLaba Kotor = ${u.labaKotor}\nLaba Usaha = ${u.labaUsaha}\nLaba Bersih = ${u.labaBersih}\nMargin = ${u.margin}%`;
+        }
+
+        list.innerHTML += `<div class='unit'>${detail}\n<div class='actions'><button onclick="editUnit('${u.kodeUnit}')">Edit</button><button onclick="deleteUnit('${u.kodeUnit}')">Hapus</button></div></div>`;
       });
-    });
-  </script>
-</body>
+    }
+
+    function resetForms(){
+      document.querySelectorAll(".form-step").forEach(f=>f.style.display="none");
+      document.getElementById("formMasuk").style.display="block";
+      currentUnit=null;
+    }
+
+    function showForm(id){
+      document.querySelectorAll(".form-step").forEach(f=>f.style.display="none");
+      document.getElementById(id).style.display="block";
+    }
+
+    renderUnits();
+  </script></body>
 </html>
