@@ -2,39 +2,116 @@
 <html lang="id">
 <head>
   <meta charset="UTF-8">
-  <title>HP Inventory</title>
+  <title>HP Inventory Dashboard</title>
   <style>
-    body { font-family: Arial, sans-serif; margin: 20px; }
-    form { margin-bottom: 20px; padding: 10px; border: 1px solid #ccc; }
-    input, textarea, button { display: block; margin: 5px 0; padding: 6px; }
-    ul { list-style: none; padding: 0; }
-    li { margin: 8px 0; padding: 10px; border: 1px solid #ccc; }
-    .status { font-weight: bold; }
-    .popup { display:none; position:fixed; top:20%; left:50%; transform:translateX(-50%); background:#fff; padding:20px; border:1px solid #ccc; }
-    .dynamic-field { display:flex; gap:5px; margin:5px 0; }
-    .dynamic-field input { flex:1; }
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: Arial, sans-serif;
+      display: flex;
+      flex-direction: column;
+      height: 100vh;
+    }
+    header {
+      padding: 15px;
+      background: #1976d2;
+      color: #fff;
+      text-align: center;
+    }
+    main {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      padding: 20px;
+      overflow: hidden;
+    }
+    button {
+      padding: 10px 15px;
+      border: none;
+      background: #1976d2;
+      color: #fff;
+      border-radius: 4px;
+      cursor: pointer;
+      margin-bottom: 15px;
+    }
+    button:hover {
+      background: #0d47a1;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+    th, td {
+      padding: 8px;
+      border: 1px solid #ccc;
+      text-align: center;
+    }
+    th {
+      background: #f2f2f2;
+    }
+    #pagination {
+      margin-top: 10px;
+      text-align: center;
+    }
+    #pagination button {
+      margin: 0 3px;
+      background: #e0e0e0;
+      color: #000;
+    }
+    #pagination button.active {
+      background: #1976d2;
+      color: #fff;
+    }
+    /* Popup */
+    .popup {
+      display: none;
+      position: fixed;
+      top: 10%;
+      left: 50%;
+      transform: translateX(-50%);
+      background: #fff;
+      padding: 20px;
+      border: 1px solid #ccc;
+      width: 400px;
+      max-height: 80vh;
+      overflow-y: auto;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+    }
+    .dynamic-field { display: flex; gap: 5px; margin: 5px 0; }
+    .dynamic-field input { flex: 1; }
   </style>
 </head>
 <body>
-  <h2>Form Beli HP</h2>
-  <form id="formBeli">
-    <label>Tanggal Masuk: <input type="date" id="tanggalMasuk" required></label>
-    <label>Lokasi Transaksi Penjual: <input type="text" id="lokasiPenjual" required></label>
-    <label>Tipe & Varian: <input type="text" id="tipeVarian" required></label>
-    <label>Harga Beli: <input type="number" id="hargaBeli" required></label>
-    <div id="pengecekanPenjualContainer">
-      <label>Pengecekan dengan Penjual:</label>
+  <header>
+    <h2>Dashboard HP Inventory</h2>
+  </header>
+
+  <main>
+    <button onclick="openForm()">+ Tambah Unit</button>
+
+    <div style="flex:1; overflow:auto;">
+      <table>
+        <thead>
+          <tr>
+            <th>No</th>
+            <th>Nama Unit</th>
+            <th>Status</th>
+            <th>Aksi</th>
+          </tr>
+        </thead>
+        <tbody id="unitTable"></tbody>
+      </table>
     </div>
-    <button type="button" onclick="addField('pengecekanPenjualContainer','pengecekanPenjual')">+ Tambah Cek</button>
-    <button type="submit">Simpan</button>
-  </form>
 
-  <h2>Daftar Unit</h2>
-  <ul id="unitList"></ul>
+    <div id="pagination"></div>
+  </main>
 
+  <!-- Popup Form Tambah/Edit -->
+  <div id="formPopup" class="popup"></div>
+
+  <!-- Popup Detail -->
   <div id="detailPopup" class="popup"></div>
 
-  <!-- Firebase -->
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/12.1.0/firebase-app.js";
     import { getFirestore, collection, addDoc, getDocs, doc, updateDoc, deleteDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/12.1.0/firebase-firestore.js";
@@ -47,126 +124,129 @@
       messagingSenderId: "384818720368",
       appId: "1:384818720368:web:ae61ec9869da0c83b9ceb5"
     };
-
     const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
-    const unitRef = collection(db, "units");
+    const unitRef = collection(db,"units");
 
-    // ====== Helper add dynamic field ======
+    let allUnits = [];
+    let currentPage = 1;
+    const perPage = 5;
+
+    // Tambah field dinamis
     window.addField = function(containerId, name) {
       const container = document.getElementById(containerId);
       const index = container.querySelectorAll("input").length + 1;
       const div = document.createElement("div");
       div.className = "dynamic-field";
-      div.innerHTML = `<input type="text" name="${name}" placeholder="Cek#${index}"><button type="button" onclick="this.parentNode.remove()">x</button>`;
+      div.innerHTML = `<input type="text" name="${name}" placeholder="Cek#${index}">
+                       <button type="button" onclick="this.parentNode.remove()">x</button>`;
       container.appendChild(div);
     }
-
     function getArrayFromInputs(name) {
       return Array.from(document.getElementsByName(name)).map(i=>i.value).filter(v=>v);
     }
 
-    // ====== Submit Form Beli ======
-    document.getElementById("formBeli").addEventListener("submit", async (e)=>{
-      e.preventDefault();
-      const editId = e.target.getAttribute("data-edit-id");
-      const tanggalMasuk = document.getElementById("tanggalMasuk").value;
-      const lokasiPenjual = document.getElementById("lokasiPenjual").value;
-      const tipeVarian = document.getElementById("tipeVarian").value;
-      const hargaBeli = +document.getElementById("hargaBeli").value;
-      const pengecekanDenganPenjual = getArrayFromInputs("pengecekanPenjual");
+    // Open form
+    window.openForm = ()=> {
+      const formPopup=document.getElementById("formPopup");
+      formPopup.innerHTML=`
+        <h3>Tambah Unit</h3>
+        <form id="formBeli">
+          <label>Tanggal Masuk: <input type="date" id="tanggalMasuk" required></label>
+          <label>Lokasi Penjual: <input type="text" id="lokasiPenjual" required></label>
+          <label>Tipe & Varian: <input type="text" id="tipeVarian" required></label>
+          <label>Harga Beli: <input type="number" id="hargaBeli" required></label>
+          <div id="pengecekanPenjualContainer">
+            <label>Pengecekan dengan Penjual:</label>
+          </div>
+          <button type="button" onclick="addField('pengecekanPenjualContainer','pengecekanPenjual')">+ Tambah Cek</button>
+          <button type="submit">Simpan</button>
+          <button type="button" onclick="closeForm()">Batal</button>
+        </form>`;
+      formPopup.style.display="block";
 
-      if(editId) {
-        await updateDoc(doc(db,"units",editId), {
-          tanggalMasuk, lokasiTransaksiPenjual: lokasiPenjual,
-          tipeVarian, hargaBeli, pengecekanDenganPenjual
-        });
-        e.target.removeAttribute("data-edit-id");
-      } else {
+      document.getElementById("formBeli").addEventListener("submit", async (e)=>{
+        e.preventDefault();
+        const tanggalMasuk = document.getElementById("tanggalMasuk").value;
+        const lokasiPenjual = document.getElementById("lokasiPenjual").value;
+        const tipeVarian = document.getElementById("tipeVarian").value;
+        const hargaBeli = +document.getElementById("hargaBeli").value;
+        const pengecekanDenganPenjual = getArrayFromInputs("pengecekanPenjual");
         await addDoc(unitRef, {
           tanggalMasuk, lokasiTransaksiPenjual: lokasiPenjual,
           tipeVarian, hargaBeli, pengecekanDenganPenjual,
-          status: "Belum Selesai"
+          status:"Belum Selesai"
         });
-      }
-      e.target.reset();
-      document.getElementById("pengecekanPenjualContainer").innerHTML="<label>Pengecekan dengan Penjual:</label>";
-    });
+        closeForm();
+      });
+    }
+    window.closeForm = ()=> document.getElementById("formPopup").style.display="none";
 
-    // ====== Load Units ======
+    // Load units realtime
     function loadUnits(){
       onSnapshot(unitRef, (snapshot)=>{
-        const list = document.getElementById("unitList");
-        list.innerHTML="";
+        allUnits=[];
         snapshot.forEach(docSnap=>{
-          const data=docSnap.data();
-          const li=document.createElement("li");
-          li.innerHTML=`
-            <div><b>${data.tipeVarian}</b> - <span class="status">${data.status}</span></div>
-            <button onclick="showDetail('${docSnap.id}')">Detail</button>
-            <button onclick="editUnit('${docSnap.id}')">Edit</button>
-            <button onclick="hapusUnit('${docSnap.id}')">Hapus</button>
-          `;
-          if(data.status==="Belum Selesai"){
-            li.innerHTML += `
-              <button onclick="showPerbaikanForm('${docSnap.id}')">Perbaiki</button>
-              <button onclick="jadikanBangkai('${docSnap.id}')">Jadikan Bangkai</button>
-            `;
-          }
-          list.appendChild(li);
+          allUnits.push({id:docSnap.id, ...docSnap.data()});
         });
+        renderTable();
       });
     }
     loadUnits();
 
-    // ====== Detail Popup ======
-    window.showDetail = async (id)=>{
-      const snap = await getDocs(unitRef);
-      let data; snap.forEach(s=>{ if(s.id===id) data=s.data(); });
-      const popup=document.getElementById("detailPopup");
-      popup.innerHTML=`<h3>Detail Unit</h3>
-        <p>Tipe & Varian: ${data.tipeVarian}</p>
-        <p>Tanggal Masuk: ${data.tanggalMasuk}</p>
-        <p>Lokasi Penjual: ${data.lokasiTransaksiPenjual}</p>
-        <p>Harga Beli: ${data.hargaBeli}</p>
-        <p>Pengecekan: ${(data.pengecekanDenganPenjual||[]).join(", ")}</p>
-        <button onclick="document.getElementById('detailPopup').style.display='none'">Tutup</button>`;
-      popup.style.display="block";
+    function renderTable(){
+      const table=document.getElementById("unitTable");
+      table.innerHTML="";
+      const start=(currentPage-1)*perPage;
+      const end=start+perPage;
+      const pageItems=allUnits.slice(start,end);
+
+      pageItems.forEach((u,i)=>{
+        const tr=document.createElement("tr");
+        tr.innerHTML=`
+          <td>${start+i+1}</td>
+          <td>${u.tipeVarian}</td>
+          <td>${u.status}</td>
+          <td>
+            <button onclick="showDetail('${u.id}')">Detail</button>
+            <button onclick="hapusUnit('${u.id}')">Hapus</button>
+          </td>`;
+        table.appendChild(tr);
+      });
+      renderPagination();
     }
 
-    // ====== Hapus ======
-    window.hapusUnit = async (id)=>{
-      if(confirm("Yakin hapus unit ini?")){
-        await deleteDoc(doc(db,"units",id));
+    function renderPagination(){
+      const pageCount=Math.ceil(allUnits.length/perPage);
+      const pag=document.getElementById("pagination");
+      pag.innerHTML="";
+      for(let i=1;i<=pageCount;i++){
+        const btn=document.createElement("button");
+        btn.textContent=i;
+        if(i===currentPage) btn.classList.add("active");
+        btn.onclick=()=>{currentPage=i; renderTable();}
+        pag.appendChild(btn);
       }
     }
 
-    // ====== Edit ======
-    window.editUnit = async (id)=>{
-      const snap = await getDocs(unitRef);
-      let data; snap.forEach(s=>{ if(s.id===id) data=s.data(); });
-      document.getElementById("tanggalMasuk").value=data.tanggalMasuk;
-      document.getElementById("lokasiPenjual").value=data.lokasiTransaksiPenjual;
-      document.getElementById("tipeVarian").value=data.tipeVarian;
-      document.getElementById("hargaBeli").value=data.hargaBeli;
-      document.getElementById("pengecekanPenjualContainer").innerHTML="<label>Pengecekan dengan Penjual:</label>";
-      (data.pengecekanDenganPenjual||[]).forEach((val,i)=>{
-        const div=document.createElement("div");
-        div.className="dynamic-field";
-        div.innerHTML=`<input type="text" name="pengecekanPenjual" value="${val}"><button type="button" onclick="this.parentNode.remove()">x</button>`;
-        document.getElementById("pengecekanPenjualContainer").appendChild(div);
-      });
-      document.getElementById("formBeli").setAttribute("data-edit-id", id);
+    // Hapus
+    window.hapusUnit=async(id)=>{
+      if(confirm("Yakin hapus unit ini?")) await deleteDoc(doc(db,"units",id));
     }
 
-    // ====== Jadikan Bangkai ======
-    window.jadikanBangkai = async (id)=>{
-      await updateDoc(doc(db,"units",id), { status:"Selesai", hasil:"Bangkai" });
-    }
-
-    // ====== Perbaiki (placeholder) ======
-    window.showPerbaikanForm = (id)=>{
-      alert("Form perbaikan untuk ID "+id+" belum dibuat di versi ini.");
+    // Detail
+    window.showDetail=(id)=>{
+      const u=allUnits.find(x=>x.id===id);
+      const popup=document.getElementById("detailPopup");
+      popup.innerHTML=`
+        <h3>Detail Unit</h3>
+        <p>Tipe & Varian: ${u.tipeVarian}</p>
+        <p>Tanggal Masuk: ${u.tanggalMasuk}</p>
+        <p>Lokasi Penjual: ${u.lokasiTransaksiPenjual}</p>
+        <p>Harga Beli: ${u.hargaBeli}</p>
+        <p>Pengecekan: ${(u.pengecekanDenganPenjual||[]).join(", ")}</p>
+        <button onclick="document.getElementById('detailPopup').style.display='none'">Tutup</button>`;
+      popup.style.display="block";
     }
   </script>
 </body>
