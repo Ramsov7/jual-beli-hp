@@ -15,19 +15,28 @@
       margin-bottom: 20px;
     }
     form {
-      max-width: 500px;
+      max-width: 600px;
       margin: auto;
       background: #fff;
       padding: 20px;
       border-radius: 10px;
       box-shadow: 0 2px 6px rgba(0,0,0,0.1);
     }
-    input, button {
+    label {
+      font-weight: bold;
+      margin-top: 10px;
+      display: block;
+    }
+    input, textarea, button {
       width: 100%;
-      margin: 8px 0;
+      margin: 6px 0 12px;
       padding: 10px;
       border: 1px solid #ccc;
       border-radius: 6px;
+    }
+    textarea {
+      resize: vertical;
+      min-height: 60px;
     }
     button {
       background: #007bff;
@@ -38,7 +47,7 @@
       background: #0056b3;
     }
     .list {
-      max-width: 800px;
+      max-width: 900px;
       margin: 30px auto;
       background: #fff;
       padding: 20px;
@@ -56,18 +65,56 @@
 
   <!-- Form Input -->
   <form id="unitForm">
-    <input type="text" id="kodeUnit" placeholder="Kode Unit (contoh: HP-28042025-A)" required />
+    <!-- Bagian Identitas -->
+    <label>Kode Unit</label>
+    <input type="text" id="kodeUnit" placeholder="Contoh: HP-28042025-A" required />
+
     <label>Tanggal Masuk</label>
     <input type="date" id="tglMasuk" required />
+
     <label>Tanggal Jual</label>
     <input type="date" id="tglJual" required />
 
-    <input type="text" id="tipeVarian" placeholder="Tipe & Varian (contoh: Oppo A7 4/64)" required />
+    <label>Tipe & Varian</label>
+    <input type="text" id="tipeVarian" placeholder="Contoh: Oppo A7 4/64" required />
 
-    <input type="number" id="hargaBeli" placeholder="Harga Beli (Rp)" required />
-    <input type="number" id="biayaPerbaikan" placeholder="Total Biaya Perbaikan (Rp)" required />
-    <input type="number" id="transport" placeholder="Transport (Rp)" required />
-    <input type="number" id="hargaJual" placeholder="Harga Jual (Rp)" required />
+    <label>Lokasi Transaksi Penjual (Google Maps URL)</label>
+    <input type="url" id="lokasiPenjual" placeholder="https://maps.app.goo.gl/..." />
+
+    <label>Lokasi Transaksi Pembeli (Google Maps URL)</label>
+    <input type="url" id="lokasiPembeli" placeholder="https://maps.app.goo.gl/..." />
+
+    <!-- Bagian Kondisi -->
+    <label>Pengecekan dengan Penjual</label>
+    <textarea id="cekPenjual" placeholder="Contoh: Lupa password, tombol on/off rusak"></textarea>
+
+    <label>Pengecekan Lanjutan</label>
+    <textarea id="cekLanjutan" placeholder="Contoh: Flexible volume tidak berfungsi"></textarea>
+
+    <label>Minus ketika Ready Dijual</label>
+    <textarea id="minusReady" placeholder="Contoh: Bekas, tanpa dos"></textarea>
+
+    <!-- Bagian Finansial -->
+    <label>Harga Beli Unit (Rp)</label>
+    <input type="number" id="hargaBeli" required />
+
+    <label>Rincian Biaya Perbaikan</label>
+    <textarea id="rincianPerbaikan" placeholder="Contoh: Backdoor 55.000, Flexible 5.000, dll."></textarea>
+
+    <label>Total Biaya Perbaikan (Rp)</label>
+    <input type="number" id="biayaPerbaikan" required />
+
+    <label>Transport / Bensin (Rp)</label>
+    <input type="number" id="transport" required />
+
+    <label>Pajak (Rp)</label>
+    <input type="number" id="pajak" value="0" />
+
+    <label>Bunga (Rp)</label>
+    <input type="number" id="bunga" value="0" />
+
+    <label>Harga Jual (Rp)</label>
+    <input type="number" id="hargaJual" required />
 
     <button type="submit">Simpan</button>
   </form>
@@ -103,26 +150,40 @@
     // Submit form
     form.addEventListener("submit", async (e) => {
       e.preventDefault();
+
+      // Ambil data dari form
       const kodeUnit = document.getElementById("kodeUnit").value;
       const tglMasuk = document.getElementById("tglMasuk").value;
       const tglJual = document.getElementById("tglJual").value;
       const tipeVarian = document.getElementById("tipeVarian").value;
+      const lokasiPenjual = document.getElementById("lokasiPenjual").value;
+      const lokasiPembeli = document.getElementById("lokasiPembeli").value;
+      const cekPenjual = document.getElementById("cekPenjual").value;
+      const cekLanjutan = document.getElementById("cekLanjutan").value;
+      const minusReady = document.getElementById("minusReady").value;
+
       const hargaBeli = parseInt(document.getElementById("hargaBeli").value);
+      const rincianPerbaikan = document.getElementById("rincianPerbaikan").value;
       const biayaPerbaikan = parseInt(document.getElementById("biayaPerbaikan").value);
       const transport = parseInt(document.getElementById("transport").value);
+      const pajak = parseInt(document.getElementById("pajak").value);
+      const bunga = parseInt(document.getElementById("bunga").value);
       const hargaJual = parseInt(document.getElementById("hargaJual").value);
 
       // Hitung otomatis
       const HPP = hargaBeli + biayaPerbaikan;
       const labaKotor = hargaJual - HPP;
       const labaUsaha = labaKotor - transport;
-      const labaBersih = labaUsaha; // tanpa pajak
+      const labaBersih = labaUsaha - pajak - bunga;
       const margin = ((labaBersih / hargaJual) * 100).toFixed(2);
 
       try {
         await db.collection("units").add({
           kodeUnit, tglMasuk, tglJual, tipeVarian,
-          hargaBeli, biayaPerbaikan, transport, hargaJual,
+          lokasiPenjual, lokasiPembeli,
+          cekPenjual, cekLanjutan, minusReady,
+          hargaBeli, rincianPerbaikan, biayaPerbaikan,
+          transport, pajak, bunga, hargaJual,
           HPP, labaKotor, labaUsaha, labaBersih, margin,
           createdAt: firebase.firestore.FieldValue.serverTimestamp()
         });
@@ -135,7 +196,7 @@
       }
     });
 
-    // Render daftar unit
+    // Render daftar unit (ringkasan)
     db.collection("units").orderBy("createdAt","desc").onSnapshot(snapshot => {
       unitList.innerHTML = "";
       snapshot.forEach(doc => {
@@ -146,7 +207,9 @@
             Masuk: ${data.tglMasuk} | Jual: ${data.tglJual}<br>
             Beli: Rp${data.hargaBeli} | Jual: Rp${data.hargaJual}<br>
             HPP: Rp${data.HPP} | Laba Bersih: Rp${data.labaBersih}<br>
-            Margin: ${data.margin}%
+            Margin: ${data.margin}%<br>
+            <a href="${data.lokasiPenjual}" target="_blank">Lokasi Penjual</a> | 
+            <a href="${data.lokasiPembeli}" target="_blank">Lokasi Pembeli</a>
           </div>
         `;
       });
