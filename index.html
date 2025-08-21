@@ -1,152 +1,126 @@
-<!DOCTYPE html><html lang="id">
+<!DOCTYPE html><html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Ramsov HP Inventory</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>HP Inventory</title>
   <style>
-    body { font-family: Arial, sans-serif; margin: 30px; background: #f8f9fa; }
-    h1 { text-align: center; margin-bottom: 20px; }
-    form { max-width: 500px; margin: auto; background: #fff; padding: 20px; border-radius: 10px; box-shadow: 0 2px 6px rgba(0,0,0,0.1); }
-    input, textarea, button, select { width: 100%; margin: 8px 0; padding: 10px; border: 1px solid #ccc; border-radius: 6px; }
-    button { background: #007bff; color: white; cursor: pointer; }
-    button:hover { background: #0056b3; }
-    .list { max-width: 700px; margin: 30px auto; background: #fff; padding: 20px; border-radius: 10px; box-shadow: 0 2px 6px rgba(0,0,0,0.1); }
-    .unit { border-bottom: 1px solid #ddd; padding: 10px 0; }
+    body { font-family: Arial, sans-serif; margin: 20px; }
+    h1 { text-align: center; }
+    form { margin-bottom: 20px; padding: 15px; border: 1px solid #ccc; border-radius: 10px; }
+    label { display: block; margin-top: 10px; }
+    input, textarea, button { width: 100%; padding: 8px; margin-top: 5px; }
+    ul { list-style: none; padding: 0; }
+    li { margin: 10px 0; padding: 10px; border: 1px solid #ccc; border-radius: 8px; display: flex; justify-content: space-between; align-items: center; }
     .status { font-weight: bold; }
-    .actions button { margin-right: 5px; }/* Modal */
-.modal { display: none; position: fixed; z-index: 999; left: 0; top: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); }
-.modal-content { background: #fff; margin: 10% auto; padding: 20px; border-radius: 10px; width: 80%; max-width: 600px; position: relative; }
-.close { position: absolute; top: 10px; right: 15px; font-size: 20px; font-weight: bold; cursor: pointer; }
-
+    .actions button { margin-left: 5px; }
+    .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); justify-content: center; align-items: center; }
+    .modal-content { background: white; padding: 20px; border-radius: 10px; width: 80%; max-width: 600px; position: relative; }
+    .close { position: absolute; top: 10px; right: 15px; cursor: pointer; font-size: 20px; }
   </style>
 </head>
 <body>
-  <h1>Ramsov HP Inventory</h1>  <!-- Form Input HP Baru -->  <form id="formBeli">
-    <h3>Form Pembelian HP</h3>
-    <input type="date" id="tanggalMasuk" required />
-    <input type="text" id="lokasiPenjual" placeholder="Lokasi Transaksi Penjual (URL)" required />
-    <input type="text" id="tipeVarian" placeholder="Tipe & Varian (contoh: Oppo A7 4/64)" required />
-    <textarea id="pengecekanPenjual" placeholder="Pengecekan dengan penjual" required></textarea>
-    <textarea id="pengecekanLanjutan" placeholder="Pengecekan lanjutan"></textarea>
-    <input type="number" id="hargaBeli" placeholder="Harga Beli Unit" required />
-    <button type="submit">Simpan Unit</button>
-  </form>  <!-- List Data HP -->  <div class="list">
-    <h2>Daftar Unit</h2>
-    <div id="unitList"></div>
-  </div>  <!-- Modal Detail -->  <div id="detailModal" class="modal">
+  <h1>HP Inventory</h1>  <form id="formBeli">
+    <h3>Form Beli HP</h3>
+    <label>Tipe & Varian <input type="text" id="tipeVarian" required></label>
+    <label>Tanggal Masuk <input type="date" id="tanggalMasuk" required></label>
+    <label>Harga Beli <input type="number" id="hargaBeli" required></label>
+    <label>Lokasi Transaksi Penjual <input type="url" id="lokasiTransaksiPenjual"></label>
+    <label>Pengecekan dengan Penjual <textarea id="pengecekanDenganPenjual"></textarea></label>
+    <label>Pengecekan Lanjutan <textarea id="pengecekanLanjutan"></textarea></label>
+    <button type="submit">Simpan Beli</button>
+  </form>  <h3>Daftar Unit</h3>
+  <ul id="unitList"></ul>  <div id="detailModal" class="modal">
     <div class="modal-content">
       <span class="close" onclick="closeModal()">&times;</span>
       <div id="detailContent"></div>
     </div>
-  </div>  <script>
-    let units = [];
+  </div>  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/12.1.0/firebase-app.js";
+    import { getFirestore, collection, addDoc, doc, updateDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/12.1.0/firebase-firestore.js";
 
-    // Generate kode unit otomatis
-    function generateKode(tanggal, index) {
-      const tgl = tanggal.split('-').reverse().join('');
-      return `HP-${tgl}-${String(index).padStart(3,'0')}`;
-    }
+    const firebaseConfig = {
+      apiKey: "AIzaSyA-taZOYNdqrPqfaA3ObSAC2hJ7UzMTaQs",
+      authDomain: "ramsov-hp-inventory.firebaseapp.com",
+      projectId: "ramsov-hp-inventory",
+      storageBucket: "ramsov-hp-inventory.firebasestorage.app",
+      messagingSenderId: "384818720368",
+      appId: "1:384818720368:web:ae61ec9869da0c83b9ceb5"
+    };
 
-    // Form pembelian HP
-    document.getElementById("formBeli").addEventListener("submit", e => {
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+    const unitCol = collection(db, "units");
+
+    const formBeli = document.getElementById("formBeli");
+    const unitList = document.getElementById("unitList");
+
+    formBeli.addEventListener("submit", async (e) => {
       e.preventDefault();
-
-      const tanggalMasuk = document.getElementById("tanggalMasuk").value;
-      const lokasiPenjual = document.getElementById("lokasiPenjual").value;
       const tipeVarian = document.getElementById("tipeVarian").value;
-      const pengecekanPenjual = document.getElementById("pengecekanPenjual").value;
+      const tanggalMasuk = document.getElementById("tanggalMasuk").value;
+      const hargaBeli = Number(document.getElementById("hargaBeli").value);
+      const lokasiTransaksiPenjual = document.getElementById("lokasiTransaksiPenjual").value;
+      const pengecekanDenganPenjual = document.getElementById("pengecekanDenganPenjual").value;
       const pengecekanLanjutan = document.getElementById("pengecekanLanjutan").value;
-      const hargaBeli = parseInt(document.getElementById("hargaBeli").value);
 
-      const kodeUnit = generateKode(tanggalMasuk, units.filter(u => u.tanggalMasuk===tanggalMasuk).length+1);
+      const kodeUnit = `HP-${tanggalMasuk.replace(/-/g, "")}-${Date.now()}`;
 
-      const newUnit = {
-        kodeUnit,
-        tanggalMasuk,
-        lokasiPenjual,
+      await addDoc(unitCol, {
+        kode: kodeUnit,
         tipeVarian,
-        pengecekanPenjual,
-        pengecekanLanjutan,
+        tanggalMasuk: new Date(tanggalMasuk),
         hargaBeli,
+        lokasiTransaksiPenjual,
+        pengecekanDenganPenjual,
+        pengecekanLanjutan,
         status: "Belum Selesai"
-      };
-
-      units.push(newUnit);
-      renderUnits();
-      e.target.reset();
+      });
+      formBeli.reset();
     });
 
-    function renderUnits() {
-      const list = document.getElementById("unitList");
-      list.innerHTML = "";
-      units.forEach((u,i) => {
-        let actions = "";
-        if (u.status === "Belum Selesai") {
-          if (!u.perbaikan) {
-            actions = `<button onclick="perbaiki(${i})">Perbaiki</button> <button onclick="jadikanBangkai(${i})">Jadikan Bangkai</button>`;
-          } else if (!u.penjualan) {
-            actions = `<button onclick="tetapkanTerjual(${i})">Tetapkan Terjual</button> <button onclick="jadikanBangkai(${i})">Jadikan Bangkai</button>`;
-          }
-        }
-        list.innerHTML += `
-          <div class="unit">
-            <b>${u.tipeVarian}</b><br>
-            <span class="status">Status: ${u.status}</span><br>
-            <div class="actions">
-              <button onclick="showDetail(${i})">Detail</button>
-              ${actions}
-            </div>
-          </div>`;
-      });
-    }
-
-    function showDetail(index) {
-      const u = units[index];
-      let html = `
-        <h3>${u.tipeVarian}</h3>
-        <p><b>Kode Unit:</b> ${u.kodeUnit}</p>
-        <p><b>Tanggal Masuk:</b> ${u.tanggalMasuk}</p>
-        <p><b>Lokasi Penjual:</b> ${u.lokasiPenjual}</p>
-        <p><b>Pengecekan dengan Penjual:</b> ${u.pengecekanPenjual}</p>
-        <p><b>Pengecekan Lanjutan:</b> ${u.pengecekanLanjutan}</p>
-        <p><b>Harga Beli:</b> Rp${u.hargaBeli}</p>
+    function renderUnit(id, data) {
+      const li = document.createElement("li");
+      li.innerHTML = `
+        <div>
+          <span>${data.tipeVarian}</span> - <span class="status">${data.status}</span>
+        </div>
+        <div class="actions">
+          <button onclick="showDetail('${id}')">Detail</button>
+        </div>
       `;
-      if (u.perbaikan) {
-        html += `<hr><p><b>Biaya Perbaikan:</b> Rp${u.perbaikan.biaya}</p>`;
-      }
-      if (u.penjualan) {
-        html += `<hr><p><b>Harga Jual:</b> Rp${u.penjualan.hargaJual}</p>
-                 <p><b>Minus ketika ready dijual:</b> ${u.penjualan.minus}</p>
-                 <p><b>Laba Bersih:</b> Rp${u.penjualan.labaBersih}</p>`;
-      }
-      if (u.status === "Selesai" && u.bangkai) {
-        html += `<hr><p><b>Status:</b> Ditetapkan Bangkai (Rugi Rp${u.rugi})</p>`;
-      }
-      document.getElementById("detailContent").innerHTML = html;
-      document.getElementById("detailModal").style.display = "block";
+      return li;
     }
 
-    function closeModal() {
+    onSnapshot(unitCol, (snapshot) => {
+      unitList.innerHTML = "";
+      snapshot.forEach((docSnap) => {
+        const data = docSnap.data();
+        const li = renderUnit(docSnap.id, data);
+        unitList.appendChild(li);
+      });
+    });
+
+    window.showDetail = async (id) => {
+      const docRef = doc(db, "units", id);
+      const snap = await (await import("https://www.gstatic.com/firebasejs/12.1.0/firebase-firestore.js")).getDoc(docRef);
+      if (snap.exists()) {
+        const data = snap.data();
+        document.getElementById("detailContent").innerHTML = `
+          <h3>${data.tipeVarian}</h3>
+          <p><b>Kode:</b> ${data.kode}</p>
+          <p><b>Status:</b> ${data.status}</p>
+          <p><b>Tanggal Masuk:</b> ${data.tanggalMasuk.toDate ? data.tanggalMasuk.toDate().toLocaleDateString() : data.tanggalMasuk}</p>
+          <p><b>Harga Beli:</b> ${data.hargaBeli}</p>
+          <p><b>Lokasi Transaksi Penjual:</b> <a href="${data.lokasiTransaksiPenjual}" target="_blank">Link</a></p>
+          <p><b>Pengecekan dengan Penjual:</b> ${data.pengecekanDenganPenjual}</p>
+          <p><b>Pengecekan Lanjutan:</b> ${data.pengecekanLanjutan}</p>
+        `;
+        document.getElementById("detailModal").style.display = "flex";
+      }
+    };
+
+    window.closeModal = () => {
       document.getElementById("detailModal").style.display = "none";
-    }
-
-    // Dummy perbaikan, bangkai, jual (sementara contoh)
-    function perbaiki(i) {
-      units[i].perbaikan = { biaya: 85000 };
-      renderUnits();
-    }
-
-    function jadikanBangkai(i) {
-      units[i].status = "Selesai";
-      units[i].bangkai = true;
-      units[i].rugi = units[i].hargaBeli;
-      renderUnits();
-    }
-
-    function tetapkanTerjual(i) {
-      units[i].penjualan = { hargaJual: 550000, minus: "Bekas, Tanpa Dos", labaBersih: 200000 };
-      units[i].status = "Selesai";
-      renderUnits();
     }
   </script></body>
 </html>
