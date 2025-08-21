@@ -1,94 +1,64 @@
 <!DOCTYPE html><html lang="id">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>HP Inventory</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Dashboard HP Inventory</title>
   <style>
-    body { font-family: Arial, sans-serif; margin: 0; padding: 0; }
-    header { background: #4CAF50; color: white; padding: 1rem; text-align: center; }
-    main { padding: 1rem; height: calc(100vh - 70px); box-sizing: border-box; display: flex; flex-direction: column; }
-    .btn { padding: 6px 12px; margin: 2px; cursor: pointer; }
-    table { width: 100%; border-collapse: collapse; margin-top: 1rem; }
-    th, td { border: 1px solid #ddd; padding: 8px; text-align: center; }
-    th { background: #f2f2f2; }
-    .pagination { margin-top: 10px; text-align: center; }
-    .modal { display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); justify-content:center; align-items:center; }
-    .modal-content { background:#fff; padding:20px; border-radius:8px; width:90%; max-width:500px; max-height:90%; overflow-y:auto; }
-    .close { float:right; cursor:pointer; font-size:18px; }
-    .field-group { margin-bottom: 10px; }
-    label { display:block; margin-bottom:4px; text-align:left; }
+    body { font-family: Arial, sans-serif; margin: 0; padding: 0; display: flex; flex-direction: column; align-items: center; height: 100vh; }
+    h1 { margin: 20px 0; }
+    table { width: 90%; border-collapse: collapse; margin-top: 20px; }
+    th, td { border: 1px solid #ccc; padding: 8px; text-align: center; }
+    .btn { padding: 6px 12px; margin: 2px; cursor: pointer; border: none; border-radius: 4px; }
+    .btn-primary { background: #007bff; color: #fff; }
+    .btn-danger { background: #dc3545; color: #fff; }
+    .btn-warning { background: #ffc107; color: #000; }
+    .btn-success { background: #28a745; color: #fff; }
+    .popup { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); justify-content: center; align-items: center; }
+    .popup-content { background: #fff; padding: 20px; border-radius: 8px; width: 400px; max-height: 90vh; overflow-y: auto; }
+    .close { float: right; font-size: 18px; cursor: pointer; }
   </style>
 </head>
 <body>
-  <header>
-    <h1>HP Inventory Dashboard</h1>
-  </header>
-  <main>
-    <button class="btn" onclick="openAddUnit()">Tambah Unit</button>
-    <table>
-      <thead>
-        <tr>
-          <th>No</th>
-          <th>Nama Unit</th>
-          <th>Status</th>
-          <th>Aksi</th>
-        </tr>
-      </thead>
-      <tbody id="unitTable"></tbody>
-    </table>
-    <div class="pagination" id="pagination"></div>
-  </main>  <!-- Modal Tambah Unit -->  <div class="modal" id="addUnitModal">
-    <div class="modal-content">
-      <span class="close" onclick="closeModal('addUnitModal')">&times;</span>
-      <h3>Tambah Unit</h3>
-      <div class="field-group">
-        <label>Tanggal Masuk</label>
-        <input type="date" id="tanggalMasuk">
-      </div>
-      <div class="field-group">
-        <label>Tipe & Varian</label>
-        <input type="text" id="tipeVarian">
-      </div>
-      <div class="field-group">
-        <label>Lokasi Transaksi Penjual</label>
-        <input type="text" id="lokasiTransaksiPenjual">
-      </div>
-      <div class="field-group">
-        <label>Pengecekan dengan Penjual</label>
-        <div id="pengecekanPenjualContainer"></div>
-        <button type="button" onclick="addPengecekanPenjual()">+ Tambah Cek</button>
-      </div>
-      <div class="field-group">
-        <label>Harga Beli</label>
-        <input type="number" id="hargaBeli">
-      </div>
-      <button onclick="simpanUnit()">Simpan</button>
+  <h1>Dashboard HP Inventory</h1>  <!-- Tombol Tambah Unit --><button id="addUnitBtn" class="btn btn-primary">Tambah Unit</button>
+
+  <!-- Daftar Unit -->  <table id="unitsTable">
+    <thead>
+      <tr>
+        <th>Nama Unit</th>
+        <th>Status</th>
+        <th>Aksi</th>
+      </tr>
+    </thead>
+    <tbody></tbody>
+  </table>  <!-- Popup Tambah Unit -->  <div id="addUnitPopup" class="popup">
+    <div class="popup-content">
+      <span id="closeAddUnitPopup" class="close">&times;</span>
+      <h2>Tambah Unit</h2>
+      <form id="addUnitForm">
+        <label>Tanggal Masuk:</label><br>
+        <input type="date" id="tanggalMasuk" required><br><br><label>Tipe & Varian:</label><br>
+    <input type="text" id="tipeVarian" required><br><br>
+
+    <label>Pengecekan dengan Penjual:</label>
+    <div id="pengecekanList">
+      <input type="text" class="pengecekan-input" placeholder="Cek#1" />
     </div>
-  </div>  <!-- Modal Perbaikan Unit -->  <div class="modal" id="repairModal">
-    <div class="modal-content">
-      <span class="close" onclick="closeModal('repairModal')">&times;</span>
-      <h3>Form Perbaikan Unit</h3>
-      <div class="field-group">
-        <label>Pengecekan Lanjutan</label>
-        <div id="pengecekanLanjutanContainer"></div>
-        <button type="button" onclick="addPengecekanLanjutan()">+ Tambah Cek</button>
-      </div>
-      <div class="field-group">
-        <label>Ongkos Perbaikan</label>
-        <div id="ongkosPerbaikanContainer"></div>
-        <button type="button" onclick="addOngkosPerbaikan()">+ Tambah Ongkos</button>
-      </div>
-      <button onclick="simpanPerbaikan()">Simpan Perbaikan</button>
-    </div>
-  </div>  <!-- Modal Detail Unit -->  <div class="modal" id="detailModal">
-    <div class="modal-content">
-      <span class="close" onclick="closeModal('detailModal')">&times;</span>
-      <h3>Detail Unit</h3>
-      <div id="detailContent"></div>
-    </div>
-  </div>  <script type="module">
+    <button type="button" id="addPengecekanBtn" class="btn btn-success">+ Tambah Cek</button>
+    <br><br>
+
+    <label>Lokasi Transaksi Penjual (URL Maps):</label><br>
+    <input type="url" id="lokasiTransaksiPenjual" required><br><br>
+
+    <label>Harga Beli:</label><br>
+    <input type="number" id="hargaBeli" required><br><br>
+
+    <button type="submit" class="btn btn-primary">Simpan</button>
+  </form>
+</div>
+
+  </div>  <!-- Firebase -->  <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/12.1.0/firebase-app.js";
-    import { getFirestore, collection, addDoc, getDocs, deleteDoc, doc, updateDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/12.1.0/firebase-firestore.js";
+    import { getFirestore, collection, addDoc, getDocs, deleteDoc, doc, onSnapshot } from "https://www.gstatic.com/firebasejs/12.1.0/firebase-firestore.js";
 
     const firebaseConfig = {
       apiKey: "AIzaSyA-taZOYNdqrPqfaA3ObSAC2hJ7UzMTaQs",
@@ -98,148 +68,80 @@
       messagingSenderId: "384818720368",
       appId: "1:384818720368:web:ae61ec9869da0c83b9ceb5"
     };
+
     const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
 
-    let allUnits=[];
-    let currentPage=1;
-    const perPage=5;
-    let selectedUnitId=null;
+    // Popup controls
+    const addUnitBtn = document.getElementById("addUnitBtn");
+    const addUnitPopup = document.getElementById("addUnitPopup");
+    const closeAddUnitPopup = document.getElementById("closeAddUnitPopup");
 
-    function openAddUnit(){
-      document.getElementById('pengecekanPenjualContainer').innerHTML="";
-      addPengecekanPenjual();
-      document.getElementById('addUnitModal').style.display='flex';
-    }
-    function closeModal(id){ document.getElementById(id).style.display='none'; }
+    addUnitBtn.addEventListener("click", () => addUnitPopup.style.display = "flex");
+    closeAddUnitPopup.addEventListener("click", () => addUnitPopup.style.display = "none");
 
-    function addPengecekanPenjual(){
-      const container=document.getElementById('pengecekanPenjualContainer');
-      const idx=container.children.length+1;
-      const div=document.createElement('div');
-      div.innerHTML=`<input type='text' placeholder='Cek#${idx}'>`;
-      container.appendChild(div);
-    }
-    function addPengecekanLanjutan(){
-      const container=document.getElementById('pengecekanLanjutanContainer');
-      const idx=container.children.length+1;
-      const div=document.createElement('div');
-      div.innerHTML=`<input type='text' placeholder='Cek#${idx}'>`;
-      container.appendChild(div);
-    }
-    function addOngkosPerbaikan(){
-      const container=document.getElementById('ongkosPerbaikanContainer');
-      const div=document.createElement('div');
-      div.innerHTML=`<input type='text' placeholder='Deskripsi Ongkos'> <input type='number' placeholder='Biaya'>`;
-      container.appendChild(div);
-    }
-
-    async function simpanUnit(){
-      const tanggalMasuk=document.getElementById('tanggalMasuk').value;
-      const tipeVarian=document.getElementById('tipeVarian').value;
-      const lokasiTransaksiPenjual=document.getElementById('lokasiTransaksiPenjual').value;
-      const hargaBeli=parseInt(document.getElementById('hargaBeli').value);
-      const pengecekanEls=document.getElementById('pengecekanPenjualContainer').querySelectorAll('input');
-      const pengecekanDenganPenjual=[...pengecekanEls].map(e=>e.value).filter(Boolean);
-
-      await addDoc(collection(db,"units"),{
-        tanggalMasuk:new Date(tanggalMasuk),
-        tipeVarian, lokasiTransaksiPenjual,
-        hargaBeli, pengecekanDenganPenjual,
-        status:"Belum Selesai"
-      });
-      closeModal('addUnitModal');
-    }
-
-    function renderTable(){
-      const table=document.getElementById("unitTable");
-      table.innerHTML="";
-      const start=(currentPage-1)*perPage;
-      const end=start+perPage;
-      const pageItems=allUnits.slice(start,end);
-      pageItems.forEach((u,i)=>{
-        const tr=document.createElement("tr");
-        let actions=`<button onclick="showDetail('${u.id}')">Detail</button>`;
-        if(u.status==="Belum Selesai"){
-          actions+=`<button onclick="openRepair('${u.id}')">Perbaiki</button>`;
-          actions+=`<button onclick="jadikanBangkai('${u.id}')">Jadikan Bangkai</button>`;
-        }
-        actions+=`<button onclick="hapusUnit('${u.id}')">Hapus</button>`;
-        tr.innerHTML=`<td>${start+i+1}</td><td>${u.tipeVarian}</td><td>${u.status}</td><td>${actions}</td>`;
-        table.appendChild(tr);
-      });
-    }
-
-    function renderPagination(){
-      const pag=document.getElementById('pagination');
-      pag.innerHTML="";
-      const totalPages=Math.ceil(allUnits.length/perPage);
-      for(let i=1;i<=totalPages;i++){
-        const btn=document.createElement('button');
-        btn.textContent=i;
-        btn.onclick=()=>{currentPage=i; renderTable();};
-        pag.appendChild(btn);
-      }
-    }
-
-    async function hapusUnit(id){
-      if(confirm('Yakin hapus unit ini?')){
-        await deleteDoc(doc(db,'units',id));
-      }
-    }
-    async function jadikanBangkai(id){
-      await updateDoc(doc(db,'units',id),{status:'Bangkai'});
-    }
-
-    window.showDetail=(id)=>{
-      const u=allUnits.find(x=>x.id===id);
-      let html=`<p><b>Tanggal Masuk:</b> ${u.tanggalMasuk?.toDate?.().toLocaleDateString()}</p>`;
-      html+=`<p><b>Tipe & Varian:</b> ${u.tipeVarian}</p>`;
-      html+=`<p><b>Status:</b> ${u.status}</p>`;
-      html+=`<p><b>Lokasi Transaksi Penjual:</b> ${u.lokasiTransaksiPenjual}</p>`;
-      html+=`<p><b>Harga Beli:</b> ${u.hargaBeli}</p>`;
-      html+=`<b>Pengecekan dengan Penjual:</b><ul>`;
-      (u.pengecekanDenganPenjual||[]).forEach(c=>{ html+=`<li>${c}</li>` });
-      html+='</ul>';
-      if(u.pengecekanLanjutan){
-        html+=`<b>Pengecekan Lanjutan:</b><ul>`;
-        u.pengecekanLanjutan.forEach(c=>{ html+=`<li>${c}</li>` });
-        html+='</ul>';
-      }
-      if(u.ongkosPerbaikan){
-        html+=`<b>Ongkos Perbaikan:</b><ul>`;
-        u.ongkosPerbaikan.forEach(o=>{ html+=`<li>${o.desc}: Rp${o.biaya}</li>` });
-        html+='</ul>';
-      }
-      document.getElementById('detailContent').innerHTML=html;
-      document.getElementById('detailModal').style.display='flex';
-    }
-
-    window.openRepair=(id)=>{
-      selectedUnitId=id;
-      document.getElementById('pengecekanLanjutanContainer').innerHTML="";
-      document.getElementById('ongkosPerbaikanContainer').innerHTML="";
-      addPengecekanLanjutan();
-      addOngkosPerbaikan();
-      document.getElementById('repairModal').style.display='flex';
-    }
-
-    window.simpanPerbaikan=async()=>{
-      const cekEls=document.getElementById('pengecekanLanjutanContainer').querySelectorAll('input');
-      const pengecekanLanjutan=[...cekEls].map(e=>e.value).filter(Boolean);
-      const ongkosEls=document.getElementById('ongkosPerbaikanContainer').querySelectorAll('div');
-      const ongkosPerbaikan=[...ongkosEls].map(div=>{
-        const [desc,biaya]=div.querySelectorAll('input');
-        return {desc:desc.value, biaya:parseInt(biaya.value)||0};
-      }).filter(o=>o.desc);
-      await updateDoc(doc(db,'units',selectedUnitId),{pengecekanLanjutan,ongkosPerbaikan});
-      closeModal('repairModal');
-    }
-
-    onSnapshot(collection(db,'units'),snap=>{
-      allUnits=snap.docs.map(d=>({id:d.id,...d.data()}));
-      renderTable();
-      renderPagination();
+    // Tambah pengecekan field
+    const pengecekanList = document.getElementById("pengecekanList");
+    const addPengecekanBtn = document.getElementById("addPengecekanBtn");
+    let cekCount = 1;
+    addPengecekanBtn.addEventListener("click", () => {
+      cekCount++;
+      const input = document.createElement("input");
+      input.type = "text";
+      input.className = "pengecekan-input";
+      input.placeholder = `Cek#${cekCount}`;
+      pengecekanList.appendChild(document.createElement("br"));
+      pengecekanList.appendChild(input);
     });
+
+    // Simpan Unit
+    const addUnitForm = document.getElementById("addUnitForm");
+    addUnitForm.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const tanggalMasuk = document.getElementById("tanggalMasuk").value;
+      const tipeVarian = document.getElementById("tipeVarian").value;
+      const lokasiTransaksiPenjual = document.getElementById("lokasiTransaksiPenjual").value;
+      const hargaBeli = parseInt(document.getElementById("hargaBeli").value);
+      const pengecekanInputs = document.querySelectorAll(".pengecekan-input");
+      const pengecekanDenganPenjual = Array.from(pengecekanInputs).map(i => i.value).filter(Boolean);
+
+      await addDoc(collection(db, "units"), {
+        tanggalMasuk,
+        tipeVarian,
+        lokasiTransaksiPenjual,
+        hargaBeli,
+        pengecekanDenganPenjual,
+        status: "Belum Selesai"
+      });
+
+      addUnitForm.reset();
+      addUnitPopup.style.display = "none";
+    });
+
+    // Load data realtime
+    const unitsTableBody = document.querySelector("#unitsTable tbody");
+    onSnapshot(collection(db, "units"), (snapshot) => {
+      unitsTableBody.innerHTML = "";
+      snapshot.forEach((docSnap) => {
+        const data = docSnap.data();
+        const tr = document.createElement("tr");
+        tr.innerHTML = `
+          <td>${data.tipeVarian}</td>
+          <td>${data.status}</td>
+          <td>
+            <button class="btn btn-warning">Detail</button>
+            <button class="btn btn-danger" onclick="deleteUnit('${docSnap.id}')">Hapus</button>
+          </td>
+        `;
+        unitsTableBody.appendChild(tr);
+      });
+    });
+
+    // Hapus unit
+    window.deleteUnit = async (id) => {
+      if(confirm("Yakin ingin menghapus unit ini?")){
+        await deleteDoc(doc(db, "units", id));
+      }
+    }
   </script></body>
 </html>
