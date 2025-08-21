@@ -15,7 +15,7 @@
       margin-bottom: 20px;
     }
     form {
-      max-width: 400px;
+      max-width: 500px;
       margin: auto;
       background: #fff;
       padding: 20px;
@@ -38,7 +38,7 @@
       background: #0056b3;
     }
     .list {
-      max-width: 600px;
+      max-width: 800px;
       margin: 30px auto;
       background: #fff;
       padding: 20px;
@@ -56,9 +56,20 @@
 
   <!-- Form Input -->
   <form id="unitForm">
+    <input type="text" id="kodeUnit" placeholder="Kode Unit (contoh: HP-28042025-A)" required />
+    <label>Tanggal Masuk</label>
+    <input type="date" id="tglMasuk" required />
+    <label>Tanggal Jual</label>
+    <input type="date" id="tglJual" required />
+
     <input type="text" id="merk" placeholder="Merk HP" required />
     <input type="text" id="model" placeholder="Model HP" required />
-    <input type="number" id="harga" placeholder="Harga (Rp)" required />
+
+    <input type="number" id="hargaBeli" placeholder="Harga Beli (Rp)" required />
+    <input type="number" id="biayaPerbaikan" placeholder="Total Biaya Perbaikan (Rp)" required />
+    <input type="number" id="transport" placeholder="Transport (Rp)" required />
+    <input type="number" id="hargaJual" placeholder="Harga Jual (Rp)" required />
+
     <button type="submit">Simpan</button>
   </form>
 
@@ -68,7 +79,7 @@
     <div id="unitList"></div>
   </div>
 
-  <!-- Firebase SDK (Compat v9) -->
+  <!-- Firebase SDK -->
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
 
@@ -93,15 +104,28 @@
     // Submit form
     form.addEventListener("submit", async (e) => {
       e.preventDefault();
+      const kodeUnit = document.getElementById("kodeUnit").value;
+      const tglMasuk = document.getElementById("tglMasuk").value;
+      const tglJual = document.getElementById("tglJual").value;
       const merk = document.getElementById("merk").value;
       const model = document.getElementById("model").value;
-      const harga = parseInt(document.getElementById("harga").value);
+      const hargaBeli = parseInt(document.getElementById("hargaBeli").value);
+      const biayaPerbaikan = parseInt(document.getElementById("biayaPerbaikan").value);
+      const transport = parseInt(document.getElementById("transport").value);
+      const hargaJual = parseInt(document.getElementById("hargaJual").value);
+
+      // Hitung otomatis
+      const HPP = hargaBeli + biayaPerbaikan;
+      const labaKotor = hargaJual - HPP;
+      const labaUsaha = labaKotor - transport;
+      const labaBersih = labaUsaha; // tanpa pajak
+      const margin = ((labaBersih / hargaJual) * 100).toFixed(2);
 
       try {
         await db.collection("units").add({
-          merk,
-          model,
-          harga,
+          kodeUnit, tglMasuk, tglJual, merk, model,
+          hargaBeli, biayaPerbaikan, transport, hargaJual,
+          HPP, labaKotor, labaUsaha, labaBersih, margin,
           createdAt: firebase.firestore.FieldValue.serverTimestamp()
         });
 
@@ -120,8 +144,11 @@
         const data = doc.data();
         unitList.innerHTML += `
           <div class="unit">
-            <b>${data.merk} ${data.model}</b><br>
-            Harga: Rp${data.harga}
+            <b>${data.kodeUnit} | ${data.merk} ${data.model}</b><br>
+            Masuk: ${data.tglMasuk} | Jual: ${data.tglJual}<br>
+            Beli: Rp${data.hargaBeli} | Jual: Rp${data.hargaJual}<br>
+            HPP: Rp${data.HPP} | Laba Bersih: Rp${data.labaBersih}<br>
+            Margin: ${data.margin}%
           </div>
         `;
       });
