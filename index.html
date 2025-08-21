@@ -4,91 +4,27 @@
   <meta charset="UTF-8">
   <title>HP Inventory Dashboard</title>
   <style>
-    body {
-      margin: 0;
-      padding: 0;
-      font-family: Arial, sans-serif;
-      display: flex;
-      flex-direction: column;
-      height: 100vh;
-    }
-    header {
-      padding: 15px;
-      background: #1976d2;
-      color: #fff;
-      text-align: center;
-    }
-    main {
-      flex: 1;
-      display: flex;
-      flex-direction: column;
-      padding: 20px;
-      overflow: hidden;
-    }
-    button {
-      padding: 10px 15px;
-      border: none;
-      background: #1976d2;
-      color: #fff;
-      border-radius: 4px;
-      cursor: pointer;
-      margin-bottom: 15px;
-    }
-    button:hover {
-      background: #0d47a1;
-    }
-    table {
-      width: 100%;
-      border-collapse: collapse;
-    }
-    th, td {
-      padding: 8px;
-      border: 1px solid #ccc;
-      text-align: center;
-    }
-    th {
-      background: #f2f2f2;
-    }
-    #pagination {
-      margin-top: 10px;
-      text-align: center;
-    }
-    #pagination button {
-      margin: 0 3px;
-      background: #e0e0e0;
-      color: #000;
-    }
-    #pagination button.active {
-      background: #1976d2;
-      color: #fff;
-    }
-    /* Popup */
-    .popup {
-      display: none;
-      position: fixed;
-      top: 10%;
-      left: 50%;
-      transform: translateX(-50%);
-      background: #fff;
-      padding: 20px;
-      border: 1px solid #ccc;
-      width: 400px;
-      max-height: 80vh;
-      overflow-y: auto;
-      box-shadow: 0 4px 10px rgba(0,0,0,0.3);
-    }
-    .dynamic-field { display: flex; gap: 5px; margin: 5px 0; }
-    .dynamic-field input { flex: 1; }
+    body { margin:0; padding:0; font-family:Arial, sans-serif; display:flex; flex-direction:column; height:100vh; }
+    header { padding:15px; background:#1976d2; color:#fff; text-align:center; }
+    main { flex:1; display:flex; flex-direction:column; padding:20px; overflow:hidden; }
+    button { padding:7px 12px; border:none; background:#1976d2; color:#fff; border-radius:4px; cursor:pointer; margin:2px; }
+    button:hover { background:#0d47a1; }
+    table { width:100%; border-collapse:collapse; }
+    th, td { padding:8px; border:1px solid #ccc; text-align:center; }
+    th { background:#f2f2f2; }
+    #pagination { margin-top:10px; text-align:center; }
+    #pagination button { margin:0 3px; background:#e0e0e0; color:#000; }
+    #pagination button.active { background:#1976d2; color:#fff; }
+    .popup { display:none; position:fixed; top:10%; left:50%; transform:translateX(-50%); background:#fff; padding:20px; border:1px solid #ccc; width:400px; max-height:80vh; overflow-y:auto; box-shadow:0 4px 10px rgba(0,0,0,0.3); }
+    .dynamic-field { display:flex; gap:5px; margin:5px 0; }
+    .dynamic-field input { flex:1; }
   </style>
 </head>
 <body>
-  <header>
-    <h2>Dashboard HP Inventory</h2>
-  </header>
+  <header><h2>Dashboard HP Inventory</h2></header>
 
   <main>
     <button onclick="openForm()">+ Tambah Unit</button>
-
     <div style="flex:1; overflow:auto;">
       <table>
         <thead>
@@ -102,15 +38,15 @@
         <tbody id="unitTable"></tbody>
       </table>
     </div>
-
     <div id="pagination"></div>
   </main>
 
   <!-- Popup Form Tambah/Edit -->
   <div id="formPopup" class="popup"></div>
-
   <!-- Popup Detail -->
   <div id="detailPopup" class="popup"></div>
+  <!-- Popup Perbaikan -->
+  <div id="repairPopup" class="popup"></div>
 
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/12.1.0/firebase-app.js";
@@ -128,26 +64,24 @@
     const db = getFirestore(app);
     const unitRef = collection(db,"units");
 
-    let allUnits = [];
-    let currentPage = 1;
-    const perPage = 5;
+    let allUnits=[]; let currentPage=1; const perPage=5;
 
     // Tambah field dinamis
-    window.addField = function(containerId, name) {
-      const container = document.getElementById(containerId);
-      const index = container.querySelectorAll("input").length + 1;
-      const div = document.createElement("div");
-      div.className = "dynamic-field";
-      div.innerHTML = `<input type="text" name="${name}" placeholder="Cek#${index}">
-                       <button type="button" onclick="this.parentNode.remove()">x</button>`;
+    window.addField=function(containerId,name){
+      const container=document.getElementById(containerId);
+      const index=container.querySelectorAll("input").length+1;
+      const div=document.createElement("div");
+      div.className="dynamic-field";
+      div.innerHTML=`<input type="text" name="${name}" placeholder="Cek#${index}">
+                     <button type="button" onclick="this.parentNode.remove()">x</button>`;
       container.appendChild(div);
     }
-    function getArrayFromInputs(name) {
+    function getArrayFromInputs(name){
       return Array.from(document.getElementsByName(name)).map(i=>i.value).filter(v=>v);
     }
 
-    // Open form
-    window.openForm = ()=> {
+    // Tambah Unit
+    window.openForm=()=>{
       const formPopup=document.getElementById("formPopup");
       formPopup.innerHTML=`
         <h3>Tambah Unit</h3>
@@ -164,31 +98,28 @@
           <button type="button" onclick="closeForm()">Batal</button>
         </form>`;
       formPopup.style.display="block";
-
-      document.getElementById("formBeli").addEventListener("submit", async (e)=>{
+      document.getElementById("formBeli").addEventListener("submit",async(e)=>{
         e.preventDefault();
-        const tanggalMasuk = document.getElementById("tanggalMasuk").value;
-        const lokasiPenjual = document.getElementById("lokasiPenjual").value;
-        const tipeVarian = document.getElementById("tipeVarian").value;
-        const hargaBeli = +document.getElementById("hargaBeli").value;
-        const pengecekanDenganPenjual = getArrayFromInputs("pengecekanPenjual");
-        await addDoc(unitRef, {
-          tanggalMasuk, lokasiTransaksiPenjual: lokasiPenjual,
-          tipeVarian, hargaBeli, pengecekanDenganPenjual,
-          status:"Belum Selesai"
-        });
+        const data={
+          tanggalMasuk:document.getElementById("tanggalMasuk").value,
+          lokasiTransaksiPenjual:document.getElementById("lokasiPenjual").value,
+          tipeVarian:document.getElementById("tipeVarian").value,
+          hargaBeli:+document.getElementById("hargaBeli").value,
+          pengecekanDenganPenjual:getArrayFromInputs("pengecekanPenjual"),
+          status:"Belum Selesai",
+          perbaikan:[]
+        };
+        await addDoc(unitRef,data);
         closeForm();
       });
     }
-    window.closeForm = ()=> document.getElementById("formPopup").style.display="none";
+    window.closeForm=()=>document.getElementById("formPopup").style.display="none";
 
-    // Load units realtime
+    // Load realtime
     function loadUnits(){
-      onSnapshot(unitRef, (snapshot)=>{
+      onSnapshot(unitRef,(snapshot)=>{
         allUnits=[];
-        snapshot.forEach(docSnap=>{
-          allUnits.push({id:docSnap.id, ...docSnap.data()});
-        });
+        snapshot.forEach(docSnap=>allUnits.push({id:docSnap.id,...docSnap.data()}));
         renderTable();
       });
     }
@@ -200,7 +131,6 @@
       const start=(currentPage-1)*perPage;
       const end=start+perPage;
       const pageItems=allUnits.slice(start,end);
-
       pageItems.forEach((u,i)=>{
         const tr=document.createElement("tr");
         tr.innerHTML=`
@@ -209,6 +139,8 @@
           <td>${u.status}</td>
           <td>
             <button onclick="showDetail('${u.id}')">Detail</button>
+            <button onclick="openRepair('${u.id}')">Perbaiki</button>
+            <button onclick="jadikanBangkai('${u.id}')">Jadikan Bangkai</button>
             <button onclick="hapusUnit('${u.id}')">Hapus</button>
           </td>`;
         table.appendChild(tr);
@@ -245,8 +177,37 @@
         <p>Lokasi Penjual: ${u.lokasiTransaksiPenjual}</p>
         <p>Harga Beli: ${u.hargaBeli}</p>
         <p>Pengecekan: ${(u.pengecekanDenganPenjual||[]).join(", ")}</p>
+        <p>Status: ${u.status}</p>
+        <p>Perbaikan: ${(u.perbaikan||[]).join(", ")}</p>
         <button onclick="document.getElementById('detailPopup').style.display='none'">Tutup</button>`;
       popup.style.display="block";
+    }
+
+    // Perbaikan
+    window.openRepair=(id)=>{
+      const popup=document.getElementById("repairPopup");
+      popup.innerHTML=`
+        <h3>Perbaikan Unit</h3>
+        <form id="formRepair">
+          <div id="perbaikanContainer"></div>
+          <button type="button" onclick="addField('perbaikanContainer','perbaikan')">+ Tambah Cek</button>
+          <button type="submit">Simpan</button>
+          <button type="button" onclick="document.getElementById('repairPopup').style.display='none'">Batal</button>
+        </form>`;
+      popup.style.display="block";
+      document.getElementById("formRepair").addEventListener("submit",async(e)=>{
+        e.preventDefault();
+        const perbaikan=getArrayFromInputs("perbaikan");
+        await updateDoc(doc(db,"units",id),{perbaikan});
+        document.getElementById("repairPopup").style.display="none";
+      });
+    }
+
+    // Jadikan Bangkai
+    window.jadikanBangkai=async(id)=>{
+      if(confirm("Yakin jadikan bangkai?")){
+        await updateDoc(doc(db,"units",id),{status:"Bangkai"});
+      }
     }
   </script>
 </body>
