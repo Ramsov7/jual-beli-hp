@@ -1,53 +1,62 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Ramsov HP Inventory</title>
   <style>
     body {
       font-family: Arial, sans-serif;
-      margin: 30px;
+      margin: 20px;
       background: #f8f9fa;
     }
-    h1 {
-      text-align: center;
-      margin-bottom: 20px;
-    }
-    form {
-      max-width: 400px;
+    h1 { text-align: center; margin-bottom: 20px; }
+    form, .list {
+      max-width: 500px;
       margin: auto;
       background: #fff;
       padding: 20px;
       border-radius: 10px;
-      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+      margin-bottom: 30px;
     }
-    input, button {
+    input, textarea, button {
       width: 100%;
-      margin: 8px 0;
-      padding: 10px;
+      padding: 8px;
+      margin: 6px 0;
+      border-radius: 5px;
       border: 1px solid #ccc;
-      border-radius: 6px;
     }
     button {
       background: #007bff;
       color: white;
       cursor: pointer;
+      border: none;
     }
-    button:hover {
-      background: #0056b3;
-    }
+    button:hover { background: #0056b3; }
+    .unit { border-bottom: 1px solid #ddd; padding: 10px 0; }
+    img { max-width: 120px; margin-top: 10px; border-radius: 8px; }
   </style>
 </head>
 <body>
-  <h1>Ramsov HP Inventory</h1>
+  <h1>📱 Ramsov HP Inventory</h1>
+
+  <!-- Form Input -->
   <form id="unitForm">
-    <input type="text" id="merk" placeholder="Merk HP" required />
-    <input type="text" id="model" placeholder="Model HP" required />
-    <input type="number" id="harga" placeholder="Harga (Rp)" required />
-    <input type="file" id="foto" accept="image/*" />
+    <h2>Tambah Unit</h2>
+    <input type="text" id="merk" placeholder="Merk HP" required>
+    <input type="text" id="model" placeholder="Model HP" required>
+    <input type="number" id="harga" placeholder="Harga (Rp)" required>
+    <textarea id="catatan" placeholder="Catatan / Pengecekan"></textarea>
+    <input type="file" id="foto" accept="image/*">
     <button type="submit">Simpan</button>
   </form>
+
+  <!-- List Data -->
+  <div class="list">
+    <h2>Daftar Unit</h2>
+    <div id="unitList"></div>
+  </div>
 
   <!-- Firebase SDK (Compat v9) -->
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
@@ -55,7 +64,7 @@
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-storage-compat.js"></script>
 
   <script>
-    // Firebase config project kamu
+    // Config Firebase
     const firebaseConfig = {
       apiKey: "AIzaSyA-taZOYNdqrPqfaA3ObSAC2hJ7UzMTaQs",
       authDomain: "ramsov-hp-inventory.firebaseapp.com",
@@ -70,18 +79,21 @@
     const db = firebase.firestore();
     const storage = firebase.storage();
 
-    // Form submit
-    document.getElementById("unitForm").addEventListener("submit", async (e) => {
+    const form = document.getElementById("unitForm");
+    const unitList = document.getElementById("unitList");
+
+    form.addEventListener("submit", async (e) => {
       e.preventDefault();
 
       const merk = document.getElementById("merk").value;
       const model = document.getElementById("model").value;
-      const harga = document.getElementById("harga").value;
+      const harga = parseInt(document.getElementById("harga").value);
+      const catatan = document.getElementById("catatan").value;
       const file = document.getElementById("foto").files[0];
 
       let fotoUrl = "";
       try {
-        if (file) {
+        if(file){
           const storageRef = storage.ref("hp_images/" + Date.now() + "_" + file.name);
           await storageRef.put(file);
           fotoUrl = await storageRef.getDownloadURL();
@@ -90,17 +102,34 @@
         await db.collection("units").add({
           merk,
           model,
-          harga: parseInt(harga),
+          harga,
+          catatan,
           fotoUrl,
           createdAt: firebase.firestore.FieldValue.serverTimestamp()
         });
 
         alert("Data berhasil disimpan!");
-        document.getElementById("unitForm").reset();
-      } catch (err) {
+        form.reset();
+      } catch(err){
         console.error(err);
         alert("Gagal menyimpan data!");
       }
+    });
+
+    // Tampilkan daftar unit
+    db.collection("units").orderBy("createdAt","desc").onSnapshot(snapshot => {
+      unitList.innerHTML = "";
+      snapshot.forEach(doc => {
+        const data = doc.data();
+        unitList.innerHTML += `
+          <div class="unit">
+            <b>${data.merk} ${data.model}</b><br>
+            Harga: Rp${data.harga}<br>
+            Catatan: ${data.catatan || "-"}<br>
+            ${data.fotoUrl ? `<img src="${data.fotoUrl}">` : ""}
+          </div>
+        `;
+      });
     });
   </script>
 </body>
