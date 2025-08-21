@@ -1,54 +1,70 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Ramsov HP Inventory</title>
   <style>
     body {
       font-family: Arial, sans-serif;
-      margin: 20px;
+      margin: 30px;
       background: #f8f9fa;
     }
-    h1 { text-align: center; margin-bottom: 20px; }
-    form, .list {
-      max-width: 500px;
+    h1 {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+    form {
+      max-width: 400px;
       margin: auto;
       background: #fff;
       padding: 20px;
       border-radius: 10px;
-      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-      margin-bottom: 30px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
     }
-    input, textarea, button {
+    input, button {
       width: 100%;
-      padding: 8px;
-      margin: 6px 0;
-      border-radius: 5px;
+      margin: 8px 0;
+      padding: 10px;
       border: 1px solid #ccc;
+      border-radius: 6px;
     }
     button {
       background: #007bff;
       color: white;
       cursor: pointer;
-      border: none;
     }
-    button:hover { background: #0056b3; }
-    .unit { border-bottom: 1px solid #ddd; padding: 10px 0; }
-    img { max-width: 120px; margin-top: 10px; border-radius: 8px; }
+    button:hover {
+      background: #0056b3;
+    }
+    .list {
+      max-width: 600px;
+      margin: 30px auto;
+      background: #fff;
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+    }
+    .unit {
+      border-bottom: 1px solid #ddd;
+      padding: 10px 0;
+    }
+    img {
+      max-width: 120px;
+      margin-top: 10px;
+      border-radius: 8px;
+    }
   </style>
 </head>
 <body>
-  <h1>📱 Ramsov HP Inventory</h1>
+  <h1>Ramsov HP Inventory</h1>
 
   <!-- Form Input -->
   <form id="unitForm">
-    <h2>Tambah Unit</h2>
-    <input type="text" id="merk" placeholder="Merk HP" required>
-    <input type="text" id="model" placeholder="Model HP" required>
-    <input type="number" id="harga" placeholder="Harga (Rp)" required>
-    <textarea id="catatan" placeholder="Catatan / Pengecekan"></textarea>
-    <input type="file" id="foto" accept="image/*">
+    <input type="text" id="merk" placeholder="Merk HP" required />
+    <input type="text" id="model" placeholder="Model HP" required />
+    <input type="number" id="harga" placeholder="Harga (Rp)" required />
+    <input type="file" id="foto" accept="image/*" />
     <button type="submit">Simpan</button>
   </form>
 
@@ -64,12 +80,12 @@
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-storage-compat.js"></script>
 
   <script>
-    // Config Firebase
+    // Firebase config project kamu
     const firebaseConfig = {
       apiKey: "AIzaSyA-taZOYNdqrPqfaA3ObSAC2hJ7UzMTaQs",
       authDomain: "ramsov-hp-inventory.firebaseapp.com",
       projectId: "ramsov-hp-inventory",
-      storageBucket: "ramsov-hp-inventory.firebasestorage.app",
+      storageBucket: "ramsov-hp-inventory.appspot.com",
       messagingSenderId: "384818720368",
       appId: "1:384818720368:web:ae61ec9869da0c83b9ceb5"
     };
@@ -82,17 +98,16 @@
     const form = document.getElementById("unitForm");
     const unitList = document.getElementById("unitList");
 
+    // Submit form
     form.addEventListener("submit", async (e) => {
       e.preventDefault();
-
       const merk = document.getElementById("merk").value;
       const model = document.getElementById("model").value;
       const harga = parseInt(document.getElementById("harga").value);
-      const catatan = document.getElementById("catatan").value;
       const file = document.getElementById("foto").files[0];
 
-      let fotoUrl = "";
       try {
+        let fotoUrl = "";
         if(file){
           const storageRef = storage.ref("hp_images/" + Date.now() + "_" + file.name);
           await storageRef.put(file);
@@ -103,20 +118,19 @@
           merk,
           model,
           harga,
-          catatan,
           fotoUrl,
           createdAt: firebase.firestore.FieldValue.serverTimestamp()
         });
 
         alert("Data berhasil disimpan!");
         form.reset();
-      } catch(err){
+      } catch (err) {
         console.error(err);
-        alert("Gagal menyimpan data!");
+        alert("Gagal menyimpan data! Cek console.");
       }
     });
 
-    // Tampilkan daftar unit
+    // Render daftar unit
     db.collection("units").orderBy("createdAt","desc").onSnapshot(snapshot => {
       unitList.innerHTML = "";
       snapshot.forEach(doc => {
@@ -125,8 +139,7 @@
           <div class="unit">
             <b>${data.merk} ${data.model}</b><br>
             Harga: Rp${data.harga}<br>
-            Catatan: ${data.catatan || "-"}<br>
-            ${data.fotoUrl ? `<img src="${data.fotoUrl}">` : ""}
+            ${data.fotoUrl ? `<img src="${data.fotoUrl}">` : ''}
           </div>
         `;
       });
