@@ -5,59 +5,18 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Ramsov HP Inventory</title>
   <style>
-    body {
-      font-family: Arial, sans-serif;
-      margin: 30px;
-      background: #f8f9fa;
-    }
-    h1 {
-      text-align: center;
-      margin-bottom: 20px;
-    }
-    form {
-      max-width: 600px;
-      margin: auto;
-      background: #fff;
-      padding: 20px;
-      border-radius: 10px;
-      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
-    }
-    label {
-      font-weight: bold;
-      margin-top: 10px;
-      display: block;
-    }
+    body { font-family: Arial, sans-serif; margin: 30px; background: #f8f9fa; }
+    h1 { text-align: center; margin-bottom: 20px; }
+    form { max-width: 600px; margin: auto; background: #fff; padding: 20px; border-radius: 10px; box-shadow: 0 2px 6px rgba(0,0,0,0.1); }
+    label { font-weight: bold; margin-top: 10px; display: block; }
     input, textarea, button {
-      width: 100%;
-      margin: 6px 0 12px;
-      padding: 10px;
-      border: 1px solid #ccc;
-      border-radius: 6px;
+      width: 100%; margin: 6px 0 12px; padding: 10px; border: 1px solid #ccc; border-radius: 6px;
     }
-    textarea {
-      resize: vertical;
-      min-height: 60px;
-    }
-    button {
-      background: #007bff;
-      color: white;
-      cursor: pointer;
-    }
-    button:hover {
-      background: #0056b3;
-    }
-    .list {
-      max-width: 900px;
-      margin: 30px auto;
-      background: #fff;
-      padding: 20px;
-      border-radius: 10px;
-      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
-    }
-    .unit {
-      border-bottom: 1px solid #ddd;
-      padding: 10px 0;
-    }
+    textarea { resize: vertical; min-height: 60px; }
+    button { background: #007bff; color: white; cursor: pointer; }
+    button:hover { background: #0056b3; }
+    .list { max-width: 900px; margin: 30px auto; background: #fff; padding: 20px; border-radius: 10px; box-shadow: 0 2px 6px rgba(0,0,0,0.1); }
+    .unit { border-bottom: 1px solid #ddd; padding: 10px 0; }
   </style>
 </head>
 <body>
@@ -66,9 +25,6 @@
   <!-- Form Input -->
   <form id="unitForm">
     <!-- Bagian Identitas -->
-    <label>Kode Unit</label>
-    <input type="text" id="kodeUnit" placeholder="Contoh: HP-28042025-A" required />
-
     <label>Tanggal Masuk</label>
     <input type="date" id="tglMasuk" required />
 
@@ -86,20 +42,20 @@
 
     <!-- Bagian Kondisi -->
     <label>Pengecekan dengan Penjual</label>
-    <textarea id="cekPenjual" placeholder="Contoh: Lupa password, tombol on/off rusak"></textarea>
+    <textarea id="cekPenjual"></textarea>
 
     <label>Pengecekan Lanjutan</label>
-    <textarea id="cekLanjutan" placeholder="Contoh: Flexible volume tidak berfungsi"></textarea>
+    <textarea id="cekLanjutan"></textarea>
 
     <label>Minus ketika Ready Dijual</label>
-    <textarea id="minusReady" placeholder="Contoh: Bekas, tanpa dos"></textarea>
+    <textarea id="minusReady"></textarea>
 
     <!-- Bagian Finansial -->
     <label>Harga Beli Unit (Rp)</label>
     <input type="number" id="hargaBeli" required />
 
     <label>Rincian Biaya Perbaikan</label>
-    <textarea id="rincianPerbaikan" placeholder="Contoh: Backdoor 55.000, Flexible 5.000, dll."></textarea>
+    <textarea id="rincianPerbaikan"></textarea>
 
     <label>Total Biaya Perbaikan (Rp)</label>
     <input type="number" id="biayaPerbaikan" required />
@@ -130,7 +86,6 @@
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
 
   <script>
-    // Firebase config project kamu
     const firebaseConfig = {
       apiKey: "AIzaSyA-taZOYNdqrPqfaA3ObSAC2hJ7UzMTaQs",
       authDomain: "ramsov-hp-inventory.firebaseapp.com",
@@ -140,19 +95,24 @@
       appId: "1:384818720368:web:ae61ec9869da0c83b9ceb5"
     };
 
-    // Init Firebase
     firebase.initializeApp(firebaseConfig);
     const db = firebase.firestore();
 
     const form = document.getElementById("unitForm");
     const unitList = document.getElementById("unitList");
 
-    // Submit form
+    // Fungsi generate kode unit otomatis
+    async function generateKodeUnit(tglMasuk) {
+      const dateStr = tglMasuk.split("-").reverse().join(""); // yyyy-mm-dd -> ddMMyyyy
+      const snapshot = await db.collection("units").where("tglMasuk","==",tglMasuk).get();
+      const count = snapshot.size + 1;
+      const nomor = String(count).padStart(3,"0"); // jadi 001, 002, 003
+      return `HP-${dateStr}-${nomor}`;
+    }
+
     form.addEventListener("submit", async (e) => {
       e.preventDefault();
 
-      // Ambil data dari form
-      const kodeUnit = document.getElementById("kodeUnit").value;
       const tglMasuk = document.getElementById("tglMasuk").value;
       const tglJual = document.getElementById("tglJual").value;
       const tipeVarian = document.getElementById("tipeVarian").value;
@@ -177,6 +137,9 @@
       const labaBersih = labaUsaha - pajak - bunga;
       const margin = ((labaBersih / hargaJual) * 100).toFixed(2);
 
+      // Generate kode unit otomatis
+      const kodeUnit = await generateKodeUnit(tglMasuk);
+
       try {
         await db.collection("units").add({
           kodeUnit, tglMasuk, tglJual, tipeVarian,
@@ -196,7 +159,7 @@
       }
     });
 
-    // Render daftar unit (ringkasan)
+    // Render daftar unit
     db.collection("units").orderBy("createdAt","desc").onSnapshot(snapshot => {
       unitList.innerHTML = "";
       snapshot.forEach(doc => {
