@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Ramsov HP Inventory</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 30px;
+      background: #f8f9fa;
+    }
+    h1 {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+    form {
+      max-width: 400px;
+      margin: auto;
+      background: #fff;
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+    }
+    input, button {
+      width: 100%;
+      margin: 8px 0;
+      padding: 10px;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+    }
+    button {
+      background: #007bff;
+      color: white;
+      cursor: pointer;
+    }
+    button:hover {
+      background: #0056b3;
+    }
+  </style>
+</head>
+<body>
+  <h1>Ramsov HP Inventory</h1>
+  <form id="unitForm">
+    <input type="text" id="merk" placeholder="Merk HP" required />
+    <input type="text" id="model" placeholder="Model HP" required />
+    <input type="number" id="harga" placeholder="Harga (Rp)" required />
+    <input type="file" id="foto" accept="image/*" />
+    <button type="submit">Simpan</button>
+  </form>
+
+  <!-- Firebase SDK (Compat v9) -->
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-storage-compat.js"></script>
+
+  <script>
+    // Firebase config project kamu
+    const firebaseConfig = {
+      apiKey: "AIzaSyA-taZOYNdqrPqfaA3ObSAC2hJ7UzMTaQs",
+      authDomain: "ramsov-hp-inventory.firebaseapp.com",
+      projectId: "ramsov-hp-inventory",
+      storageBucket: "ramsov-hp-inventory.firebasestorage.app",
+      messagingSenderId: "384818720368",
+      appId: "1:384818720368:web:ae61ec9869da0c83b9ceb5"
+    };
+
+    // Init Firebase
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.firestore();
+    const storage = firebase.storage();
+
+    // Form submit
+    document.getElementById("unitForm").addEventListener("submit", async (e) => {
+      e.preventDefault();
+
+      const merk = document.getElementById("merk").value;
+      const model = document.getElementById("model").value;
+      const harga = document.getElementById("harga").value;
+      const file = document.getElementById("foto").files[0];
+
+      let fotoUrl = "";
+      try {
+        if (file) {
+          const storageRef = storage.ref("hp_images/" + Date.now() + "_" + file.name);
+          await storageRef.put(file);
+          fotoUrl = await storageRef.getDownloadURL();
+        }
+
+        await db.collection("units").add({
+          merk,
+          model,
+          harga: parseInt(harga),
+          fotoUrl,
+          createdAt: firebase.firestore.FieldValue.serverTimestamp()
+        });
+
+        alert("Data berhasil disimpan!");
+        document.getElementById("unitForm").reset();
+      } catch (err) {
+        console.error(err);
+        alert("Gagal menyimpan data!");
+      }
+    });
+  </script>
+</body>
+</html>
