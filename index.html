@@ -1,42 +1,38 @@
-<!DOCTYPE html><html lang="en">
+<!DOCTYPE html><html lang="id">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>HP Inventory</title>
   <style>
     body { font-family: Arial, sans-serif; margin: 20px; }
-    h1 { text-align: center; }
-    form { margin-bottom: 20px; padding: 15px; border: 1px solid #ccc; border-radius: 10px; }
-    label { display: block; margin-top: 10px; }
-    input, textarea, button { width: 100%; padding: 8px; margin-top: 5px; }
+    form { margin-bottom: 20px; padding: 10px; border: 1px solid #ccc; }
     ul { list-style: none; padding: 0; }
-    li { margin: 10px 0; padding: 10px; border: 1px solid #ccc; border-radius: 8px; display: flex; justify-content: space-between; align-items: center; }
-    .status { font-weight: bold; }
-    .actions button { margin-left: 5px; }
-    .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); justify-content: center; align-items: center; }
-    .modal-content { background: white; padding: 20px; border-radius: 10px; width: 80%; max-width: 600px; position: relative; }
-    .close { position: absolute; top: 10px; right: 15px; cursor: pointer; font-size: 20px; }
+    li { margin: 8px 0; padding: 10px; border: 1px solid #ddd; display: flex; justify-content: space-between; align-items: center; }
+    button { margin-left: 5px; }
+    #detailModal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); }
+    #detailContent { background: #fff; margin: 10% auto; padding: 20px; width: 400px; border-radius: 6px; }
   </style>
 </head>
 <body>
-  <h1>HP Inventory</h1>  <form id="formBeli">
-    <h3>Form Beli HP</h3>
-    <label>Tipe & Varian <input type="text" id="tipeVarian" required></label>
-    <label>Tanggal Masuk <input type="date" id="tanggalMasuk" required></label>
-    <label>Harga Beli <input type="number" id="hargaBeli" required></label>
-    <label>Lokasi Transaksi Penjual <input type="url" id="lokasiTransaksiPenjual"></label>
-    <label>Pengecekan dengan Penjual <textarea id="pengecekanDenganPenjual"></textarea></label>
-    <label>Pengecekan Lanjutan <textarea id="pengecekanLanjutan"></textarea></label>
-    <button type="submit">Simpan Beli</button>
-  </form>  <h3>Daftar Unit</h3>
-  <ul id="unitList"></ul>  <div id="detailModal" class="modal">
-    <div class="modal-content">
-      <span class="close" onclick="closeModal()">&times;</span>
-      <div id="detailContent"></div>
+  <h1>HP Inventory</h1>  <!-- Form Beli -->  <form id="formBeli">
+    <h3>Input Data Beli</h3>
+    <input type="text" id="tipeVarian" placeholder="Tipe & Varian" required /> <br /><br />
+    <input type="date" id="tanggalMasuk" required /> <br /><br />
+    <input type="number" id="hargaBeli" placeholder="Harga Beli" required /> <br /><br />
+    <input type="url" id="lokasiTransaksiPenjual" placeholder="Lokasi Transaksi Penjual (URL)" required /> <br /><br />
+    <textarea id="pengecekanDenganPenjual" placeholder="Pengecekan dengan Penjual"></textarea> <br /><br />
+    <textarea id="pengecekanLanjutan" placeholder="Pengecekan Lanjutan"></textarea> <br /><br />
+    <button type="submit">Simpan</button>
+  </form>  <h2>Daftar Unit</h2>
+  <ul id="unitList"></ul>  <!-- Modal Detail -->  <div id="detailModal">
+    <div id="detailContent">
+      <h3>Detail Unit</h3>
+      <div id="detailBody"></div>
+      <button onclick="closeDetail()">Tutup</button>
     </div>
   </div>  <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/12.1.0/firebase-app.js";
-    import { getFirestore, collection, addDoc, doc, updateDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/12.1.0/firebase-firestore.js";
+    import { getFirestore, collection, addDoc, onSnapshot, deleteDoc, doc } from "https://www.gstatic.com/firebasejs/12.1.0/firebase-firestore.js";
 
     const firebaseConfig = {
       apiKey: "AIzaSyA-taZOYNdqrPqfaA3ObSAC2hJ7UzMTaQs",
@@ -49,78 +45,68 @@
 
     const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
-    const unitCol = collection(db, "units");
+    const unitsCol = collection(db, "units");
 
     const formBeli = document.getElementById("formBeli");
     const unitList = document.getElementById("unitList");
+    const detailModal = document.getElementById("detailModal");
+    const detailBody = document.getElementById("detailBody");
 
+    // Submit form beli → simpan ke Firestore
     formBeli.addEventListener("submit", async (e) => {
       e.preventDefault();
-      const tipeVarian = document.getElementById("tipeVarian").value;
-      const tanggalMasuk = document.getElementById("tanggalMasuk").value;
-      const hargaBeli = Number(document.getElementById("hargaBeli").value);
-      const lokasiTransaksiPenjual = document.getElementById("lokasiTransaksiPenjual").value;
-      const pengecekanDenganPenjual = document.getElementById("pengecekanDenganPenjual").value;
-      const pengecekanLanjutan = document.getElementById("pengecekanLanjutan").value;
-
-      const kodeUnit = `HP-${tanggalMasuk.replace(/-/g, "")}-${Date.now()}`;
-
-      await addDoc(unitCol, {
-        kode: kodeUnit,
-        tipeVarian,
-        tanggalMasuk: new Date(tanggalMasuk),
-        hargaBeli,
-        lokasiTransaksiPenjual,
-        pengecekanDenganPenjual,
-        pengecekanLanjutan,
+      const data = {
+        tipeVarian: document.getElementById("tipeVarian").value,
+        tanggalMasuk: new Date(document.getElementById("tanggalMasuk").value),
+        hargaBeli: parseInt(document.getElementById("hargaBeli").value),
+        lokasiTransaksiPenjual: document.getElementById("lokasiTransaksiPenjual").value,
+        pengecekanDenganPenjual: document.getElementById("pengecekanDenganPenjual").value,
+        pengecekanLanjutan: document.getElementById("pengecekanLanjutan").value,
         status: "Belum Selesai"
-      });
+      };
+      await addDoc(unitsCol, data);
       formBeli.reset();
     });
 
-    function renderUnit(id, data) {
-      const li = document.createElement("li");
-      li.innerHTML = `
-        <div>
-          <span>${data.tipeVarian}</span> - <span class="status">${data.status}</span>
-        </div>
-        <div class="actions">
-          <button onclick="showDetail('${id}')">Detail</button>
-        </div>
-      `;
-      return li;
-    }
-
-    onSnapshot(unitCol, (snapshot) => {
+    // Listen realtime data
+    onSnapshot(unitsCol, (snapshot) => {
       unitList.innerHTML = "";
       snapshot.forEach((docSnap) => {
-        const data = docSnap.data();
-        const li = renderUnit(docSnap.id, data);
+        const unit = docSnap.data();
+        const li = document.createElement("li");
+        li.textContent = `${unit.tipeVarian} - ${unit.status}`;
+
+        // Tombol Detail
+        const detailBtn = document.createElement("button");
+        detailBtn.textContent = "Detail";
+        detailBtn.onclick = () => showDetail(docSnap);
+        li.appendChild(detailBtn);
+
+        // Tombol Hapus
+        const deleteBtn = document.createElement("button");
+        deleteBtn.textContent = "Hapus";
+        deleteBtn.onclick = async () => {
+          if (confirm("Yakin hapus unit ini?")) {
+            await deleteDoc(doc(db, "units", docSnap.id));
+          }
+        };
+        li.appendChild(deleteBtn);
+
         unitList.appendChild(li);
       });
     });
 
-    window.showDetail = async (id) => {
-      const docRef = doc(db, "units", id);
-      const snap = await (await import("https://www.gstatic.com/firebasejs/12.1.0/firebase-firestore.js")).getDoc(docRef);
-      if (snap.exists()) {
-        const data = snap.data();
-        document.getElementById("detailContent").innerHTML = `
-          <h3>${data.tipeVarian}</h3>
-          <p><b>Kode:</b> ${data.kode}</p>
-          <p><b>Status:</b> ${data.status}</p>
-          <p><b>Tanggal Masuk:</b> ${data.tanggalMasuk.toDate ? data.tanggalMasuk.toDate().toLocaleDateString() : data.tanggalMasuk}</p>
-          <p><b>Harga Beli:</b> ${data.hargaBeli}</p>
-          <p><b>Lokasi Transaksi Penjual:</b> <a href="${data.lokasiTransaksiPenjual}" target="_blank">Link</a></p>
-          <p><b>Pengecekan dengan Penjual:</b> ${data.pengecekanDenganPenjual}</p>
-          <p><b>Pengecekan Lanjutan:</b> ${data.pengecekanLanjutan}</p>
-        `;
-        document.getElementById("detailModal").style.display = "flex";
+    function showDetail(docSnap) {
+      const data = docSnap.data();
+      detailBody.innerHTML = "";
+      for (const key in data) {
+        detailBody.innerHTML += `<p><b>${key}:</b> ${data[key]}</p>`;
       }
-    };
+      detailModal.style.display = "block";
+    }
 
-    window.closeModal = () => {
-      document.getElementById("detailModal").style.display = "none";
+    window.closeDetail = function() {
+      detailModal.style.display = "none";
     }
   </script></body>
 </html>
