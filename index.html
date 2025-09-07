@@ -1,146 +1,103 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-  <meta charset="UTF-8">
-  <title>Inventori HP</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>HP Inventory</title>
   <style>
-    body { font-family: Arial, sans-serif; margin:20px; background:#f4f6f8;}
-    h1 { text-align:center; }
-    .form, .list, .popup { background:#fff; padding:15px; margin-bottom:20px; border-radius:10px; box-shadow:0 2px 5px rgba(0,0,0,0.1);}
-    label { display:block; margin-top:10px; }
-    input, select, textarea { width:100%; padding:8px; margin-top:5px; }
-    button { margin-top:10px; padding:8px 12px; border:none; border-radius:5px; background:#007bff; color:#fff; cursor:pointer;}
-    button:hover { background:#0056b3;}
-    table { width:100%; border-collapse:collapse; margin-top:10px;}
-    th,td { border:1px solid #ddd; padding:8px; text-align:left;}
-    th { background:#007bff; color:#fff;}
-    .popup { display:none; position:fixed; top:50%; left:50%; transform:translate(-50%,-50%); width:400px; max-height:90%; overflow:auto; z-index:10;}
-    .overlay { display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); z-index:9;}
-    .field { margin-bottom:10px;}
+    :root { --primary:#1976d2; }
+    body { font-family: Arial, sans-serif; margin:0; background:#f7f7f7; }
+    header { background: var(--primary); color:#fff; padding:14px; text-align:center; }
+    nav { display:flex; justify-content:center; background:#eee; gap:6px; padding:8px; }
+    nav button { border:none; padding:8px 14px; border-radius:6px; cursor:pointer; font-weight:600; }
+    nav button.active { background:var(--primary); color:#fff; }
+    main { max-width:1100px; margin:auto; padding:20px; }
+    section { display:none; }
+    section.active { display:block; }
+    .card { background:#fff; padding:16px; border-radius:10px; box-shadow:0 2px 6px rgba(0,0,0,.1); margin-bottom:20px; }
   </style>
 </head>
 <body>
-  <h1>Inventori HP</h1>
+  <header>
+    <h2>Dashboard HP Inventory</h2>
+  </header>
 
-  <div class="form">
-    <h2>Tambah Unit HP</h2>
-    <label>Nama Unit: <input id="nama"></label>
-    <label>Harga Beli: <input id="hargaBeli" type="number"></label>
-    <label>Kategori: 
-      <select id="kategori">
-        <option>HP Android Bekas</option>
-        <option>iPhone Bekas</option>
-      </select>
-    </label>
-    <label>Catatan: <textarea id="catatan"></textarea></label>
-    <label>Status: 
-      <select id="status">
-        <option>Belum Terjual</option>
-        <option>Terjual</option>
-      </select>
-    </label>
-    <label id="hargaJualLabel" style="display:none;">Harga Jual: <input id="hargaJual" type="number"></label>
-    <button onclick="tambahUnit()">Tambah</button>
-  </div>
+  <!-- Navigasi -->
+  <nav>
+    <button data-target="beranda" class="active">Beranda</button>
+    <button data-target="pembelian">Pembelian</button>
+    <button data-target="perbaikan">Perbaikan</button>
+    <button data-target="penjualan">Penjualan</button>
+  </nav>
 
-  <div class="list">
-    <h2>Daftar Unit</h2>
-    <table id="tabel">
-      <thead>
-        <tr><th>Nama</th><th>Kategori</th><th>Status</th><th>Aksi</th></tr>
-      </thead>
-      <tbody></tbody>
-    </table>
-  </div>
+  <!-- Konten -->
+  <main>
+    <section id="beranda" class="active">
+      <div class="card">
+        <h3>Arus Kas Bulanan</h3>
+        <canvas id="cashflowChart" height="150"></canvas>
+      </div>
+    </section>
 
-  <div class="overlay" id="overlay"></div>
-  <div class="popup" id="popup">
-    <h2>Detail Unit</h2>
-    <div id="detail"></div>
-    <button onclick="tutup()">Tutup</button>
-  </div>
+    <section id="pembelian">
+      <div class="card">
+        <h3>Form Pembelian</h3>
+        <!-- form pembelian akan ditempatkan di sini -->
+      </div>
+      <div class="card">
+        <h3>Data Pembelian</h3>
+        <!-- tabel pembelian -->
+      </div>
+    </section>
 
-<script>
-let data = [];
+    <section id="perbaikan">
+      <div class="card">
+        <h3>Form Perbaikan</h3>
+        <!-- form perbaikan -->
+      </div>
+    </section>
 
-function fmtIDR(num){return "Rp"+(num?num.toLocaleString("id-ID"):"0");}
+    <section id="penjualan">
+      <div class="card">
+        <h3>Form Penjualan</h3>
+        <!-- form penjualan -->
+      </div>
+      <div class="card">
+        <h3>Data Penjualan</h3>
+        <!-- tabel penjualan -->
+      </div>
+    </section>
+  </main>
 
-document.getElementById("status").addEventListener("change",function(){
-  document.getElementById("hargaJualLabel").style.display = 
-    this.value==="Terjual"?"block":"none";
-});
+  <!-- Chart.js -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script>
+    // Navigasi antar menu
+    const navBtns = document.querySelectorAll('nav button');
+    const sections = document.querySelectorAll('main section');
+    navBtns.forEach(btn=>{
+      btn.addEventListener('click',()=>{
+        navBtns.forEach(b=>b.classList.remove('active'));
+        sections.forEach(s=>s.classList.remove('active'));
+        btn.classList.add('active');
+        document.getElementById(btn.dataset.target).classList.add('active');
+      });
+    });
 
-function tambahUnit(){
-  const nama = document.getElementById("nama").value;
-  const hargaBeli = parseInt(document.getElementById("hargaBeli").value)||0;
-  const kategori = document.getElementById("kategori").value;
-  const catatan = document.getElementById("catatan").value;
-  const status = document.getElementById("status").value;
-  const hargaJual = parseInt(document.getElementById("hargaJual").value)||0;
-
-  const unit = {
-    id: Date.now(),
-    nama, hargaBeli, kategori, catatan,
-    status, hargaJual,
-    ongkosPerbaikan: [],
-    biayaPerbaikan:0
-  };
-  data.push(unit);
-  render();
-  clearForm();
-}
-
-function clearForm(){
-  document.getElementById("nama").value="";
-  document.getElementById("hargaBeli").value="";
-  document.getElementById("catatan").value="";
-  document.getElementById("status").value="Belum Terjual";
-  document.getElementById("hargaJual").value="";
-  document.getElementById("hargaJualLabel").style.display="none";
-}
-
-function render(){
-  const tbody = document.querySelector("#tabel tbody");
-  tbody.innerHTML="";
-  data.forEach(u=>{
-    const tr=document.createElement("tr");
-    tr.innerHTML=`<td>${u.nama}</td><td>${u.kategori}</td><td>${u.status}</td>
-      <td><button onclick="lihat(${u.id})">Detail</button></td>`;
-    tbody.appendChild(tr);
-  });
-}
-
-function lihat(id){
-  const u=data.find(x=>x.id===id);
-  if(!u) return;
-  const totalModal = (u.hargaBeli||0)+(u.biayaPerbaikan||0);
-  const labaBersih = (u.status==="Terjual")?((u.hargaJual||0)-totalModal):0;
-
-  let html=`
-    <div class="field"><b>Nama:</b> ${u.nama}</div>
-    <div class="field"><b>Kategori:</b> ${u.kategori}</div>
-    <div class="field"><b>Status:</b> ${u.status}</div>
-    <div class="field"><b>Harga Beli:</b> ${fmtIDR(u.hargaBeli)}</div>
-    <div class="field"><b>Catatan:</b><br>${u.catatan}</div>
-    <div class="field"><b>Ongkos Perbaikan:</b><ul>
-      ${u.ongkosPerbaikan.map(o=>`<li>${o.desc} - ${fmtIDR(o.biaya)}</li>`).join("")}
-    </ul><b>Total:</b> ${fmtIDR(u.biayaPerbaikan)}</div>
-    <div class="field"><b>Total Modal:</b> ${fmtIDR(totalModal)}</div>
-  `;
-  if(u.status==="Terjual"){
-    html+=`
-      <div class="field"><b>Harga Jual:</b> ${fmtIDR(u.hargaJual)}</div>
-      <div class="field"><b>Laba Bersih:</b> ${fmtIDR(labaBersih)}</div>
-    `;
-  }
-  document.getElementById("detail").innerHTML=html;
-  document.getElementById("overlay").style.display="block";
-  document.getElementById("popup").style.display="block";
-}
-function tutup(){
-  document.getElementById("overlay").style.display="none";
-  document.getElementById("popup").style.display="none";
-}
-</script>
+    // Dummy data chart (nanti diganti realtime dari Firestore)
+    const ctx = document.getElementById('cashflowChart').getContext('2d');
+    new Chart(ctx,{
+      type:'bar',
+      data:{
+        labels:['Jan','Feb','Mar','Apr'],
+        datasets:[
+          {label:'Pembelian', data:[2,3,1,4], backgroundColor:'#f44336'},
+          {label:'Perbaikan', data:[1,1,2,1], backgroundColor:'#ff9800'},
+          {label:'Penjualan', data:[3,4,2,5], backgroundColor:'#4caf50'},
+          {label:'Laba Bersih', data:[1,2,1,3], backgroundColor:'#2196f3'}
+        ]
+      }
+    });
+  </script>
 </body>
 </html>
