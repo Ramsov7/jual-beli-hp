@@ -7,7 +7,13 @@
   <style>
     :root { --primary:#6c63ff; }
     body { font-family: Arial, sans-serif; margin:0; background:#f7f7f7; }
-    header { background:#111; color:#fff; padding:14px; }
+
+    /* Top bar */
+    header {
+      background:#111;
+      color:#fff;
+      padding:10px 16px;
+    }
     header .top-bar {
       display:flex;
       justify-content:space-between;
@@ -19,42 +25,41 @@
       gap:8px;
     }
     header .user-profile img {
-      width:32px; height:32px; border-radius:50%; background:#fff;
+      width:28px; height:28px; border-radius:50%; background:#fff;
     }
-    header .user-profile span { font-size:14px; }
+    header .user-profile span { font-size:14px; font-weight:500; }
     header .notif-btn {
-      background:none;
-      border:none;
-      color:#fff;
-      cursor:pointer;
+      background:none; border:none; color:#fff; cursor:pointer;
     }
-    header .notif-btn svg { width:22px; height:22px; }
-    main { max-width:1100px; margin:auto; padding:20px; padding-bottom:80px; }
+    header .notif-btn svg { width:20px; height:20px; }
+
+    /* Konten */
+    main { max-width:1100px; margin:auto; padding:16px; padding-bottom:80px; }
     section { display:none; }
     section.active { display:block; }
-    .card { background:#fff; padding:16px; border-radius:10px; box-shadow:0 2px 6px rgba(0,0,0,.1); margin-bottom:20px; }
+    .card {
+      background:#fff; padding:16px; border-radius:10px;
+      box-shadow:0 2px 6px rgba(0,0,0,.1); margin-bottom:16px;
+    }
+    .btn {
+      display:inline-block; padding:8px 12px;
+      background:var(--primary); color:#fff; border:none;
+      border-radius:6px; cursor:pointer; font-size:14px;
+    }
 
-    /* bottom nav */
+    /* Bottom nav */
     .bottom-nav {
-      position:fixed;
-      bottom:0; left:0; right:0;
-      background:#111;
-      display:flex;
-      justify-content:space-around;
-      padding:8px 0;
+      position:fixed; bottom:0; left:0; right:0;
+      background:#111; display:flex; justify-content:space-around;
+      padding:6px 0; height:56px;
     }
     .bottom-nav button {
-      background:none;
-      border:none;
-      color:#ccc;
-      display:flex;
-      flex-direction:column;
-      align-items:center;
-      font-size:12px;
-      cursor:pointer;
+      background:none; border:none; color:#ccc;
+      display:flex; flex-direction:column; align-items:center;
+      font-size:11px; cursor:pointer;
     }
     .bottom-nav button.active { color:var(--primary); }
-    .bottom-nav svg { width:22px; height:22px; margin-bottom:4px; }
+    .bottom-nav svg { width:20px; height:20px; margin-bottom:2px; }
     .bottom-nav span { display:none; }
     .bottom-nav button.active span { display:block; }
   </style>
@@ -64,7 +69,7 @@
     <!-- Bar atas -->
     <div class="top-bar">
       <div class="user-profile">
-        <img src="https://via.placeholder.com/32" alt="User">
+        <img src="https://via.placeholder.com/28" alt="User">
         <span>Rudi</span>
       </div>
       <button class="notif-btn">
@@ -85,12 +90,14 @@
       </div>
     </section>
 
-    <section id="pembelian">
+    <section id="master-produk">
       <div class="card">
-        <h3>Form Pembelian</h3>
-      </div>
-      <div class="card">
-        <h3>Data Pembelian</h3>
+        <h3>Daftar Produk</h3>
+        <ul id="produkList">
+          <li>Samsung A03 4/128</li>
+          <li>Oppo A57 6/128</li>
+        </ul>
+        <button class="btn">+ Tambah Produk</button>
       </div>
     </section>
 
@@ -127,12 +134,12 @@
       <span>Beranda</span>
     </button>
 
-    <button data-target="pembelian">
-      <!-- Pembelian -->
+    <button data-target="master-produk">
+      <!-- Master Produk -->
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
         <path fill-rule="evenodd" d="M1 4a1 1 0 0 1 1-1h16a1 1 0 0 1 1 1v8a1 1 0 0 1-1 1H2a1 1 0 0 1-1-1V4Zm12 4a3 3 0 1 1-6 0 3 3 0 0 1 6 0ZM4 9a1 1 0 1 0 0-2 1 1 0 0 0 0 2Zm13-1a1 1 0 1 1-2 0 1 1 0 0 1 2 0ZM1.75 14.5a.75.75 0 0 0 0 1.5c4.417 0 8.693.603 12.749 1.73 1.111.309 2.251-.512 2.251-1.696v-.784a.75.75 0 0 0-1.5 0v.784a.272.272 0 0 1-.35.25A49.043 49.043 0 0 0 1.75 14.5Z" clip-rule="evenodd" />
       </svg>
-      <span>Pembelian</span>
+      <span>Master Produk</span>
     </button>
 
     <button data-target="perbaikan">
