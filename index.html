@@ -68,8 +68,11 @@
       font-size:12px;
       cursor:pointer;
     }
+    .bottom-nav button span { display:none; }
+    .bottom-nav button.active span { display:block; }
     .bottom-nav button.active { color:var(--primary); }
-    .bottom-nav i { font-size:20px; margin-bottom:4px; }
+    .bottom-nav img { width:22px; height:22px; margin-bottom:4px; filter:invert(80%); }
+    .bottom-nav button.active img { filter:invert(43%) sepia(77%) saturate(400%) hue-rotate(220deg); }
   </style>
   <!-- icons -->
   <script src="https://kit.fontawesome.com/yourkit.js" crossorigin="anonymous"></script>
@@ -120,10 +123,13 @@
 
   <!-- Bottom Navigation -->
   <div class="bottom-nav">
-    <button data-target="beranda" class="active"><i class="fas fa-home"></i>Beranda</button>
-    <button data-target="pembelian"><i class="fas fa-shopping-cart"></i>Beli</button>
-    <button data-target="perbaikan"><i class="fas fa-tools"></i>Perbaikan</button>
-    <button data-target="penjualan"><i class="fas fa-cash-register"></i>Jual</button>
+    <button data-target="beranda" class="active">
+      <img src="home.svg" alt="Beranda">
+      <span>Beranda</span>
+    </button>
+    <button data-target="pembelian"><i class="fas fa-shopping-cart"></i><span>Beli</span></button>
+    <button data-target="perbaikan"><i class="fas fa-tools"></i><span>Perbaikan</span></button>
+    <button data-target="penjualan"><i class="fas fa-cash-register"></i><span>Jual</span></button>
   </div>
 
   <!-- Chart.js -->
