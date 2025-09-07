@@ -1,204 +1,267 @@
-<!DOCTYPE html>
-<html lang="id">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>HP Inventory</title>
-  <style>
-    :root { --primary:#6c63ff; }
-    body { font-family: Arial, sans-serif; margin:0; background:#f7f7f7; }
-
-    /* Top bar */
-    header {
-      background:#111; color:#fff;
-      padding:10px 16px;
-    }
-    header .top-bar {
-      display:flex;
-      justify-content:space-between;
-      align-items:center;
-    }
-    header .user-profile {
-      display:flex;
-      align-items:center;
-      gap:10px;
-    }
-    header .user-profile img {
-      width:36px; height:36px; border-radius:50%; background:#fff;
-    }
-    header .user-profile span { font-size:15px; font-weight:bold; }
-    header .notif-btn {
-      background:none; border:none; color:#fff; cursor:pointer;
-    }
-    header .notif-btn svg { width:24px; height:24px; }
-
-    /* Content */
-    main { max-width:1100px; margin:auto; padding:20px; padding-bottom:80px; }
-    section { display:none; }
-    section.active { display:block; }
-    .card {
-      background:#fff; padding:16px;
-      border-radius:10px;
-      box-shadow:0 2px 6px rgba(0,0,0,.1);
-      margin-bottom:20px;
-    }
-
-    /* bottom nav */
-    .bottom-nav {
-      position:fixed;
-      bottom:0; left:0; right:0;
-      background:#111;
-      display:flex;
-      justify-content:space-around;
-      padding:6px 0;
-      border-top:1px solid #333;
-    }
-    .bottom-nav button {
-      background:none;
-      border:none;
-      color:#ccc;
-      display:flex;
-      flex-direction:column;
-      align-items:center;
-      font-size:12px;
-      cursor:pointer;
-      flex:1;
-      padding:6px 0;
-    }
-    .bottom-nav button.active { color:var(--primary); }
-    .bottom-nav svg { width:22px; height:22px; margin-bottom:2px; }
-    .bottom-nav span { display:none; }
-    .bottom-nav button.active span { display:block; }
-  </style>
-</head>
-<body>
-  <header>
-    <!-- Bar atas -->
-    <div class="top-bar">
-      <div class="user-profile">
-        <img src="https://via.placeholder.com/36" alt="User">
-        <span>Rudi</span>
-      </div>
-      <button class="notif-btn">
-        <!-- Notifikasi -->
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
-          <path fill-rule="evenodd" d="M10 2a6 6 0 0 0-6 6c0 1.887-.454 3.665-1.257 5.234a.75.75 0 0 0 .515 1.076 32.91 32.91 0 0 0 3.256.508 3.5 3.5 0 0 0 6.972 0 32.903 32.903 0 0 0 3.256-.508.75.75 0 0 0 .515-1.076A11.448 11.448 0 0 1 16 8a6 6 0 0 0-6-6ZM8.05 14.943a33.54 33.54 0 0 0 3.9 0 2 2 0 0 1-3.9 0Z" clip-rule="evenodd" />
-        </svg>
-      </button>
-    </div>
-  </header>
-
-  <!-- Konten -->
-  <main>
-    <section id="beranda" class="active">
-      <div class="card">
-        <h3>Arus Kas Bulanan</h3>
-        <canvas id="cashflowChart" height="150"></canvas>
-      </div>
-    </section>
-
-    <section id="transaksi">
-      <div class="card">
-        <h3>Daftar Transaksi</h3>
-        <button>+ Tambah Transaksi Pembelian</button>
-        <button>+ Tambah Transaksi Penjualan</button>
-      </div>
-    </section>
-
-    <section id="perbaikan">
-      <div class="card">
-        <h3>Form Perbaikan</h3>
-      </div>
-    </section>
-
-    <section id="master-produk">
-      <div class="card">
-        <h3>Daftar Produk</h3>
-        <button>+ Tambah Produk</button>
-      </div>
-    </section>
-
-    <section id="pengaturan">
-      <div class="card">
-        <h3>Pengaturan</h3>
-        <p>Menu pengaturan aplikasi di sini.</p>
-      </div>
-    </section>
-  </main>
-
-  <!-- Bottom Navigation -->
-  <div class="bottom-nav">
-    <button data-target="beranda" class="active">
-      <!-- Beranda -->
-      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
-        <path fill-rule="evenodd" d="M9.293 2.293a1 1 0 0 1 1.414 0l7 7A1 1 0 0 1 17 11h-1v6a1 1 0 0 1-1 1h-2a1 1 0 0 1-1-1v-3a1 1 0 0 0-1-1H9a1 1 0 0 0-1 1v3a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1v-6H3a1 1 0 0 1-.707-1.707l7-7Z" clip-rule="evenodd" />
-      </svg>
-      <span>Beranda</span>
-    </button>
-
-    <button data-target="transaksi">
-      <!-- Transaksi -->
-      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
-        <path fill-rule="evenodd" d="M1 4a1 1 0 0 1 1-1h16a1 1 0 0 1 1 1v8a1 1 0 0 1-1 1H2a1 1 0 0 1-1-1V4Zm12 4a3 3 0 1 1-6 0 3 3 0 0 1 6 0ZM4 9a1 1 0 1 0 0-2 1 1 0 0 0 0 2Zm13-1a1 1 0 1 1-2 0 1 1 0 0 1 2 0ZM1.75 14.5a.75.75 0 0 0 0 1.5c4.417 0 8.693.603 12.749 1.73 1.111.309 2.251-.512 2.251-1.696v-.784a.75.75 0 0 0-1.5 0v.784a.272.272 0 0 1-.35.25A49.043 49.043 0 0 0 1.75 14.5Z" clip-rule="evenodd" />
-      </svg>
-      <span>Transaksi</span>
-    </button>
-
-    <button data-target="perbaikan">
-      <!-- Perbaikan -->
-      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
-        <path fill-rule="evenodd" d="M14.5 10a4.5 4.5 0 0 0 4.284-5.882c-.105-.324-.51-.391-.752-.15L15.34 6.66a.454.454 0 0 1-.493.11 3.01 3.01 0 0 1-1.618-1.616.455.455 0 0 1 .11-.494l2.694-2.692c.24-.241.174-.647-.15-.752a4.5 4.5 0 0 0-5.873 4.575c.055.873-.128 1.808-.8 2.368l-7.23 6.024a2.724 2.724 0 1 0 3.837 3.837l6.024-7.23c.56-.672 1.495-.855 2.368-.8.096.007.193.01.291.01ZM5 16a1 1 0 1 1-2 0 1 1 0 0 1 2 0Z" clip-rule="evenodd" />
-        <path d="M14.5 11.5c.173 0 .345-.007.514-.022l3.754 3.754a2.5 2.5 0 0 1-3.536 3.536l-4.41-4.41 2.172-2.607c.052-.063.147-.138.342-.196.202-.06.469-.087.777-.067.128.008.257.012.387.012ZM6 4.586l2.33 2.33a.452.452 0 0 1-.08.09L6.8 8.214 4.586 6H3.309a.5.5 0 0 1-.447-.276l-1.7-3.402a.5.5 0 0 1 .093-.577l.49-.49a.5.5 0 0 1 .577-.094l3.402 1.7A.5.5 0 0 1 6 3.31v1.277Z" />
-      </svg>
-      <span>Perbaikan</span>
-    </button>
-
-    <button data-target="master-produk">
-      <!-- Master Produk -->
-      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
-        <path d="M1 1.75A.75.75 0 0 1 1.75 1h1.628a1.75 1.75 0 0 1 1.734 1.51L5.18 3a65.25 65.25 0 0 1 13.36 1.412.75.75 0 0 1 .58.875 48.645 48.645 0 0 1-1.618 6.2.75.75 0 0 1-.712.513H6a2.503 2.503 0 0 0-2.292 1.5H17.25a.75.75 0 0 1 0 1.5H2.76a.75.75 0 0 1-.748-.807 4.002 4.002 0 0 1 2.716-3.486L3.626 2.716a.25.25 0 0 0-.248-.216H1.75A.75.75 0 0 1 1 1.75ZM6 17.5a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0ZM15.5 19a1.5 1.5 0 1 0 0-3 1.5 1.5 0 0 0 0 3Z" />
-      </svg>
-      <span>Master Produk</span>
-    </button>
-
-    <button data-target="pengaturan">
-      <!-- Pengaturan -->
-      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
-        <path fill-rule="evenodd" d="M7.84 1.804A1 1 0 0 1 8.82 1h2.36a1 1 0 0 1 .98.804l.331 1.652a6.993 6.993 0 0 1 1.929 1.115l1.598-.54a1 1 0 0 1 1.186.447l1.18 2.044a1 1 0 0 1-.205 1.251l-1.267 1.113a7.047 7.047 0 0 1 0 2.228l1.267 1.113a1 1 0 0 1 .206 1.25l-1.18 2.045a1 1 0 0 1-1.187.447l-1.598-.54a6.993 6.993 0 0 1-1.929 1.115l-.33 1.652a1 1 0 0 1-.98.804H8.82a1 1 0 0 1-.98-.804l-.331-1.652a6.993 6.993 0 0 1-1.929-1.115l-1.598.54a1 1 0 0 1-1.186-.447l-1.18-2.044a1 1 0 0 1 .205-1.251l1.267-1.114a7.05 7.05 0 0 1 0-2.227L1.821 7.773a1 1 0 0 1-.206-1.25l1.18-2.045a1 1 0 0 1 1.187-.447l1.598.54A6.992 6.992 0 0 1 7.51 3.456l.33-1.652ZM10 13a3 3 0 1 0 0-6 3 3 0 0 0 0 6Z" clip-rule="evenodd" />
-      </svg>
-      <span>Pengaturan</span>
-    </button>
-  </div>
-
-  <!-- Chart.js -->
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-  <script>
-    // Navigasi bottom
-    const navBtns = document.querySelectorAll('.bottom-nav button');
-    const sections = document.querySelectorAll('main section');
-    navBtns.forEach(btn=>{
-      btn.addEventListener('click',()=>{
-        navBtns.forEach(b=>b.classList.remove('active'));
-        sections.forEach(s=>s.classList.remove('active'));
-        btn.classList.add('active');
-        document.getElementById(btn.dataset.target).classList.add('active');
-      });
-    });
-
-    // Dummy data chart
-    const ctx = document.getElementById('cashflowChart').getContext('2d');
-    new Chart(ctx,{
-      type:'bar',
-      data:{
-        labels:['Jan','Feb','Mar','Apr'],
-        datasets:[
-          {label:'Pembelian', data:[2,3,1,4], backgroundColor:'#f44336'},
-          {label:'Perbaikan', data:[1,1,2,1], backgroundColor:'#ff9800'},
-          {label:'Penjualan', data:[3,4,2,5], backgroundColor:'#4caf50'},
-          {label:'Laba Bersih', data:[1,2,1,3], backgroundColor:'#2196f3'}
-        ]
-      }
-    });
-  </script>
-</body>
+<!DOCTYPE html>    
+<html lang="id">    
+<head>    
+  <meta charset="UTF-8">    
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">    
+  <title>HP Inventory</title>    
+  <style>    
+    :root { --primary:#6c63ff; }    
+    body { font-family: Arial, sans-serif; margin:0; background:#f7f7f7; }    
+    
+    /* Top bar */    
+    header {    
+      background:#111; color:#fff;    
+      padding:10px 16px;    
+    }    
+    header .top-bar {    
+      display:flex;    
+      justify-content:space-between;    
+      align-items:center;    
+    }    
+    header .user-profile {    
+      display:flex;    
+      align-items:center;    
+      gap:10px;    
+    }    
+    header .user-profile img {    
+      width:36px; height:36px; border-radius:50%; background:#fff;    
+    }    
+    header .user-profile span { font-size:15px; font-weight:bold; }    
+    header .notif-btn {    
+      background:none; border:none; color:#fff; cursor:pointer;    
+    }    
+    header .notif-btn svg { width:24px; height:24px; }    
+    
+    /* Content */    
+    main { max-width:1100px; margin:auto; padding:20px; padding-bottom:80px; }    
+    section { display:none; }    
+    section.active { display:block; }    
+    .card {    
+      background:#fff; padding:16px;    
+      border-radius:10px;    
+      box-shadow:0 2px 6px rgba(0,0,0,.1);    
+      margin-bottom:20px;    
+    }    
+    
+    /* Filter & search */    
+    .search-filter {    
+      display:flex;    
+      justify-content:space-between;    
+      align-items:center;    
+      margin-bottom:10px;    
+    }    
+    .search-filter svg { width:22px; height:22px; cursor:pointer; }    
+    .dropdowns {    
+      display:flex;    
+      gap:10px;    
+      margin-bottom:15px;    
+    }    
+    .dropdowns select {    
+      flex:1;    
+      padding:6px;    
+      border-radius:6px;    
+      border:1px solid #ccc;    
+    }    
+    .list-item {    
+      border-bottom:1px solid #eee;    
+      padding:10px 0;    
+      display:flex;    
+      justify-content:space-between;    
+      align-items:center;    
+    }    
+    .add-btn {    
+      background:var(--primary);    
+      color:#fff;    
+      border:none;    
+      padding:10px;    
+      border-radius:50%;    
+      cursor:pointer;    
+      display:flex;    
+      align-items:center;    
+      justify-content:center;    
+      margin-top:15px;    
+    }    
+    .add-btn svg { width:24px; height:24px; }    
+    
+    /* bottom nav */    
+    .bottom-nav {    
+      position:fixed;    
+      bottom:0; left:0; right:0;    
+      background:#111;    
+      display:flex;    
+      justify-content:space-around;    
+      padding:6px 0;    
+      border-top:1px solid #333;    
+    }    
+    .bottom-nav button {    
+      background:none;    
+      border:none;    
+      color:#ccc;    
+      display:flex;    
+      flex-direction:column;    
+      align-items:center;    
+      font-size:12px;    
+      cursor:pointer;    
+      flex:1;    
+      padding:6px 0;    
+    }    
+    .bottom-nav button.active { color:var(--primary); }    
+    .bottom-nav svg { width:22px; height:22px; margin-bottom:2px; }    
+    .bottom-nav span { display:none; }    
+    .bottom-nav button.active span { display:block; }    
+  </style>    
+</head>    
+<body>    
+  <header>    
+    <!-- Bar atas -->    
+    <div class="top-bar">    
+      <div class="user-profile">    
+        <img src="https://via.placeholder.com/36" alt="User">    
+        <span>Rudi</span>    
+      </div>    
+      <button class="notif-btn">    
+        <!-- Notifikasi -->    
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">    
+          <path fill-rule="evenodd" d="M10 2a6 6 0 0 0-6 6c0 1.887-.454 3.665-1.257 5.234a.75.75 0 0 0 .515 1.076 32.91 32.91 0 0 0 3.256.508 3.5 3.5 0 0 0 6.972 0 32.903 32.903 0 0 0 3.256-.508.75.75 0 0 0 .515-1.076A11.448 11.448 0 0 1 16 8a6 6 0 0 0-6-6ZM8.05 14.943a33.54 33.54 0 0 0 3.9 0 2 2 0 0 1-3.9 0Z" clip-rule="evenodd" />    
+        </svg>    
+      </button>    
+    </div>    
+  </header>    
+    
+  <!-- Konten -->    
+  <main>    
+    <section id="beranda" class="active">    
+      <div class="card">    
+        <h3>Arus Kas Bulanan</h3>    
+        <canvas id="cashflowChart" height="150"></canvas>    
+      </div>    
+    </section>    
+    
+    <section id="transaksi">    
+      <div class="card">    
+        <h3>Daftar Transaksi</h3>    
+        <button>+ Tambah Transaksi Pembelian</button>    
+        <button>+ Tambah Transaksi Penjualan</button>    
+      </div>    
+    </section>    
+    
+    <section id="perbaikan">    
+      <div class="card">    
+        <h3>Form Perbaikan</h3>    
+      </div>    
+    </section>    
+    
+    <section id="master">    
+      <div class="card">    
+        <div class="search-filter">    
+          <!-- Search -->    
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">    
+            <path fill-rule="evenodd" d="M9 3.5a5.5 5.5 0 1 0 0 11 5.5 5.5 0 0 0 0-11ZM2 9a7 7 0 1 1 12.452 4.391l3.328 3.329a.75.75 0 1 1-1.06 1.06l-3.329-3.328A7 7 0 0 1 2 9Z" clip-rule="evenodd" />    
+          </svg>    
+          <!-- Filter -->    
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">    
+            <path fill-rule="evenodd" d="M2.628 1.601C5.028 1.206 7.49 1 10 1s4.973.206 7.372.601a.75.75 0 0 1 .628.74v2.288a2.25 2.25 0 0 1-.659 1.59l-4.682 4.683a2.25 2.25 0 0 0-.659 1.59v3.037c0 .684-.31 1.33-.844 1.757l-1.937 1.55A.75.75 0 0 1 8 18.25v-5.757a2.25 2.25 0 0 0-.659-1.591L2.659 6.22A2.25 2.25 0 0 1 2 4.629V2.34a.75.75 0 0 1 .628-.74Z" clip-rule="evenodd" />    
+          </svg>    
+        </div>    
+    
+        <!-- Dropdowns -->    
+        <div class="dropdowns">    
+          <select><option>Kategori</option></select>    
+          <select><option>Stok</option></select>    
+          <select><option>Jenis</option></select>    
+        </div>    
+    
+        <!-- Dummy list -->    
+        <div class="list-item">    
+          <span>Samsung A03 - 4/128</span>    
+          <span>Stok: 3</span>    
+        </div>    
+        <div class="list-item">    
+          <span>Redmi Note 10 - 6/128</span>    
+          <span>Stok: 5</span>    
+        </div>    
+        <div class="list-item">    
+          <span>Oppo A57 - 4/64</span>    
+          <span>Stok: 2</span>    
+        </div>    
+    
+        <!-- Add button -->    
+        <button class="add-btn">    
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">    
+            <path fill-rule="evenodd" d="M10 18a8 8 0 1 0 0-16 8 8 0 0 0 0 16Zm.75-11.25a.75.75 0 0 0-1.5 0v2.5h-2.5a.75.75 0 0 0 0 1.5h2.5v2.5a.75.75 0 0 0 1.5 0v-2.5h2.5a.75.75 0 0 0 0-1.5h-2.5v-2.5Z" clip-rule="evenodd" />    
+          </svg>    
+        </button>    
+      </div>    
+    </section>    
+    
+    <section id="pengaturan">    
+      <div class="card">    
+        <h3>Pengaturan</h3>    
+        <p>Menu pengaturan aplikasi di sini.</p>    
+      </div>    
+    </section>    
+  </main>    
+    
+  <!-- Bottom Navigation -->    
+  <div class="bottom-nav">    
+    <button data-target="beranda" class="active">    
+      <!-- Beranda -->    
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">    
+        <path fill-rule="evenodd" d="M9.293 2.293a1 1 0 0 1 1.414 0l7 7A1 1 0 0 1 17 11h-1v6a1 1 0 0 1-1 1h-2a1 1 0 0 1-1-1v-3a1 1 0 0 0-1-1H9a1 1 0 0 0-1 1v3a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1v-6H3a1 1 0 0 1-.707-1.707l7-7Z" clip-rule="evenodd" />    
+      </svg>    
+      <span>Beranda</span>    
+    </button>    
+    
+    <button data-target="transaksi">    
+      <!-- Transaksi -->    
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">    
+        <path fill-rule="evenodd" d="M1 4a1 1 0 0 1 1-1h16a1 1 0 0 1 1 1v8a1 1 0 0 1-1 1H2a1 1 0 0 1-1-1V4Zm12 4a3 3 0 1 1-6 0 3 3 0 0 1 6 0ZM4 9a1 1 0 1 0 0-2 1 1 0 0 0 0 2Zm13-1a1 1 0 1 1-2 0 1 1 0 0 1 2 0ZM1.75 14.5a.75.75 0 0 0 0 1.5c4.417 0 8.693.603 12.749 1.73 1.111.309 2.251-.512 2.251-1.696v-.784a.75.75 0 0 0-1.5 0v.784a.272.272 0 0 1-.35.25A49.043 49.043 0 0 0 1.75 14.5Z" clip-rule="evenodd" />    
+      </svg>    
+      <span>Transaksi</span>    
+    </button>    
+    
+    <button data-target="perbaikan">    
+      <!-- Perbaikan -->    
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">    
+        <path fill-rule="evenodd" d="M14.5 10a4.5 4.5 0 0 0 4.284-5.882c-.105-.324-.51-.391-.752-.15L15.34 6.66a.454.454 0 0 1-.493.11 3.01 3.01 0 0 1-1.618-1.616.455.455 0 0 1 .11-.494l2.694-2.692c.24-.241.174-.647-.15-.752a4.5 4.5 0 0 0-5.873 4.575c.055.873-.128 1.808-.8 2.368l-7.23 6.024a2.724 2.724 0 1 0 3.837 3.837l6.024-7.23c.56-.672 1.495-.855 2.368-.8.096.007.193.01.291.01ZM5 16a1 1 0 1 1-2 0 1 1 0 0 1 2 0Z" clip-rule="evenodd" />    
+        <path d="M14.5 11.5c.173 0 .345-.007.514-.022l3.754 3.754a2.5 2.5 0 0 1-3.536 3.536l-4.41-4.41 2.172-2.607c.052-.063.147-.138.342-.196.202-.06.469-.087.777-.067.128.008.257.012.387.012ZM6 4.586l2.33 2.33a.452.452 0 0 1-.08.09L6.8 8.214 4.586 6H3.309a.5.5 0 0 1-.447-.276l-1.7-3.402a.5.5 0 0 1 .093-.577l.49-.49a.5.5 0 0 1 .577-.094l3.402 1.7A.5.5 0 0 1 6 3.31v1.277Z" />    
+      </svg>    
+      <span>Perbaikan</span>    
+    </button>    
+    
+    <button data-target="master">    
+      <!-- Master -->    
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">    
+        <path d="M1 1.75A.75.75 0 0 1 1.75 1h1.628a1.75 1.75 0 0 1 1.734 1.51L5.18 3a65.25 65.25 0 0 1 13.36 1.412.75.75 0 0 1 .58.875 48.645 48.645 0 0 1-1.618 6.2.75.75 0 0 1-.712.513H6a2.503 2.503 0 0 0-2.292 1.5H17.25a.75.75 0 0 1 0 1.5H2.76a.75.75 0 0 1-.748-.807 4.002 4.002 0 0 1 2.716-3.486L3.626 2.716a.25.25 0 0 0-.248-.216H1.75A.75.75 0 0 1 1 1.75ZM6 17.5a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0ZM15.5 19a1.5 1.51.5 0 0 1-3 0 1.5 1.5 0 0 1 3 0Z" />    
+      </svg>    
+      <span>Master</span>    
+    </button>    
+    
+    <button data-target="pengaturan">    
+      <!-- Pengaturan -->    
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">    
+        <path fill-rule="evenodd" d="M7.84 1.804A1 1 0 0 1 8.82 1h2.36a1 1 0 0 1 .98.804l.331 1.652a6.993 6.993 0 0 1 1.929 1.115l1.598-.54a1 1 0 0 1 1.186.447l1.18 2.044a1 1 0 0 1-.205 1.251l-1.267 1.113a7.047 7.047 0 0 1 0 2.228l1.267 1.113a1 1 0 0 1 .206 1.25l-1.18 2.045a1 1 0 0 1-1.187.447l-1.598-.54a6.993 6.993 0 0 1-1.929 1.115l-.33 1.652a1 1 0 0 1-.98.804H8.82a1 1 0 0 1-.98-.804l-.331-1.652a6.993 6.993 0 0 1-1.929-1.115l-1.598.54a1 1 0 0 1-1.186-.447l-1.18-2.044a1 1 0 0 1 .205-1.251l1.267-1.114a7.05 7.05 0 0 1 0-2.227L1.821 7.773a1 1 0 0 1-.206-1.25l1.18-2.045a1 1 0 0 1 1.187-.447l1.598.54A6.992 6.992 0 0 1 7.51 3.456l.33-1.652ZM10 13a3 3 0 1 0 0-6 3 3 0 0 0 0 6Z" clip-rule="evenodd" />    
+      </svg>    
+      <span>Pengaturan</span>    
+    </button>    
+  </div>    
+    
+  <!-- Script untuk navigasi -->    
+  <script>    
+    const navButtons = document.querySelectorAll(".bottom-nav button");    
+    const sections = document.querySelectorAll("main section");    
+    
+    navButtons.forEach(btn => {    
+      btn.addEventListener("click", () => {    
+        // reset aktif    
+        navButtons.forEach(b => b.classList.remove("active"));    
+        sections.forEach(s => s.classList.remove("active"));    
+    
+        // aktifkan    
+        btn.classList.add("active");    
+        document.getElementById(btn.dataset.target).classList.add("active");    
+      });    
+    });    
+  </script>    
+</body>    
 </html>
