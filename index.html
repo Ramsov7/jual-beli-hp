@@ -1,109 +1,146 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <title>Inventori HP</title>
+  <style>
+    body { font-family: Arial, sans-serif; margin:20px; background:#f4f6f8;}
+    h1 { text-align:center; }
+    .form, .list, .popup { background:#fff; padding:15px; margin-bottom:20px; border-radius:10px; box-shadow:0 2px 5px rgba(0,0,0,0.1);}
+    label { display:block; margin-top:10px; }
+    input, select, textarea { width:100%; padding:8px; margin-top:5px; }
+    button { margin-top:10px; padding:8px 12px; border:none; border-radius:5px; background:#007bff; color:#fff; cursor:pointer;}
+    button:hover { background:#0056b3;}
+    table { width:100%; border-collapse:collapse; margin-top:10px;}
+    th,td { border:1px solid #ddd; padding:8px; text-align:left;}
+    th { background:#007bff; color:#fff;}
+    .popup { display:none; position:fixed; top:50%; left:50%; transform:translate(-50%,-50%); width:400px; max-height:90%; overflow:auto; z-index:10;}
+    .overlay { display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); z-index:9;}
+    .field { margin-bottom:10px;}
+  </style>
+</head>
+<body>
+  <h1>Inventori HP</h1>
+
+  <div class="form">
+    <h2>Tambah Unit HP</h2>
+    <label>Nama Unit: <input id="nama"></label>
+    <label>Harga Beli: <input id="hargaBeli" type="number"></label>
+    <label>Kategori: 
+      <select id="kategori">
+        <option>HP Android Bekas</option>
+        <option>iPhone Bekas</option>
+      </select>
+    </label>
+    <label>Catatan: <textarea id="catatan"></textarea></label>
+    <label>Status: 
+      <select id="status">
+        <option>Belum Terjual</option>
+        <option>Terjual</option>
+      </select>
+    </label>
+    <label id="hargaJualLabel" style="display:none;">Harga Jual: <input id="hargaJual" type="number"></label>
+    <button onclick="tambahUnit()">Tambah</button>
+  </div>
+
+  <div class="list">
+    <h2>Daftar Unit</h2>
+    <table id="tabel">
+      <thead>
+        <tr><th>Nama</th><th>Kategori</th><th>Status</th><th>Aksi</th></tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+  </div>
+
+  <div class="overlay" id="overlay"></div>
+  <div class="popup" id="popup">
+    <h2>Detail Unit</h2>
+    <div id="detail"></div>
+    <button onclick="tutup()">Tutup</button>
+  </div>
+
 <script>
-let db = JSON.parse(localStorage.getItem("db_unit")) || [];
+let data = [];
 
-function simpanDB(){
-  localStorage.setItem("db_unit", JSON.stringify(db));
-}
+function fmtIDR(num){return "Rp"+(num?num.toLocaleString("id-ID"):"0");}
 
-function fmtIDR(x){
-  if(!x) return "Rp0";
-  return "Rp" + x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
-}
+document.getElementById("status").addEventListener("change",function(){
+  document.getElementById("hargaJualLabel").style.display = 
+    this.value==="Terjual"?"block":"none";
+});
 
 function tambahUnit(){
-  let unit = {
+  const nama = document.getElementById("nama").value;
+  const hargaBeli = parseInt(document.getElementById("hargaBeli").value)||0;
+  const kategori = document.getElementById("kategori").value;
+  const catatan = document.getElementById("catatan").value;
+  const status = document.getElementById("status").value;
+  const hargaJual = parseInt(document.getElementById("hargaJual").value)||0;
+
+  const unit = {
     id: Date.now(),
-    merk: document.getElementById("merk").value,
-    tipe: document.getElementById("tipe").value,
-    imei: document.getElementById("imei").value,
-    hargaBeli: parseInt(document.getElementById("hargaBeli").value) || 0,
+    nama, hargaBeli, kategori, catatan,
+    status, hargaJual,
     ongkosPerbaikan: [],
-    biayaPerbaikan: 0,
-    hargaJual: 0,       // ✅ field baru
-    status: "BELUM TERJUAL",
-    tanggal: Date.now()
+    biayaPerbaikan:0
   };
-  db.push(unit);
-  simpanDB();
+  data.push(unit);
   render();
+  clearForm();
 }
 
-function tambahOngkos(id){
-  const nama = prompt("Jenis perbaikan?");
-  const biaya = parseInt(prompt("Biaya perbaikan?")) || 0;
-  if(!nama) return;
-  const unit = db.find(u=>u.id==id);
-  if(unit){
-    unit.ongkosPerbaikan.push({nama, biaya});
-    unit.biayaPerbaikan += biaya;
-    simpanDB();
-    bukaDetail(id);
-    render();
-  }
-}
-
-function updateHargaJual(id, val){
-  const item = db.find(u => u.id == id);
-  if(item){
-    item.hargaJual = parseInt(val) || 0;
-    if(item.hargaJual > 0){
-      item.status = "TERJUAL";
-    }
-    simpanDB();
-    render();
-    bukaDetail(id); // refresh popup
-  }
-}
-
-function bukaDetail(id){
-  const data = db.find(u=>u.id==id);
-  if(!data) return;
-  const totalModal = (data.hargaBeli||0) + (data.biayaPerbaikan||0);
-  const labaBersih = (data.hargaJual||0) - totalModal;
-
-  document.getElementById("popup").innerHTML = `
-  <div class="card">
-    <h3>Detail Unit</h3>
-    <div class="field"><b>Merk:</b> ${data.merk}</div>
-    <div class="field"><b>Tipe:</b> ${data.tipe}</div>
-    <div class="field"><b>IMEI:</b> ${data.imei}</div>
-    <div class="field"><b>Harga Beli:</b> ${fmtIDR(data.hargaBeli)}</div>
-    <div class="field"><b>Ongkos Perbaikan:</b> 
-      ${data.ongkosPerbaikan.map(o=>`<li>${o.nama} - ${fmtIDR(o.biaya)}</li>`).join("")}
-      <br><b>Total:</b> ${fmtIDR(data.biayaPerbaikan)}
-      <button onclick="tambahOngkos(${data.id})">+ Tambah</button>
-    </div>
-    <div class="field">
-      <label>Harga Jual</label>
-      <input type="number" value="${data.hargaJual || ''}" 
-             onchange="updateHargaJual(${data.id}, this.value)">
-    </div>
-    <div class="field row">
-      <div><b>Total Modal:</b><br>${fmtIDR(totalModal)}</div>
-      <div><b>Laba Bersih:</b><br>${fmtIDR(labaBersih)}</div>
-    </div>
-    <div class="field"><b>Status:</b> ${data.status}</div>
-    <button onclick="tutupDetail()">Tutup</button>
-  </div>
-  `;
-  document.getElementById("popup").style.display="block";
-}
-
-function tutupDetail(){
-  document.getElementById("popup").style.display="none";
+function clearForm(){
+  document.getElementById("nama").value="";
+  document.getElementById("hargaBeli").value="";
+  document.getElementById("catatan").value="";
+  document.getElementById("status").value="Belum Terjual";
+  document.getElementById("hargaJual").value="";
+  document.getElementById("hargaJualLabel").style.display="none";
 }
 
 function render(){
-  let html = db.map(u=>`
-    <div class="card" onclick="bukaDetail(${u.id})">
-      <b>${u.merk} ${u.tipe}</b><br>
-      Beli: ${fmtIDR(u.hargaBeli)} | 
-      Jual: ${fmtIDR(u.hargaJual)}<br>
-      Status: ${u.status}
-    </div>
-  `).join("");
-  document.getElementById("list").innerHTML = html;
+  const tbody = document.querySelector("#tabel tbody");
+  tbody.innerHTML="";
+  data.forEach(u=>{
+    const tr=document.createElement("tr");
+    tr.innerHTML=`<td>${u.nama}</td><td>${u.kategori}</td><td>${u.status}</td>
+      <td><button onclick="lihat(${u.id})">Detail</button></td>`;
+    tbody.appendChild(tr);
+  });
 }
 
-render();
+function lihat(id){
+  const u=data.find(x=>x.id===id);
+  if(!u) return;
+  const totalModal = (u.hargaBeli||0)+(u.biayaPerbaikan||0);
+  const labaBersih = (u.status==="Terjual")?((u.hargaJual||0)-totalModal):0;
+
+  let html=`
+    <div class="field"><b>Nama:</b> ${u.nama}</div>
+    <div class="field"><b>Kategori:</b> ${u.kategori}</div>
+    <div class="field"><b>Status:</b> ${u.status}</div>
+    <div class="field"><b>Harga Beli:</b> ${fmtIDR(u.hargaBeli)}</div>
+    <div class="field"><b>Catatan:</b><br>${u.catatan}</div>
+    <div class="field"><b>Ongkos Perbaikan:</b><ul>
+      ${u.ongkosPerbaikan.map(o=>`<li>${o.desc} - ${fmtIDR(o.biaya)}</li>`).join("")}
+    </ul><b>Total:</b> ${fmtIDR(u.biayaPerbaikan)}</div>
+    <div class="field"><b>Total Modal:</b> ${fmtIDR(totalModal)}</div>
+  `;
+  if(u.status==="Terjual"){
+    html+=`
+      <div class="field"><b>Harga Jual:</b> ${fmtIDR(u.hargaJual)}</div>
+      <div class="field"><b>Laba Bersih:</b> ${fmtIDR(labaBersih)}</div>
+    `;
+  }
+  document.getElementById("detail").innerHTML=html;
+  document.getElementById("overlay").style.display="block";
+  document.getElementById("popup").style.display="block";
+}
+function tutup(){
+  document.getElementById("overlay").style.display="none";
+  document.getElementById("popup").style.display="none";
+}
 </script>
+</body>
+</html>
