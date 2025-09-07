@@ -7,11 +7,47 @@
   <style>
     :root { --primary:#6c63ff; }
     body { font-family: Arial, sans-serif; margin:0; background:#f7f7f7; }
-    header { background: var(--primary); color:#fff; padding:14px; text-align:center; }
+    
+    /* Header */
+    header {
+      background:#111;
+      color:#fff;
+      padding:12px 16px;
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      border-bottom:1px solid #333;
+    }
+    .profile {
+      display:flex;
+      align-items:center;
+      gap:10px;
+    }
+    .avatar {
+      width:36px; height:36px;
+      background:#444;
+      border-radius:50%;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      font-weight:bold;
+    }
+    .username { font-size:16px; font-weight:600; }
+    .notif-btn {
+      background:none; border:none; color:#fff;
+      font-size:20px; cursor:pointer;
+    }
+
     main { max-width:1100px; margin:auto; padding:20px; padding-bottom:80px; } /* extra padding for nav */
     section { display:none; }
     section.active { display:block; }
-    .card { background:#fff; padding:16px; border-radius:10px; box-shadow:0 2px 6px rgba(0,0,0,.1); margin-bottom:20px; }
+    .card {
+      background:#fff;
+      padding:16px;
+      border-radius:10px;
+      box-shadow:0 2px 6px rgba(0,0,0,.1);
+      margin-bottom:20px;
+    }
 
     /* bottom nav */
     .bottom-nav {
@@ -39,8 +75,13 @@
   <script src="https://kit.fontawesome.com/yourkit.js" crossorigin="anonymous"></script>
 </head>
 <body>
+  <!-- Header dengan Profil & Notifikasi -->
   <header>
-    <h2>Dashboard HP Inventory</h2>
+    <div class="profile">
+      <div class="avatar">R</div>
+      <span class="username">Ramsov</span>
+    </div>
+    <button class="notif-btn"><i class="fas fa-bell"></i></button>
   </header>
 
   <!-- Konten -->
