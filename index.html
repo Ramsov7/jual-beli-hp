@@ -1,34 +1,47 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>HP Inventory</title>
   <style>
-    :root { --primary:#1976d2; }
+    :root { --primary:#6c63ff; }
     body { font-family: Arial, sans-serif; margin:0; background:#f7f7f7; }
     header { background: var(--primary); color:#fff; padding:14px; text-align:center; }
-    nav { display:flex; justify-content:center; background:#eee; gap:6px; padding:8px; }
-    nav button { border:none; padding:8px 14px; border-radius:6px; cursor:pointer; font-weight:600; }
-    nav button.active { background:var(--primary); color:#fff; }
-    main { max-width:1100px; margin:auto; padding:20px; }
+    main { max-width:1100px; margin:auto; padding:20px; padding-bottom:80px; } /* extra padding for nav */
     section { display:none; }
     section.active { display:block; }
     .card { background:#fff; padding:16px; border-radius:10px; box-shadow:0 2px 6px rgba(0,0,0,.1); margin-bottom:20px; }
+
+    /* bottom nav */
+    .bottom-nav {
+      position:fixed;
+      bottom:0; left:0; right:0;
+      background:#111;
+      display:flex;
+      justify-content:space-around;
+      padding:8px 0;
+    }
+    .bottom-nav button {
+      background:none;
+      border:none;
+      color:#ccc;
+      display:flex;
+      flex-direction:column;
+      align-items:center;
+      font-size:12px;
+      cursor:pointer;
+    }
+    .bottom-nav button.active { color:var(--primary); }
+    .bottom-nav i { font-size:20px; margin-bottom:4px; }
   </style>
+  <!-- icons -->
+  <script src="https://kit.fontawesome.com/yourkit.js" crossorigin="anonymous"></script>
 </head>
 <body>
   <header>
     <h2>Dashboard HP Inventory</h2>
   </header>
-
-  <!-- Navigasi -->
-  <nav>
-    <button data-target="beranda" class="active">Beranda</button>
-    <button data-target="pembelian">Pembelian</button>
-    <button data-target="perbaikan">Perbaikan</button>
-    <button data-target="penjualan">Penjualan</button>
-  </nav>
 
   <!-- Konten -->
   <main>
@@ -42,38 +55,41 @@
     <section id="pembelian">
       <div class="card">
         <h3>Form Pembelian</h3>
-        <!-- form pembelian akan ditempatkan di sini -->
       </div>
       <div class="card">
         <h3>Data Pembelian</h3>
-        <!-- tabel pembelian -->
       </div>
     </section>
 
     <section id="perbaikan">
       <div class="card">
         <h3>Form Perbaikan</h3>
-        <!-- form perbaikan -->
       </div>
     </section>
 
     <section id="penjualan">
       <div class="card">
         <h3>Form Penjualan</h3>
-        <!-- form penjualan -->
       </div>
       <div class="card">
         <h3>Data Penjualan</h3>
-        <!-- tabel penjualan -->
       </div>
     </section>
   </main>
 
+  <!-- Bottom Navigation -->
+  <div class="bottom-nav">
+    <button data-target="beranda" class="active"><i class="fas fa-home"></i>Home</button>
+    <button data-target="pembelian"><i class="fas fa-shopping-cart"></i>Beli</button>
+    <button data-target="perbaikan"><i class="fas fa-tools"></i>Perbaikan</button>
+    <button data-target="penjualan"><i class="fas fa-cash-register"></i>Jual</button>
+  </div>
+
   <!-- Chart.js -->
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <script>
-    // Navigasi antar menu
-    const navBtns = document.querySelectorAll('nav button');
+    // Navigasi bottom
+    const navBtns = document.querySelectorAll('.bottom-nav button');
     const sections = document.querySelectorAll('main section');
     navBtns.forEach(btn=>{
       btn.addEventListener('click',()=>{
@@ -84,7 +100,7 @@
       });
     });
 
-    // Dummy data chart (nanti diganti realtime dari Firestore)
+    // Dummy data chart
     const ctx = document.getElementById('cashflowChart').getContext('2d');
     new Chart(ctx,{
       type:'bar',
