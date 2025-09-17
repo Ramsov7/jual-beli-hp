@@ -1,0 +1,33 @@
+:root { --primary:#6c63ff; }
+body { font-family: Arial, sans-serif; margin:0; background:#f7f7f7; }
+
+header { background:#111; color:#fff; padding:10px 16px; }
+header .top-bar { display:flex; justify-content:space-between; align-items:center; }
+header .user-profile { display:flex; align-items:center; gap:10px; }
+header .user-profile img { width:36px; height:36px; border-radius:50%; background:#fff; }
+header .user-profile span { font-size:15px; font-weight:bold; }
+header .notif-btn { background:none; border:none; color:#fff; cursor:pointer; }
+header .notif-btn svg { width:24px; height:24px; }
+
+main { max-width:1100px; margin:auto; padding:20px; padding-bottom:80px; }
+section { display:none; }
+section.active { display:block; }
+.card { background:#fff; padding:16px; border-radius:10px; box-shadow:0 2px 6px rgba(0,0,0,.1); margin-bottom:20px; }
+
+.search-filter { display:flex; justify-content:space-between; align-items:center; margin-bottom:10px; }
+.search-filter svg { width:22px; height:22px; cursor:pointer; }
+
+.dropdowns { display:flex; gap:10px; margin-bottom:15px; }
+.dropdowns select { flex:1; padding:6px; border-radius:6px; border:1px solid #ccc; }
+
+.list-item { border-bottom:1px solid #eee; padding:10px 0; display:flex; justify-content:space-between; align-items:center; }
+
+.add-btn { background:var(--primary); color:#fff; border:none; padding:10px; border-radius:50%; cursor:pointer; display:flex; align-items:center; justify-content:center; margin-top:15px; }
+.add-btn svg { width:24px; height:24px; }
+
+.bottom-nav { position:fixed; bottom:0; left:0; right:0; background:#111; display:flex; justify-content:space-around; padding:6px 0; border-top:1px solid #333; }
+.bottom-nav button { background:none; border:none; color:#ccc; display:flex; flex-direction:column; align-items:center; font-size:12px; cursor:pointer; flex:1; padding:6px 0; }
+.bottom-nav button.active { color:var(--primary); }
+.bottom-nav svg { width:22px; height:22px; margin-bottom:2px; }
+.bottom-nav span { display:none; }
+.bottom-nav button.active span { display:block; }
