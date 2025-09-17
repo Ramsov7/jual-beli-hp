@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="id">
 <head>
@@ -35,9 +36,11 @@
     <section id="transaksi">
       <div class="card">
         <h3>Daftar Transaksi</h3>
+        <div id="daftarTransaksi">
+          <p>Data transaksi akan tampil di sini.</p>
+        </div>
         <button>+ Tambah Transaksi Pembelian</button>
         <button>+ Tambah Transaksi Penjualan</button>
-        <div id="daftarTransaksi" class="table-container"></div>
       </div>
     </section>
 
@@ -63,19 +66,8 @@
           <select><option>Jenis</option></select>
         </div>
 
-        <!-- Dummy list -->
-        <div class="list-item">
-          <span>Samsung A03 - 4/128</span>
-          <span>Stok: 3</span>
-        </div>
-        <div class="list-item">
-          <span>Redmi Note 10 - 6/128</span>
-          <span>Stok: 5</span>
-        </div>
-        <div class="list-item">
-          <span>Oppo A57 - 4/64</span>
-          <span>Stok: 2</span>
-        </div>
+        <!-- List item dari items.json -->
+        <div id="items-list"></div>
 
         <!-- Add button -->
         <button class="add-btn">
@@ -120,7 +112,6 @@
     </button>
   </div>
 
-  <!-- Script -->
   <script src="script.js"></script>
 </body>
 </html>
