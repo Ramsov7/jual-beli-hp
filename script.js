@@ -4,39 +4,34 @@ const sections = document.querySelectorAll("main section");
 
 navButtons.forEach(btn => {
   btn.addEventListener("click", () => {
-    // reset aktif
     navButtons.forEach(b => b.classList.remove("active"));
     sections.forEach(s => s.classList.remove("active"));
 
-    // aktifkan
     btn.classList.add("active");
     document.getElementById(btn.dataset.target).classList.add("active");
   });
 });
 
-// ====== Popup Detail ======
-function showPopup(trx) {
-  // hapus popup lama
-  const old = document.getElementById("popupDetail");
-  if (old) old.remove();
+// ====== Load Items JSON ======
+async function loadItems() {
+  try {
+    const res = await fetch("items.json");
+    const data = await res.json();
+    const container = document.getElementById("items-list");
 
-  const popup = document.createElement("div");
-  popup.id = "popupDetail";
-  popup.classList.add("popup-overlay");
-
-  popup.innerHTML = `
-    <div class="popup-card">
-      <h3>${trx.tipe_varian || "Detail Transaksi"}</h3>
-      <pre>${JSON.stringify(trx, null, 2)}</pre>
-      <button id="closePopup">Tutup</button>
-    </div>
-  `;
-
-  document.body.appendChild(popup);
-
-  document.getElementById("closePopup").addEventListener("click", () => {
-    popup.remove();
-  });
+    container.innerHTML = "";
+    data.forEach(item => {
+      const div = document.createElement("div");
+      div.classList.add("list-item");
+      div.innerHTML = `
+        <span>${item.tipe_varian}</span>
+        <span>Kode: ${item.kode_unit}</span>
+      `;
+      container.appendChild(div);
+    });
+  } catch (err) {
+    console.error("Gagal memuat items.json", err);
+  }
 }
 
 // ====== Load Transaksi JSON ======
@@ -72,10 +67,9 @@ async function loadTransaksi() {
     const tbody = table.querySelector("tbody");
 
     data.forEach(trx => {
-      const namaUnit = trx.tipe_varian || "-";
       const row = document.createElement("tr");
       row.innerHTML = `
-        <td>${namaUnit}</td>
+        <td>${trx.tipe_varian || "-"}</td>
         <td>Rp ${trx.harga_beli_unit?.toLocaleString("id-ID") || "-"}</td>
         <td>Rp ${trx.harga_jual?.toLocaleString("id-ID") || "-"}</td>
         <td>${trx.margin ? trx.margin + "%" : "-"}</td>
@@ -98,5 +92,29 @@ async function loadTransaksi() {
   }
 }
 
-// load saat halaman dibuka
-document.addEventListener("DOMContentLoaded", loadTransaksi);
+// ====== Popup Detail ======
+function showPopup(trx) {
+  const overlay = document.createElement("div");
+  overlay.classList.add("popup-overlay");
+
+  const popup = document.createElement("div");
+  popup.classList.add("popup");
+
+  let details = "<h3>Detail Transaksi</h3><ul>";
+  for (const key in trx) {
+    details += `<li><b>${key}</b>: ${trx[key]}</li>`;
+  }
+  details += "</ul><button id='closePopup'>Tutup</button>";
+
+  popup.innerHTML = details;
+  overlay.appendChild(popup);
+  document.body.appendChild(overlay);
+
+  document.getElementById("closePopup").addEventListener("click", () => {
+    document.body.removeChild(overlay);
+  });
+}
+
+// ====== Panggil saat load ======
+loadItems();
+loadTransaksi();
