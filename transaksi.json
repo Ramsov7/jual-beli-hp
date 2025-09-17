@@ -1,0 +1,26 @@
+[
+  {
+    "kode_unit": "HP-29082025-A",
+    "tanggal_beli": "2025-08-29",
+    "tipe_varian": "Samsung A02 Ram 3/32",
+    "pengecekan_awal": ["Fullset", "Lupa akun google"],
+    "pengecekan_lanjutan": "-",
+    "kelengkapan_beli": ["Dus", "Charger"],
+    "kelengkapan_jual": ["Dus"],
+    "kondisi_jual": "-",
+    "lokasi_transaksi_penjual": "https://maps.app.goo.gl/ghDfx8Umpx1hm1ro6",
+    "harga_beli_unit": 280000,
+    "biaya_perbaikan_manual": 0,
+    "total_hpp": 280000,
+    "tanggal_jual": "2025-09-04",
+    "lokasi_transaksi_pembeli": "https://maps.app.goo.gl/yGhpJg28awutSaE8A",
+    "harga_jual": 425000,
+    "laba_kotor": 145000,
+    "total_biaya_operasional": 20000,
+    "laba_usaha": 125000,
+    "pajak": 0,
+    "bunga": 0,
+    "laba_bersih": 125000,
+    "margin": 51.78
+  }
+]
