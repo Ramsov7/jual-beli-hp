@@ -4,11 +4,9 @@ const sections = document.querySelectorAll("main section");
 
 navButtons.forEach(btn => {
   btn.addEventListener("click", () => {
-    // reset aktif
     navButtons.forEach(b => b.classList.remove("active"));
     sections.forEach(s => s.classList.remove("active"));
 
-    // aktifkan
     btn.classList.add("active");
     document.getElementById(btn.dataset.target).classList.add("active");
   });
@@ -21,7 +19,7 @@ async function loadItems() {
     const data = await res.json();
     const container = document.getElementById("items-list");
 
-    container.innerHTML = ""; // reset isi
+    container.innerHTML = "";
     data.forEach(item => {
       const div = document.createElement("div");
       div.classList.add("list-item");
@@ -43,27 +41,24 @@ async function loadTransaksi() {
     const data = await res.json();
 
     const container = document.getElementById("daftarTransaksi");
-    container.innerHTML = ""; // reset isi
+    container.innerHTML = "";
 
     if (data.length === 0) {
       container.innerHTML = "<p>Belum ada transaksi.</p>";
       return;
     }
 
-    // buat tabel
     const table = document.createElement("table");
     table.classList.add("transaksi-table");
 
-    // header
     table.innerHTML = `
       <thead>
         <tr>
-          <th>Kode Unit</th>
-          <th>Tanggal Jual</th>
+          <th>Nama Unit</th>
           <th>Harga Beli</th>
           <th>Harga Jual</th>
-          <th>Laba Bersih</th>
           <th>Margin</th>
+          <th>Detail</th>
         </tr>
       </thead>
       <tbody></tbody>
@@ -71,17 +66,21 @@ async function loadTransaksi() {
 
     const tbody = table.querySelector("tbody");
 
-    // isi data
     data.forEach(trx => {
       const row = document.createElement("tr");
       row.innerHTML = `
-        <td>${trx.kode_unit}</td>
-        <td>${trx.tanggal_jual || "-"}</td>
+        <td>${trx.tipe_varian || "-"}</td>
         <td>Rp ${trx.harga_beli_unit?.toLocaleString("id-ID") || "-"}</td>
         <td>Rp ${trx.harga_jual?.toLocaleString("id-ID") || "-"}</td>
-        <td>Rp ${trx.laba_bersih?.toLocaleString("id-ID") || "-"}</td>
         <td>${trx.margin ? trx.margin + "%" : "-"}</td>
+        <td><button class="detail-btn">Detail</button></td>
       `;
+
+      // tombol detail -> popup
+      row.querySelector(".detail-btn").addEventListener("click", () => {
+        showPopup(trx);
+      });
+
       tbody.appendChild(row);
     });
 
@@ -93,6 +92,29 @@ async function loadTransaksi() {
   }
 }
 
-// Panggil saat halaman pertama kali dibuka
+// ====== Popup Detail ======
+function showPopup(trx) {
+  const overlay = document.createElement("div");
+  overlay.classList.add("popup-overlay");
+
+  const popup = document.createElement("div");
+  popup.classList.add("popup");
+
+  let details = "<h3>Detail Transaksi</h3><ul>";
+  for (const key in trx) {
+    details += `<li><b>${key}</b>: ${trx[key]}</li>`;
+  }
+  details += "</ul><button id='closePopup'>Tutup</button>";
+
+  popup.innerHTML = details;
+  overlay.appendChild(popup);
+  document.body.appendChild(overlay);
+
+  document.getElementById("closePopup").addEventListener("click", () => {
+    document.body.removeChild(overlay);
+  });
+}
+
+// ====== Panggil saat load ======
 loadItems();
 loadTransaksi();
