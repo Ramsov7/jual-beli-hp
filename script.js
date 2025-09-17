@@ -23,7 +23,7 @@ function showPopup(trx) {
 
   popup.innerHTML = `
     <div class="popup-card">
-      <h3>${trx.tipe_varian || trx["Tipe & Varian"] || "Detail Transaksi"}</h3>
+      <h3>${trx.tipe_varian}</h3>
       <pre>${JSON.stringify(trx, null, 2)}</pre>
       <button id="closePopup">Tutup</button>
     </div>
@@ -69,12 +69,9 @@ async function loadTransaksi() {
     const tbody = table.querySelector("tbody");
 
     data.forEach(trx => {
-      // ambil nama unit
-      const namaUnit = trx.tipe_varian || trx["Tipe & Varian"] || "-";
-
       const row = document.createElement("tr");
       row.innerHTML = `
-        <td>${namaUnit}</td>
+        <td>${trx.tipe_varian || "-"}</td>
         <td>Rp ${trx.harga_beli_unit?.toLocaleString("id-ID") || "-"}</td>
         <td>Rp ${trx.harga_jual?.toLocaleString("id-ID") || "-"}</td>
         <td>${trx.margin ? trx.margin + "%" : "-"}</td>
