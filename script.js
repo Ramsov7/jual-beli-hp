@@ -42,12 +42,50 @@ async function loadTransaksi() {
     const res = await fetch("transaksi.json");
     const data = await res.json();
 
-    // sementara tampilkan di console
-    console.log("Data Transaksi:", data);
+    const container = document.getElementById("daftarTransaksi");
+    container.innerHTML = ""; // reset isi
 
-    // tampilkan jumlah transaksi di halaman
-    document.getElementById("daftarTransaksi").innerHTML =
-      `<p>Total Transaksi: ${data.length}</p>`;
+    if (data.length === 0) {
+      container.innerHTML = "<p>Belum ada transaksi.</p>";
+      return;
+    }
+
+    // buat tabel
+    const table = document.createElement("table");
+    table.classList.add("transaksi-table");
+
+    // header
+    table.innerHTML = `
+      <thead>
+        <tr>
+          <th>Kode Unit</th>
+          <th>Tanggal Jual</th>
+          <th>Harga Beli</th>
+          <th>Harga Jual</th>
+          <th>Laba Bersih</th>
+          <th>Margin</th>
+        </tr>
+      </thead>
+      <tbody></tbody>
+    `;
+
+    const tbody = table.querySelector("tbody");
+
+    // isi data
+    data.forEach(trx => {
+      const row = document.createElement("tr");
+      row.innerHTML = `
+        <td>${trx.kode_unit}</td>
+        <td>${trx.tanggal_jual || "-"}</td>
+        <td>Rp ${trx.harga_beli_unit?.toLocaleString("id-ID") || "-"}</td>
+        <td>Rp ${trx.harga_jual?.toLocaleString("id-ID") || "-"}</td>
+        <td>Rp ${trx.laba_bersih?.toLocaleString("id-ID") || "-"}</td>
+        <td>${trx.margin ? trx.margin + "%" : "-"}</td>
+      `;
+      tbody.appendChild(row);
+    });
+
+    container.appendChild(table);
   } catch (err) {
     console.error("Gagal memuat transaksi.json", err);
     document.getElementById("daftarTransaksi").innerHTML =
