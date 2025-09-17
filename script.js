@@ -12,28 +12,26 @@ navButtons.forEach(btn => {
   });
 });
 
-// ====== Popup Detail ======
-function showPopup(trx) {
-  const old = document.getElementById("popupDetail");
-  if (old) old.remove();
+// ====== Load Items JSON ======
+async function loadItems() {
+  try {
+    const res = await fetch("items.json");
+    const data = await res.json();
+    const container = document.getElementById("items-list");
 
-  const popup = document.createElement("div");
-  popup.id = "popupDetail";
-  popup.classList.add("popup-overlay");
-
-  popup.innerHTML = `
-    <div class="popup-card">
-      <h3>${trx.tipe_varian}</h3>
-      <pre>${JSON.stringify(trx, null, 2)}</pre>
-      <button id="closePopup">Tutup</button>
-    </div>
-  `;
-
-  document.body.appendChild(popup);
-
-  document.getElementById("closePopup").addEventListener("click", () => {
-    popup.remove();
-  });
+    container.innerHTML = "";
+    data.forEach(item => {
+      const div = document.createElement("div");
+      div.classList.add("list-item");
+      div.innerHTML = `
+        <span>${item.tipe_varian}</span>
+        <span>Kode: ${item.kode_unit}</span>
+      `;
+      container.appendChild(div);
+    });
+  } catch (err) {
+    console.error("Gagal memuat items.json", err);
+  }
 }
 
 // ====== Load Transaksi JSON ======
@@ -45,7 +43,7 @@ async function loadTransaksi() {
     const container = document.getElementById("daftarTransaksi");
     container.innerHTML = "";
 
-    if (!Array.isArray(data) || data.length === 0) {
+    if (data.length === 0) {
       container.innerHTML = "<p>Belum ada transaksi.</p>";
       return;
     }
@@ -78,6 +76,7 @@ async function loadTransaksi() {
         <td><button class="detail-btn">Detail</button></td>
       `;
 
+      // tombol detail -> popup
       row.querySelector(".detail-btn").addEventListener("click", () => {
         showPopup(trx);
       });
@@ -93,4 +92,29 @@ async function loadTransaksi() {
   }
 }
 
-document.addEventListener("DOMContentLoaded", loadTransaksi);
+// ====== Popup Detail ======
+function showPopup(trx) {
+  const overlay = document.createElement("div");
+  overlay.classList.add("popup-overlay");
+
+  const popup = document.createElement("div");
+  popup.classList.add("popup");
+
+  let details = "<h3>Detail Transaksi</h3><ul>";
+  for (const key in trx) {
+    details += `<li><b>${key}</b>: ${trx[key]}</li>`;
+  }
+  details += "</ul><button id='closePopup'>Tutup</button>";
+
+  popup.innerHTML = details;
+  overlay.appendChild(popup);
+  document.body.appendChild(overlay);
+
+  document.getElementById("closePopup").addEventListener("click", () => {
+    document.body.removeChild(overlay);
+  });
+}
+
+// ====== Panggil saat load ======
+loadItems();
+loadTransaksi();
