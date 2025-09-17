@@ -14,34 +14,47 @@ navButtons.forEach(btn => {
   });
 });
 
-// ====== Load Data Transaksi dari JSON ======
-function loadTransaksi() {
-  fetch("transaksi.json")
-    .then(response => response.json())
-    .then(data => {
-      let output = "<table border='1' cellpadding='5'>";
-      output += "<tr><th>Kode Unit</th><th>Tipe & Varian</th><th>Harga Beli</th><th>Harga Jual</th><th>Laba Bersih</th></tr>";
+// ====== Load Items JSON ======
+async function loadItems() {
+  try {
+    const res = await fetch("items.json");
+    const data = await res.json();
+    const container = document.getElementById("items-list");
 
-      data.forEach(item => {
-        output += `
-          <tr>
-            <td>${item.kode_unit}</td>
-            <td>${item.tipe_varian}</td>
-            <td>Rp ${item.harga_beli_unit.toLocaleString()}</td>
-            <td>Rp ${item.harga_jual.toLocaleString()}</td>
-            <td>Rp ${item.laba_bersih.toLocaleString()}</td>
-          </tr>
-        `;
-      });
-
-      output += "</table>";
-      document.getElementById("daftarTransaksi").innerHTML = output;
-    })
-    .catch(err => {
-      console.error("Gagal memuat transaksi.json", err);
-      document.getElementById("daftarTransaksi").innerHTML = "<p>Gagal memuat data transaksi.</p>";
+    container.innerHTML = ""; // reset isi
+    data.forEach(item => {
+      const div = document.createElement("div");
+      div.classList.add("list-item");
+      div.innerHTML = `
+        <span>${item.tipe_varian}</span>
+        <span>Kode: ${item.kode_unit}</span>
+      `;
+      container.appendChild(div);
     });
+  } catch (err) {
+    console.error("Gagal memuat items.json", err);
+  }
+}
+
+// ====== Load Transaksi JSON ======
+async function loadTransaksi() {
+  try {
+    const res = await fetch("transaksi.json");
+    const data = await res.json();
+
+    // sementara tampilkan di console
+    console.log("Data Transaksi:", data);
+
+    // tampilkan jumlah transaksi di halaman
+    document.getElementById("daftarTransaksi").innerHTML =
+      `<p>Total Transaksi: ${data.length}</p>`;
+  } catch (err) {
+    console.error("Gagal memuat transaksi.json", err);
+    document.getElementById("daftarTransaksi").innerHTML =
+      "<p>Gagal memuat data transaksi.</p>";
+  }
 }
 
 // Panggil saat halaman pertama kali dibuka
+loadItems();
 loadTransaksi();
