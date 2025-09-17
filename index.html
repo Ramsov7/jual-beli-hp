@@ -6,23 +6,24 @@
   <title>HP Inventory</title>
 
   <!-- Link ke CSS eksternal -->
-  <link rel="stylesheet" href="styles.css" />
+  <link rel="stylesheet" href="style.css" />
 </head>
 <body>
   <header>
+    <!-- Bar atas -->
     <div class="top-bar">
       <div class="user-profile">
         <img src="https://via.placeholder.com/36" alt="User">
         <span>Rudi</span>
       </div>
       <button class="notif-btn">
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
-          <path fill-rule="evenodd" d="M10 2a6 6...Z" clip-rule="evenodd"/>
-        </svg>
+        <!-- Notifikasi -->
+        <svg><use href="icons.svg#notif"></use></svg>
       </button>
     </div>
   </header>
 
+  <!-- Konten -->
   <main>
     <section id="beranda" class="active">
       <div class="card">
@@ -48,24 +49,36 @@
     <section id="master">
       <div class="card">
         <div class="search-filter">
-          <svg xmlns="http://www.w3.org/2000/svg" fill="currentColor"><path d="M9 3.5..."/></svg>
-          <svg xmlns="http://www.w3.org/2000/svg" fill="currentColor"><path d="M2.628 1.601..."/></svg>
+          <!-- Search -->
+          <svg><use href="icons.svg#search"></use></svg>
+          <!-- Filter -->
+          <svg><use href="icons.svg#filter"></use></svg>
         </div>
 
+        <!-- Dropdowns -->
         <div class="dropdowns">
           <select><option>Kategori</option></select>
           <select><option>Stok</option></select>
           <select><option>Jenis</option></select>
         </div>
 
-        <div class="list-item"><span>Samsung A03 - 4/128</span><span>Stok:3</span></div>
-        <div class="list-item"><span>Redmi Note 10 - 6/128</span><span>Stok:5</span></div>
-        <div class="list-item"><span>Oppo A57 - 4/64</span><span>Stok:2</span></div>
+        <!-- Dummy list -->
+        <div class="list-item">
+          <span>Samsung A03 - 4/128</span>
+          <span>Stok: 3</span>
+        </div>
+        <div class="list-item">
+          <span>Redmi Note 10 - 6/128</span>
+          <span>Stok: 5</span>
+        </div>
+        <div class="list-item">
+          <span>Oppo A57 - 4/64</span>
+          <span>Stok: 2</span>
+        </div>
 
+        <!-- Add button -->
         <button class="add-btn">
-          <svg xmlns="http://www.w3.org/2000/svg" fill="currentColor">
-            <path d="M10 18a8 8...Z"/>
-          </svg>
+          <svg><use href="icons.svg#add"></use></svg>
         </button>
       </div>
     </section>
@@ -78,31 +91,34 @@
     </section>
   </main>
 
-  <!-- Bottom Nav -->
+  <!-- Bottom Navigation -->
   <div class="bottom-nav">
     <button data-target="beranda" class="active">
-      <svg viewBox="0 0 20 20" fill="currentColor"><path d="M9.293 2.293..."/></svg>
+      <svg><use href="icons.svg#home"></use></svg>
       <span>Beranda</span>
     </button>
+
     <button data-target="transaksi">
-      <svg viewBox="0 0 20 20" fill="currentColor"><path d="M1 4a1 1..."/></svg>
+      <svg><use href="icons.svg#transaksi"></use></svg>
       <span>Transaksi</span>
     </button>
+
     <button data-target="perbaikan">
-      <svg viewBox="0 0 20 20" fill="currentColor"><path d="M14.5 10..."/></svg>
+      <svg><use href="icons.svg#perbaikan"></use></svg>
       <span>Perbaikan</span>
     </button>
+
     <button data-target="master">
-      <svg viewBox="0 0 20 20" fill="currentColor"><path d="M1 1.75..."/></svg>
+      <svg><use href="icons.svg#master"></use></svg>
       <span>Master</span>
     </button>
+
     <button data-target="pengaturan">
-      <svg viewBox="0 0 20 20" fill="currentColor"><path d="M7.84 1.804..."/></svg>
+      <svg><use href="icons.svg#pengaturan"></use></svg>
       <span>Pengaturan</span>
     </button>
   </div>
 
-  <!-- Link ke JS eksternal -->
   <script src="script.js"></script>
 </body>
 </html>
