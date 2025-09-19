@@ -4,6 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>HP Inventory</title>
+
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
@@ -20,7 +21,6 @@
   </header>
 
   <main>
-    <!-- Beranda -->
     <section id="beranda" class="active">
       <div class="card">
         <h3>Arus Kas Bulanan</h3>
@@ -28,7 +28,6 @@
       </div>
     </section>
 
-    <!-- Transaksi -->
     <section id="transaksi">
       <div class="card">
         <h3>Daftar Transaksi</h3>
@@ -38,25 +37,25 @@
       </div>
     </section>
 
-    <!-- Perbaikan -->
     <section id="perbaikan">
-      <div class="card">
-        <h3>Form Perbaikan</h3>
-      </div>
+      <div class="card"><h3>Form Perbaikan</h3></div>
     </section>
 
-    <!-- Master -->
     <section id="master">
       <div class="card">
         <div class="search-filter">
-          <svg><use href="icons.svg#search"></use></svg>
+          <input type="text" id="searchInput" placeholder="Cari item...">
           <svg><use href="icons.svg#filter"></use></svg>
         </div>
 
         <div class="dropdowns">
-          <select><option>Kategori</option></select>
-          <select><option>Stok</option></select>
-          <select><option>Jenis</option></select>
+          <select id="filterKategori"><option value="">Semua Kategori</option></select>
+          <select id="filterStok">
+            <option value="">Semua Stok</option>
+            <option value="habis">Stok Habis</option>
+            <option value="tersedia">Masih Ada</option>
+          </select>
+          <select id="filterJenis"><option value="">Semua Jenis</option></select>
         </div>
 
         <div id="items-list"></div>
@@ -67,7 +66,6 @@
       </div>
     </section>
 
-    <!-- Pengaturan -->
     <section id="pengaturan">
       <div class="card">
         <h3>Pengaturan</h3>
@@ -76,28 +74,12 @@
     </section>
   </main>
 
-  <!-- Bottom Navigation -->
   <nav class="bottom-nav" aria-label="Navigasi bawah">
-    <button data-target="beranda" class="active">
-      <svg><use href="icons.svg#home"></use></svg>
-      <span>Beranda</span>
-    </button>
-    <button data-target="transaksi">
-      <svg><use href="icons.svg#transaksi"></use></svg>
-      <span>Transaksi</span>
-    </button>
-    <button data-target="perbaikan">
-      <svg><use href="icons.svg#perbaikan"></use></svg>
-      <span>Perbaikan</span>
-    </button>
-    <button data-target="master">
-      <svg><use href="icons.svg#master"></use></svg>
-      <span>Master</span>
-    </button>
-    <button data-target="pengaturan">
-      <svg><use href="icons.svg#pengaturan"></use></svg>
-      <span>Pengaturan</span>
-    </button>
+    <button data-target="beranda" class="active"><svg><use href="icons.svg#home"></use></svg><span>Beranda</span></button>
+    <button data-target="transaksi"><svg><use href="icons.svg#transaksi"></use></svg><span>Transaksi</span></button>
+    <button data-target="perbaikan"><svg><use href="icons.svg#perbaikan"></use></svg><span>Perbaikan</span></button>
+    <button data-target="master"><svg><use href="icons.svg#master"></use></svg><span>Master</span></button>
+    <button data-target="pengaturan"><svg><use href="icons.svg#pengaturan"></use></svg><span>Pengaturan</span></button>
   </nav>
 
   <!-- Supabase Client -->
@@ -105,6 +87,7 @@
   <script>
     const SUPABASE_URL = "https://tvesoylwadcxtwtacnsn.supabase.co";
     const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InR2ZXNveWx3YWRjeHR3dGFjbnNuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTgzMDIyNjcsImV4cCI6MjA3Mzg3ODI2N30.j1ot_YnQ3PyeJl2EZbCmVnh33BXD4flkDhQ8uncL_u0";
+
     window.supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
   </script>
   <script src="script.js"></script>
