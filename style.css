@@ -73,6 +73,7 @@ section.active { display:block; }
   align-items:center;
   justify-content:center;
   margin-top:15px;
+  box-shadow:0 2px 6px rgba(0,0,0,.2);
 }
 .add-btn svg { width:24px; height:24px; }
 
@@ -85,6 +86,7 @@ section.active { display:block; }
   justify-content:space-around;
   padding:6px 0;
   border-top:1px solid #333;
+  z-index: 999;
 }
 .bottom-nav button {
   background:none;
@@ -103,10 +105,17 @@ section.active { display:block; }
 .bottom-nav span { display:none; }
 .bottom-nav button.active span { display:block; }
 
+/* tampilkan teks di layar besar */
+@media(min-width:768px) {
+  .bottom-nav span { display:block; }
+}
+
+/* tabel transaksi */
 .transaksi-table {
   width: 100%;
   border-collapse: collapse;
   margin-top: 10px;
+  font-size: 14px;
 }
 
 .transaksi-table th,
@@ -118,6 +127,10 @@ section.active { display:block; }
 
 .transaksi-table th {
   background: #f5f5f5;
+}
+
+.transaksi-table tr:nth-child(even) {
+  background: #fafafa;
 }
 
 .detail-btn {
@@ -154,4 +167,5 @@ section.active { display:block; }
   max-height: 80vh;
   overflow-y: auto;
   width: 400px;
+  max-width: 90%;
 }
