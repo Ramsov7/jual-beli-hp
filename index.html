@@ -16,8 +16,7 @@
         <img src="https://via.placeholder.com/36" alt="User">
         <span>Rudi</span>
       </div>
-      <button class="notif-btn">
-        <!-- Notifikasi -->
+      <button class="notif-btn" aria-label="Notifikasi">
         <svg><use href="icons.svg#notif"></use></svg>
       </button>
     </div>
@@ -25,7 +24,7 @@
 
   <!-- Konten -->
   <main>
-    <!-- ====== Beranda ====== -->
+    <!-- Beranda -->
     <section id="beranda" class="active">
       <div class="card">
         <h3>Arus Kas Bulanan</h3>
@@ -33,55 +32,48 @@
       </div>
     </section>
 
-    <!-- ====== Transaksi ====== -->
+    <!-- Transaksi -->
     <section id="transaksi">
       <div class="card">
         <h3>Daftar Transaksi</h3>
         <div id="daftarTransaksi">
           <p>Data transaksi akan tampil di sini.</p>
         </div>
-        <button id="btnAddBeli">+ Tambah Transaksi Pembelian</button>
-        <button id="btnAddJual">+ Tambah Transaksi Penjualan</button>
+        <button>+ Tambah Transaksi Pembelian</button>
+        <button>+ Tambah Transaksi Penjualan</button>
       </div>
     </section>
 
-    <!-- ====== Perbaikan ====== -->
+    <!-- Perbaikan -->
     <section id="perbaikan">
       <div class="card">
         <h3>Form Perbaikan</h3>
-        <p>Form input detail perbaikan unit akan ditambahkan di sini.</p>
       </div>
     </section>
 
-    <!-- ====== Master (Items) ====== -->
+    <!-- Master -->
     <section id="master">
       <div class="card">
-        <h3>Daftar Items</h3>
         <div class="search-filter">
-          <!-- Search -->
           <svg><use href="icons.svg#search"></use></svg>
-          <!-- Filter -->
           <svg><use href="icons.svg#filter"></use></svg>
         </div>
 
-        <!-- Dropdowns -->
         <div class="dropdowns">
           <select><option>Kategori</option></select>
           <select><option>Stok</option></select>
           <select><option>Jenis</option></select>
         </div>
 
-        <!-- List item dari database Supabase -->
         <div id="items-list"></div>
 
-        <!-- Add button -->
-        <button class="add-btn">
+        <button class="add-btn" aria-label="Tambah Item">
           <svg><use href="icons.svg#add"></use></svg>
         </button>
       </div>
     </section>
 
-    <!-- ====== Pengaturan ====== -->
+    <!-- Pengaturan -->
     <section id="pengaturan">
       <div class="card">
         <h3>Pengaturan</h3>
@@ -91,7 +83,7 @@
   </main>
 
   <!-- Bottom Navigation -->
-  <div class="bottom-nav">
+  <nav class="bottom-nav" aria-label="Navigasi bawah">
     <button data-target="beranda" class="active">
       <svg><use href="icons.svg#home"></use></svg>
       <span>Beranda</span>
@@ -116,18 +108,15 @@
       <svg><use href="icons.svg#pengaturan"></use></svg>
       <span>Pengaturan</span>
     </button>
-  </div>
+  </nav>
 
   <!-- Supabase Client -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script>
     const SUPABASE_URL = "https://tvesoylwadcxtwtacnsn.supabase.co";
-    const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."; 
+    const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...";
     window.supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
   </script>
-
-  <!-- Chart.js untuk Cashflow -->
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
   <!-- Script Utama -->
   <script src="script.js"></script>
