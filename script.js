@@ -1,4 +1,4 @@
-// ====== script.js (debug-friendly, langsung copy-paste) ======
+// ====== script.js (semua debug tampil di layar HP) ======
 
 // ====== Navigasi Bottom ======
 const navButtons = document.querySelectorAll(".bottom-nav button");
@@ -14,7 +14,7 @@ navButtons.forEach((btn) => {
   });
 });
 
-// ====== Utility: tampilkan info debug singkat ======
+// ====== Utility: tampilkan info di UI (ganti console) ======
 function showDebugMessage(targetId, msg, isError = false) {
   const el = document.getElementById(targetId);
   if (!el) return;
@@ -22,65 +22,58 @@ function showDebugMessage(targetId, msg, isError = false) {
   p.style.whiteSpace = "pre-wrap";
   p.style.fontFamily = "monospace";
   p.style.margin = "6px 0";
+  p.style.padding = "4px";
+  p.style.border = "1px dashed #ccc";
+  p.style.background = isError ? "#ffe6e6" : "#f9f9f9";
   p.style.color = isError ? "#8b0000" : "#333";
   p.textContent = msg;
   el.appendChild(p);
 }
 
-// ====== Load Items dari Supabase (dengan debug) ======
+// ====== Load Items ======
 async function loadItems() {
   const container = document.getElementById("items-list");
   if (!container) return;
 
-  // cek apakah supabase client ada
+  container.innerHTML = ""; // reset
+
   if (typeof supabase === "undefined" || !supabase) {
-    const msg = "Supabase client tidak ditemukan. Pastikan file CDN supabase dan createClient dijalankan SEBELUM script.js.";
-    console.error(msg);
-    container.innerHTML = `<p style="color:#8b0000">${msg}</p>`;
+    const msg = "❌ Supabase client tidak ditemukan. Pastikan index.html sudah benar.";
+    showDebugMessage("items-list", msg, true);
     return;
   }
 
-  container.innerHTML = ""; // reset container
-  showDebugMessage("items-list", "Mencoba memuat data dari tabel 'items'...");
+  showDebugMessage("items-list", "🔄 Memuat data dari tabel 'items'...");
 
   try {
-    // request normal lewat client supabase
     const { data, error } = await supabase.from("items").select("*").limit(50);
 
-    console.log("Supabase response (items):", { data, error });
     if (error) {
-      // tampilkan error detail di UI agar jelas
-      const errMsg = `Gagal memuat data items: ${error.message || JSON.stringify(error)}`;
-      console.error(errMsg, error);
-      container.innerHTML = `<p style="color:#8b0000">${errMsg}</p>`;
-      // tampilkan object error lengkap untuk debugging
+      const errMsg = `❌ Error Supabase: ${error.message}`;
+      showDebugMessage("items-list", errMsg, true);
       showDebugMessage("items-list", JSON.stringify(error, null, 2), true);
 
-      // jika window.SUPABASE_ANON_KEY tersedia, coba fallback REST (debug)
+      // coba REST fallback
       if (window.SUPABASE_URL && window.SUPABASE_ANON_KEY) {
-        showDebugMessage("items-list", "Mencoba fallback ke REST API (debug)...");
+        showDebugMessage("items-list", "➡️ Coba fallback REST API...");
         try {
           const restUrl = `${window.SUPABASE_URL}/rest/v1/items?select=*&limit=3`;
           const restRes = await fetch(restUrl, {
             headers: {
               apikey: window.SUPABASE_ANON_KEY,
               Authorization: `Bearer ${window.SUPABASE_ANON_KEY}`,
-              Accept: "application/json",
             },
           });
           const restText = await restRes.text();
-          console.log("REST fallback status:", restRes.status, restText);
-          showDebugMessage("items-list", `REST fallback status: ${restRes.status}\n${restText}`, restRes.status >= 400);
+          showDebugMessage("items-list", `REST status: ${restRes.status}\n${restText}`, restRes.status >= 400);
         } catch (e) {
-          console.error("REST fallback error:", e);
           showDebugMessage("items-list", `REST fallback error: ${e.message}`, true);
         }
       }
-
       return;
     }
 
-    // sukses: tampilkan data (sementara tampilkan JSON mentah per item)
+    // tampilkan data
     if (!data || data.length === 0) {
       container.innerHTML = "<p>Belum ada item di database.</p>";
       return;
@@ -89,29 +82,28 @@ async function loadItems() {
     data.forEach((item) => {
       const div = document.createElement("div");
       div.classList.add("list-item");
-      // tampil JSON rapi agar kita tahu nama kolom persisnya
       div.innerHTML = `<pre>${JSON.stringify(item, null, 2)}</pre>`;
       container.appendChild(div);
     });
   } catch (err) {
-    console.error("Exception ketika memuat items:", err);
-    container.innerHTML = `<p style="color:#8b0000">Gagal memuat data items: ${err.message || err}</p>`;
-    showDebugMessage("items-list", JSON.stringify(err, null, 2), true);
+    showDebugMessage("items-list", `❌ Exception loadItems: ${err.message}`, true);
   }
 }
 
-// ====== Load Transaksi dari Supabase ======
+// ====== Load Transaksi ======
 async function loadTransaksi() {
   const container = document.getElementById("daftarTransaksi");
   if (!container) return;
   container.innerHTML = "";
 
   try {
-    // Ambil transaksi (limit untuk cepat)
     const { data, error } = await supabase.from("transaksi").select("*").limit(100);
-    console.log("Supabase response (transaksi):", { data, error });
 
-    if (error) throw error;
+    if (error) {
+      showDebugMessage("daftarTransaksi", `❌ Error Supabase: ${error.message}`, true);
+      showDebugMessage("daftarTransaksi", JSON.stringify(error, null, 2), true);
+      return;
+    }
 
     if (!data || data.length === 0) {
       container.innerHTML = "<p>Belum ada transaksi.</p>";
@@ -123,7 +115,7 @@ async function loadTransaksi() {
     table.innerHTML = `
       <thead>
         <tr>
-          <th>Nama Unit / Kode Unit (raw)</th>
+          <th>Unit</th>
           <th>Harga Beli</th>
           <th>Harga Jual</th>
           <th>Margin</th>
@@ -135,8 +127,7 @@ async function loadTransaksi() {
     const tbody = table.querySelector("tbody");
 
     data.forEach((trx) => {
-      // coba ambil fields yang umum, fallback ke raw object jika tidak ada
-      const kodeUnit = trx.kode_unit || trx.kodeUnit || trx.unit || "-";
+      const kodeUnit = trx.kode_unit || trx.unit || "-";
       const namaUnit = trx.tipe_varian || trx.tipe || "-";
       const hargaBeli = trx.harga_beli_unit || trx.harga_beli || 0;
       const hargaJual = trx.harga_jual_unit || trx.harga_jual || 0;
@@ -156,9 +147,7 @@ async function loadTransaksi() {
 
     container.appendChild(table);
   } catch (err) {
-    console.error("Gagal memuat transaksi:", err);
-    container.innerHTML = `<p style="color:#8b0000">Gagal memuat data transaksi: ${err.message || err}</p>`;
-    showDebugMessage("daftarTransaksi", JSON.stringify(err, null, 2), true);
+    showDebugMessage("daftarTransaksi", `❌ Exception loadTransaksi: ${err.message}`, true);
   }
 }
 
@@ -171,14 +160,9 @@ function showPopup(obj) {
   popup.classList.add("popup");
 
   let details = "<h3>Detail</h3><ul>";
-  try {
-    // tampilkan key/value secara aman, JSON.stringify untuk objek nested
-    for (const key in obj) {
-      const val = obj[key];
-      details += `<li><b>${key}</b>: ${typeof val === "object" ? JSON.stringify(val) : val}</li>`;
-    }
-  } catch (e) {
-    details += `<li>Error saat menampilkan detail: ${e.message}</li>`;
+  for (const key in obj) {
+    const val = obj[key];
+    details += `<li><b>${key}</b>: ${typeof val === "object" ? JSON.stringify(val) : val}</li>`;
   }
   details += `</ul><button id="closePopup">Tutup</button>`;
 
@@ -191,7 +175,7 @@ function showPopup(obj) {
   });
 }
 
-// ====== Inisialisasi Saat Load ======
+// ====== Init ======
 document.addEventListener("DOMContentLoaded", () => {
   loadItems();
   loadTransaksi();
