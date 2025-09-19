@@ -1,5 +1,3 @@
-// ====== script.js (semua debug tampil di layar HP) ======
-
 // ====== Navigasi Bottom ======
 const navButtons = document.querySelectorAll(".bottom-nav button");
 const sections = document.querySelectorAll("main section");
@@ -8,13 +6,12 @@ navButtons.forEach((btn) => {
   btn.addEventListener("click", () => {
     navButtons.forEach((b) => b.classList.remove("active"));
     sections.forEach((s) => s.classList.remove("active"));
-
     btn.classList.add("active");
     document.getElementById(btn.dataset.target).classList.add("active");
   });
 });
 
-// ====== Utility: tampilkan info di UI (ganti console) ======
+// ====== Debug Message (ganti console.log) ======
 function showDebugMessage(targetId, msg, isError = false) {
   const el = document.getElementById(targetId);
   if (!el) return;
@@ -34,46 +31,22 @@ function showDebugMessage(targetId, msg, isError = false) {
 async function loadItems() {
   const container = document.getElementById("items-list");
   if (!container) return;
+  container.innerHTML = "";
 
-  container.innerHTML = ""; // reset
-
-  if (typeof supabase === "undefined" || !supabase) {
-    const msg = "❌ Supabase client tidak ditemukan. Pastikan index.html sudah benar.";
-    showDebugMessage("items-list", msg, true);
+  if (!window.supabase) {
+    showDebugMessage("items-list", "❌ Supabase client tidak ditemukan.", true);
     return;
   }
 
   showDebugMessage("items-list", "🔄 Memuat data dari tabel 'items'...");
-
   try {
     const { data, error } = await supabase.from("items").select("*").limit(50);
 
     if (error) {
-      const errMsg = `❌ Error Supabase: ${error.message}`;
-      showDebugMessage("items-list", errMsg, true);
-      showDebugMessage("items-list", JSON.stringify(error, null, 2), true);
-
-      // coba REST fallback
-      if (window.SUPABASE_URL && window.SUPABASE_ANON_KEY) {
-        showDebugMessage("items-list", "➡️ Coba fallback REST API...");
-        try {
-          const restUrl = `${window.SUPABASE_URL}/rest/v1/items?select=*&limit=3`;
-          const restRes = await fetch(restUrl, {
-            headers: {
-              apikey: window.SUPABASE_ANON_KEY,
-              Authorization: `Bearer ${window.SUPABASE_ANON_KEY}`,
-            },
-          });
-          const restText = await restRes.text();
-          showDebugMessage("items-list", `REST status: ${restRes.status}\n${restText}`, restRes.status >= 400);
-        } catch (e) {
-          showDebugMessage("items-list", `REST fallback error: ${e.message}`, true);
-        }
-      }
+      showDebugMessage("items-list", `❌ Error Supabase: ${error.message}`, true);
       return;
     }
 
-    // tampilkan data
     if (!data || data.length === 0) {
       container.innerHTML = "<p>Belum ada item di database.</p>";
       return;
@@ -101,7 +74,6 @@ async function loadTransaksi() {
 
     if (error) {
       showDebugMessage("daftarTransaksi", `❌ Error Supabase: ${error.message}`, true);
-      showDebugMessage("daftarTransaksi", JSON.stringify(error, null, 2), true);
       return;
     }
 
@@ -127,10 +99,10 @@ async function loadTransaksi() {
     const tbody = table.querySelector("tbody");
 
     data.forEach((trx) => {
-      const kodeUnit = trx.kode_unit || trx.unit || "-";
-      const namaUnit = trx.tipe_varian || trx.tipe || "-";
-      const hargaBeli = trx.harga_beli_unit || trx.harga_beli || 0;
-      const hargaJual = trx.harga_jual_unit || trx.harga_jual || 0;
+      const kodeUnit = trx.kode_unit || "-";
+      const namaUnit = trx.tipe_varian || "-";
+      const hargaBeli = trx.harga_beli_unit || 0;
+      const hargaJual = trx.harga_jual_unit || 0;
       const margin = hargaBeli > 0 ? (((hargaJual - hargaBeli) / hargaBeli) * 100).toFixed(2) : "-";
 
       const row = document.createElement("tr");
@@ -151,18 +123,16 @@ async function loadTransaksi() {
   }
 }
 
-// ====== Popup Detail ======
+// ====== Popup ======
 function showPopup(obj) {
   const overlay = document.createElement("div");
   overlay.classList.add("popup-overlay");
-
   const popup = document.createElement("div");
   popup.classList.add("popup");
 
   let details = "<h3>Detail</h3><ul>";
   for (const key in obj) {
-    const val = obj[key];
-    details += `<li><b>${key}</b>: ${typeof val === "object" ? JSON.stringify(val) : val}</li>`;
+    details += `<li><b>${key}</b>: ${obj[key]}</li>`;
   }
   details += `</ul><button id="closePopup">Tutup</button>`;
 
