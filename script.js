@@ -21,12 +21,18 @@ async function loadItems() {
     const container = document.getElementById("items-list");
     container.innerHTML = "";
 
+    if (data.length === 0) {
+      container.innerHTML = "<p>Belum ada data item.</p>";
+      return;
+    }
+
     data.forEach(item => {
       const div = document.createElement("div");
       div.classList.add("list-item");
       div.innerHTML = `
-        <span>${item.tipe_varian}</span>
-        <span>Kode: ${item.kode_unit}</span>
+        <span>${item.nama_item}</span>
+        <span>Kode: ${item.kode_item}</span>
+        <span>Jenis: ${item.jenis_item}</span>
       `;
       container.appendChild(div);
     });
@@ -38,7 +44,9 @@ async function loadItems() {
 // ====== Load Transaksi dari Supabase ======
 async function loadTransaksi() {
   try {
-    const { data, error } = await supabase.from("transaksi").select("*");
+    const { data, error } = await supabase
+      .from("transaksi")
+      .select("*, units(tipe_varian)");
     if (error) throw error;
 
     const container = document.getElementById("daftarTransaksi");
@@ -68,12 +76,16 @@ async function loadTransaksi() {
     const tbody = table.querySelector("tbody");
 
     data.forEach(trx => {
+      const hargaBeli = trx.harga_beli_unit || 0;
+      const hargaJual = trx.harga_jual_unit || 0;
+      const margin = hargaBeli > 0 ? ((hargaJual - hargaBeli) / hargaBeli * 100).toFixed(2) : 0;
+
       const row = document.createElement("tr");
       row.innerHTML = `
-        <td>${trx.tipe_varian || "-"}</td>
-        <td>Rp ${trx.harga_beli_unit?.toLocaleString("id-ID") || "-"}</td>
-        <td>Rp ${trx.harga_jual?.toLocaleString("id-ID") || "-"}</td>
-        <td>${trx.margin ? trx.margin + "%" : "-"}</td>
+        <td>${trx.units?.tipe_varian || "-"}</td>
+        <td>Rp ${hargaBeli.toLocaleString("id-ID")}</td>
+        <td>Rp ${hargaJual.toLocaleString("id-ID")}</td>
+        <td>${margin}%</td>
         <td><button class="detail-btn">Detail</button></td>
       `;
 
@@ -102,7 +114,11 @@ function showPopup(trx) {
 
   let details = "<h3>Detail Transaksi</h3><ul>";
   for (const key in trx) {
-    details += `<li><b>${key}</b>: ${trx[key]}</li>`;
+    if (typeof trx[key] === "object" && trx[key] !== null) {
+      details += `<li><b>${key}</b>: ${JSON.stringify(trx[key])}</li>`;
+    } else {
+      details += `<li><b>${key}</b>: ${trx[key]}</li>`;
+    }
   }
   details += "</ul><button id='closePopup'>Tutup</button>";
 
