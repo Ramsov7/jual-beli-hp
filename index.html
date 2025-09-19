@@ -65,6 +65,7 @@
           <select><option>Jenis</option></select>
         </div>
 
+        <!-- Tempat daftar items -->
         <div id="items-list"></div>
 
         <button class="add-btn" aria-label="Tambah Item">
@@ -114,7 +115,9 @@
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script>
     const SUPABASE_URL = "https://tvesoylwadcxtwtacnsn.supabase.co";
-    const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...";
+    const SUPABASE_ANON_KEY = "ISI_DENGAN_FULL_ANON_KEY"; // isi lengkap dari Supabase settings
+
+    // buat client global
     window.supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
   </script>
 
