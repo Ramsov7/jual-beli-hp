@@ -2,10 +2,10 @@
 const navButtons = document.querySelectorAll(".bottom-nav button");
 const sections = document.querySelectorAll("main section");
 
-navButtons.forEach(btn => {
+navButtons.forEach((btn) => {
   btn.addEventListener("click", () => {
-    navButtons.forEach(b => b.classList.remove("active"));
-    sections.forEach(s => s.classList.remove("active"));
+    navButtons.forEach((b) => b.classList.remove("active"));
+    sections.forEach((s) => s.classList.remove("active"));
 
     btn.classList.add("active");
     document.getElementById(btn.dataset.target).classList.add("active");
@@ -21,38 +21,37 @@ async function loadItems() {
     const container = document.getElementById("items-list");
     container.innerHTML = "";
 
-    if (data.length === 0) {
-      container.innerHTML = "<p>Belum ada data item.</p>";
+    if (!data || data.length === 0) {
+      container.innerHTML = "<p>Belum ada item di database.</p>";
       return;
     }
 
-    data.forEach(item => {
+    data.forEach((item) => {
       const div = document.createElement("div");
       div.classList.add("list-item");
       div.innerHTML = `
-        <span>${item.nama_item}</span>
-        <span>Kode: ${item.kode_item}</span>
-        <span>Jenis: ${item.jenis_item}</span>
+        <span>${item.tipe_varian || "-"}</span>
+        <span>Kode: ${item.kode_item || "-"}</span>
       `;
       container.appendChild(div);
     });
   } catch (err) {
     console.error("Gagal memuat data items:", err);
+    document.getElementById("items-list").innerHTML =
+      "<p>Gagal memuat data items.</p>";
   }
 }
 
 // ====== Load Transaksi dari Supabase ======
 async function loadTransaksi() {
   try {
-    const { data, error } = await supabase
-      .from("transaksi")
-      .select("*, units(tipe_varian)");
+    const { data, error } = await supabase.from("transaksi").select("*");
     if (error) throw error;
 
     const container = document.getElementById("daftarTransaksi");
     container.innerHTML = "";
 
-    if (data.length === 0) {
+    if (!data || data.length === 0) {
       container.innerHTML = "<p>Belum ada transaksi.</p>";
       return;
     }
@@ -75,17 +74,13 @@ async function loadTransaksi() {
 
     const tbody = table.querySelector("tbody");
 
-    data.forEach(trx => {
-      const hargaBeli = trx.harga_beli_unit || 0;
-      const hargaJual = trx.harga_jual_unit || 0;
-      const margin = hargaBeli > 0 ? ((hargaJual - hargaBeli) / hargaBeli * 100).toFixed(2) : 0;
-
+    data.forEach((trx) => {
       const row = document.createElement("tr");
       row.innerHTML = `
-        <td>${trx.units?.tipe_varian || "-"}</td>
-        <td>Rp ${hargaBeli.toLocaleString("id-ID")}</td>
-        <td>Rp ${hargaJual.toLocaleString("id-ID")}</td>
-        <td>${margin}%</td>
+        <td>${trx.tipe_varian || "-"}</td>
+        <td>Rp ${trx.harga_beli_unit?.toLocaleString("id-ID") || "-"}</td>
+        <td>Rp ${trx.harga_jual?.toLocaleString("id-ID") || "-"}</td>
+        <td>${trx.margin ? trx.margin + "%" : "-"}</td>
         <td><button class="detail-btn">Detail</button></td>
       `;
 
@@ -114,11 +109,7 @@ function showPopup(trx) {
 
   let details = "<h3>Detail Transaksi</h3><ul>";
   for (const key in trx) {
-    if (typeof trx[key] === "object" && trx[key] !== null) {
-      details += `<li><b>${key}</b>: ${JSON.stringify(trx[key])}</li>`;
-    } else {
-      details += `<li><b>${key}</b>: ${trx[key]}</li>`;
-    }
+    details += `<li><b>${key}</b>: ${trx[key]}</li>`;
   }
   details += "</ul><button id='closePopup'>Tutup</button>";
 
@@ -131,6 +122,8 @@ function showPopup(trx) {
   });
 }
 
-// ====== Panggil saat load ======
-loadItems();
-loadTransaksi();
+// ====== Inisialisasi Saat Load ======
+document.addEventListener("DOMContentLoaded", () => {
+  loadItems();
+  loadTransaksi();
+});
