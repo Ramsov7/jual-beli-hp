@@ -65,10 +65,11 @@ function renderItems(items) {
     const card = document.createElement("div");
     card.className = "item-card";
     card.innerHTML = `
-      <h4>${item.nama || "Tanpa Nama"}</h4>
-      <p>Kategori: ${item.kategori || "-"}</p>
-      <p>Jenis: ${item.jenis || "-"}</p>
-      <p>Stok: ${item.stok ?? "-"}</p>
+      <h4>${item.nama_item || "Tanpa Nama"}</h4>
+      <p>Kategori: ${item.jenis_item || "-"}</p>
+      <p>Kondisi: ${item.kondisi_item || "-"}</p>
+      <p>Stok: ${item.stok_item ?? "-"}</p>
+      <p>Harga: ${item.biaya_item ? "Rp " + item.biaya_item.toLocaleString() : "-"}</p>
     `;
     grid.appendChild(card);
   });
@@ -81,11 +82,11 @@ function fillFilterOptions(items) {
   const kategoriSelect = document.getElementById("filterKategori");
   const jenisSelect = document.getElementById("filterJenis");
 
-  const kategoriSet = new Set(items.map((i) => i.kategori).filter(Boolean));
-  const jenisSet = new Set(items.map((i) => i.jenis).filter(Boolean));
+  const kategoriSet = new Set(items.map((i) => i.jenis_item).filter(Boolean));
+  const jenisSet = new Set(items.map((i) => i.kondisi_item).filter(Boolean));
 
   kategoriSelect.innerHTML = '<option value="">Semua Kategori</option>';
-  jenisSelect.innerHTML = '<option value="">Semua Jenis</option>';
+  jenisSelect.innerHTML = '<option value="">Semua Kondisi</option>';
 
   kategoriSet.forEach((k) => {
     kategoriSelect.innerHTML += `<option value="${k}">${k}</option>`;
@@ -104,13 +105,13 @@ function applyFilters() {
 
   let filtered = allItems.filter((i) => {
     const matchSearch =
-      !search || (i.nama && i.nama.toLowerCase().includes(search));
-    const matchKategori = !kategori || i.kategori === kategori;
-    const matchJenis = !jenis || i.jenis === jenis;
+      !search || (i.nama_item && i.nama_item.toLowerCase().includes(search));
+    const matchKategori = !kategori || i.jenis_item === kategori;
+    const matchJenis = !jenis || i.kondisi_item === jenis;
     const matchStok =
       !stok ||
-      (stok === "habis" && (!i.stok || i.stok == 0)) ||
-      (stok === "tersedia" && i.stok > 0);
+      (stok === "habis" && (!i.stok_item || i.stok_item == 0)) ||
+      (stok === "tersedia" && i.stok_item > 0);
 
     return matchSearch && matchKategori && matchJenis && matchStok;
   });
