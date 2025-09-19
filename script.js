@@ -12,14 +12,15 @@ navButtons.forEach(btn => {
   });
 });
 
-// ====== Load Items JSON ======
+// ====== Load Items dari Supabase ======
 async function loadItems() {
   try {
-    const res = await fetch("items.json");
-    const data = await res.json();
-    const container = document.getElementById("items-list");
+    const { data, error } = await supabase.from("items").select("*");
+    if (error) throw error;
 
+    const container = document.getElementById("items-list");
     container.innerHTML = "";
+
     data.forEach(item => {
       const div = document.createElement("div");
       div.classList.add("list-item");
@@ -30,15 +31,15 @@ async function loadItems() {
       container.appendChild(div);
     });
   } catch (err) {
-    console.error("Gagal memuat items.json", err);
+    console.error("Gagal memuat data items:", err);
   }
 }
 
-// ====== Load Transaksi JSON ======
+// ====== Load Transaksi dari Supabase ======
 async function loadTransaksi() {
   try {
-    const res = await fetch("transaksi.json");
-    const data = await res.json();
+    const { data, error } = await supabase.from("transaksi").select("*");
+    if (error) throw error;
 
     const container = document.getElementById("daftarTransaksi");
     container.innerHTML = "";
@@ -76,7 +77,6 @@ async function loadTransaksi() {
         <td><button class="detail-btn">Detail</button></td>
       `;
 
-      // tombol detail -> popup
       row.querySelector(".detail-btn").addEventListener("click", () => {
         showPopup(trx);
       });
@@ -86,7 +86,7 @@ async function loadTransaksi() {
 
     container.appendChild(table);
   } catch (err) {
-    console.error("Gagal memuat transaksi.json", err);
+    console.error("Gagal memuat transaksi:", err);
     document.getElementById("daftarTransaksi").innerHTML =
       "<p>Gagal memuat data transaksi.</p>";
   }
