@@ -4,13 +4,10 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>HP Inventory</title>
-
-  <!-- Link ke CSS eksternal -->
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
   <header>
-    <!-- Bar atas -->
     <div class="top-bar">
       <div class="user-profile">
         <img src="https://via.placeholder.com/36" alt="User">
@@ -22,7 +19,6 @@
     </div>
   </header>
 
-  <!-- Konten -->
   <main>
     <!-- Beranda -->
     <section id="beranda" class="active">
@@ -36,9 +32,7 @@
     <section id="transaksi">
       <div class="card">
         <h3>Daftar Transaksi</h3>
-        <div id="daftarTransaksi">
-          <p>Data transaksi akan tampil di sini.</p>
-        </div>
+        <div id="daftarTransaksi"><p>Data transaksi akan tampil di sini.</p></div>
         <button>+ Tambah Transaksi Pembelian</button>
         <button>+ Tambah Transaksi Penjualan</button>
       </div>
@@ -65,7 +59,6 @@
           <select><option>Jenis</option></select>
         </div>
 
-        <!-- Tempat daftar items -->
         <div id="items-list"></div>
 
         <button class="add-btn" aria-label="Tambah Item">
@@ -89,22 +82,18 @@
       <svg><use href="icons.svg#home"></use></svg>
       <span>Beranda</span>
     </button>
-
     <button data-target="transaksi">
       <svg><use href="icons.svg#transaksi"></use></svg>
       <span>Transaksi</span>
     </button>
-
     <button data-target="perbaikan">
       <svg><use href="icons.svg#perbaikan"></use></svg>
       <span>Perbaikan</span>
     </button>
-
     <button data-target="master">
       <svg><use href="icons.svg#master"></use></svg>
       <span>Master</span>
     </button>
-
     <button data-target="pengaturan">
       <svg><use href="icons.svg#pengaturan"></use></svg>
       <span>Pengaturan</span>
@@ -116,12 +105,8 @@
   <script>
     const SUPABASE_URL = "https://tvesoylwadcxtwtacnsn.supabase.co";
     const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InR2ZXNveWx3YWRjeHR3dGFjbnNuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTgzMDIyNjcsImV4cCI6MjA3Mzg3ODI2N30.j1ot_YnQ3PyeJl2EZbCmVnh33BXD4flkDhQ8uncL_u0";
-
-    // buat client global
     window.supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
   </script>
-
-  <!-- Script Utama -->
   <script src="script.js"></script>
 </body>
 </html>
