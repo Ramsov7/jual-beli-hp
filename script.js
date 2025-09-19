@@ -6,26 +6,25 @@ navButtons.forEach((btn) => {
   btn.addEventListener("click", () => {
     navButtons.forEach((b) => b.classList.remove("active"));
     sections.forEach((s) => s.classList.remove("active"));
+
     btn.classList.add("active");
     document.getElementById(btn.dataset.target).classList.add("active");
   });
 });
 
-// ====== Debug Message (ganti console.log) ======
+// ====== Debug ke UI ======
 function showDebugMessage(targetId, msg, isError = false) {
   const el = document.getElementById(targetId);
   if (!el) return;
   const p = document.createElement("div");
-  p.style.whiteSpace = "pre-wrap";
-  p.style.fontFamily = "monospace";
-  p.style.margin = "6px 0";
-  p.style.padding = "4px";
-  p.style.border = "1px dashed #ccc";
-  p.style.background = isError ? "#ffe6e6" : "#f9f9f9";
-  p.style.color = isError ? "#8b0000" : "#333";
+  p.className = "debug";
+  p.style.color = isError ? "red" : "#333";
   p.textContent = msg;
   el.appendChild(p);
 }
+
+// ====== Global state ======
+let allItems = [];
 
 // ====== Load Items ======
 async function loadItems() {
@@ -33,17 +32,11 @@ async function loadItems() {
   if (!container) return;
   container.innerHTML = "";
 
-  if (!window.supabase) {
-    showDebugMessage("items-list", "❌ Supabase client tidak ditemukan.", true);
-    return;
-  }
-
-  showDebugMessage("items-list", "🔄 Memuat data dari tabel 'items'...");
   try {
     const { data, error } = await supabase.from("items").select("*").limit(50);
 
     if (error) {
-      showDebugMessage("items-list", `❌ Error Supabase: ${error.message}`, true);
+      showDebugMessage("items-list", "❌ Error Supabase: " + error.message, true);
       return;
     }
 
@@ -52,101 +45,94 @@ async function loadItems() {
       return;
     }
 
-    data.forEach((item) => {
-      const div = document.createElement("div");
-      div.classList.add("list-item");
-      div.innerHTML = `<pre>${JSON.stringify(item, null, 2)}</pre>`;
-      container.appendChild(div);
-    });
+    allItems = data;
+    renderItems(allItems);
+    fillFilterOptions(allItems);
   } catch (err) {
-    showDebugMessage("items-list", `❌ Exception loadItems: ${err.message}`, true);
+    showDebugMessage("items-list", "❌ Exception loadItems: " + err.message, true);
   }
 }
 
-// ====== Load Transaksi ======
-async function loadTransaksi() {
-  const container = document.getElementById("daftarTransaksi");
-  if (!container) return;
+// ====== Render Items as Cards ======
+function renderItems(items) {
+  const container = document.getElementById("items-list");
   container.innerHTML = "";
 
-  try {
-    const { data, error } = await supabase.from("transaksi").select("*").limit(100);
+  const grid = document.createElement("div");
+  grid.className = "items-grid";
 
-    if (error) {
-      showDebugMessage("daftarTransaksi", `❌ Error Supabase: ${error.message}`, true);
-      return;
-    }
-
-    if (!data || data.length === 0) {
-      container.innerHTML = "<p>Belum ada transaksi.</p>";
-      return;
-    }
-
-    const table = document.createElement("table");
-    table.classList.add("transaksi-table");
-    table.innerHTML = `
-      <thead>
-        <tr>
-          <th>Unit</th>
-          <th>Harga Beli</th>
-          <th>Harga Jual</th>
-          <th>Margin</th>
-          <th>Detail</th>
-        </tr>
-      </thead>
-      <tbody></tbody>
+  items.forEach((item) => {
+    const card = document.createElement("div");
+    card.className = "item-card";
+    card.innerHTML = `
+      <h4>${item.nama || "Tanpa Nama"}</h4>
+      <p>Kategori: ${item.kategori || "-"}</p>
+      <p>Jenis: ${item.jenis || "-"}</p>
+      <p>Stok: ${item.stok ?? "-"}</p>
     `;
-    const tbody = table.querySelector("tbody");
+    grid.appendChild(card);
+  });
 
-    data.forEach((trx) => {
-      const kodeUnit = trx.kode_unit || "-";
-      const namaUnit = trx.tipe_varian || "-";
-      const hargaBeli = trx.harga_beli_unit || 0;
-      const hargaJual = trx.harga_jual_unit || 0;
-      const margin = hargaBeli > 0 ? (((hargaJual - hargaBeli) / hargaBeli) * 100).toFixed(2) : "-";
-
-      const row = document.createElement("tr");
-      row.innerHTML = `
-        <td>${namaUnit} <br><small>${kodeUnit}</small></td>
-        <td>Rp ${hargaBeli ? hargaBeli.toLocaleString("id-ID") : "-"}</td>
-        <td>Rp ${hargaJual ? hargaJual.toLocaleString("id-ID") : "-"}</td>
-        <td>${margin === "-" ? "-" : margin + "%"}</td>
-        <td><button class="detail-btn">Detail</button></td>
-      `;
-      row.querySelector(".detail-btn").addEventListener("click", () => showPopup(trx));
-      tbody.appendChild(row);
-    });
-
-    container.appendChild(table);
-  } catch (err) {
-    showDebugMessage("daftarTransaksi", `❌ Exception loadTransaksi: ${err.message}`, true);
-  }
+  container.appendChild(grid);
 }
 
-// ====== Popup ======
-function showPopup(obj) {
-  const overlay = document.createElement("div");
-  overlay.classList.add("popup-overlay");
-  const popup = document.createElement("div");
-  popup.classList.add("popup");
+// ====== Filter Options ======
+function fillFilterOptions(items) {
+  const kategoriSelect = document.getElementById("filterKategori");
+  const jenisSelect = document.getElementById("filterJenis");
 
-  let details = "<h3>Detail</h3><ul>";
-  for (const key in obj) {
-    details += `<li><b>${key}</b>: ${obj[key]}</li>`;
-  }
-  details += `</ul><button id="closePopup">Tutup</button>`;
+  const kategoriSet = new Set(items.map((i) => i.kategori).filter(Boolean));
+  const jenisSet = new Set(items.map((i) => i.jenis).filter(Boolean));
 
-  popup.innerHTML = details;
-  overlay.appendChild(popup);
-  document.body.appendChild(overlay);
+  kategoriSelect.innerHTML = '<option value="">Semua Kategori</option>';
+  jenisSelect.innerHTML = '<option value="">Semua Jenis</option>';
 
-  document.getElementById("closePopup").addEventListener("click", () => {
-    document.body.removeChild(overlay);
+  kategoriSet.forEach((k) => {
+    kategoriSelect.innerHTML += `<option value="${k}">${k}</option>`;
+  });
+  jenisSet.forEach((j) => {
+    jenisSelect.innerHTML += `<option value="${j}">${j}</option>`;
   });
 }
+
+// ====== Apply Filters ======
+function applyFilters() {
+  const search = document.getElementById("searchInput").value.toLowerCase();
+  const kategori = document.getElementById("filterKategori").value;
+  const stok = document.getElementById("filterStok").value;
+  const jenis = document.getElementById("filterJenis").value;
+
+  let filtered = allItems.filter((i) => {
+    const matchSearch =
+      !search || (i.nama && i.nama.toLowerCase().includes(search));
+    const matchKategori = !kategori || i.kategori === kategori;
+    const matchJenis = !jenis || i.jenis === jenis;
+    const matchStok =
+      !stok ||
+      (stok === "habis" && (!i.stok || i.stok == 0)) ||
+      (stok === "tersedia" && i.stok > 0);
+
+    return matchSearch && matchKategori && matchJenis && matchStok;
+  });
+
+  renderItems(filtered);
+}
+
+// ====== Event Listeners ======
+document
+  .getElementById("searchInput")
+  .addEventListener("input", applyFilters);
+document
+  .getElementById("filterKategori")
+  .addEventListener("change", applyFilters);
+document
+  .getElementById("filterStok")
+  .addEventListener("change", applyFilters);
+document
+  .getElementById("filterJenis")
+  .addEventListener("change", applyFilters);
 
 // ====== Init ======
 document.addEventListener("DOMContentLoaded", () => {
   loadItems();
-  loadTransaksi();
 });
