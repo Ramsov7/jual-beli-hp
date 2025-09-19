@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="id">
 <head>
@@ -66,7 +65,7 @@
           <select><option>Jenis</option></select>
         </div>
 
-        <!-- List item dari items.json -->
+        <!-- List item dari database Supabase -->
         <div id="items-list"></div>
 
         <!-- Add button -->
@@ -112,6 +111,15 @@
     </button>
   </div>
 
+  <!-- Supabase Client -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script>
+    const SUPABASE_URL = "https://tvesoylwadcxtwtacnsn.supabase.co";
+    const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...";
+    window.supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+  </script>
+
+  <!-- Script Utama -->
   <script src="script.js"></script>
 </body>
 </html>
