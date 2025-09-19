@@ -18,6 +18,8 @@ async function loadItems() {
     const { data, error } = await supabase.from("items").select("*");
     if (error) throw error;
 
+    console.log("Data items:", data); // debug ke console
+
     const container = document.getElementById("items-list");
     container.innerHTML = "";
 
@@ -30,8 +32,7 @@ async function loadItems() {
       const div = document.createElement("div");
       div.classList.add("list-item");
       div.innerHTML = `
-        <span>${item.tipe_varian || "-"}</span>
-        <span>Kode: ${item.kode_item || "-"}</span>
+        <pre>${JSON.stringify(item, null, 2)}</pre>
       `;
       container.appendChild(div);
     });
@@ -127,33 +128,3 @@ document.addEventListener("DOMContentLoaded", () => {
   loadItems();
   loadTransaksi();
 });
-
-async function loadItems() {
-  try {
-    const { data, error } = await supabase.from("items").select("*");
-    if (error) throw error;
-
-    console.log("Data items:", data); // debug ke console
-
-    const container = document.getElementById("items-list");
-    container.innerHTML = "";
-
-    if (!data || data.length === 0) {
-      container.innerHTML = "<p>Belum ada item di database.</p>";
-      return;
-    }
-
-    data.forEach((item) => {
-      const div = document.createElement("div");
-      div.classList.add("list-item");
-      div.innerHTML = `
-        <pre>${JSON.stringify(item, null, 2)}</pre>
-      `;
-      container.appendChild(div);
-    });
-  } catch (err) {
-    console.error("Gagal memuat data items:", err.message);
-    document.getElementById("items-list").innerHTML =
-      "<p>Gagal memuat data items.</p>";
-  }
-}
