@@ -10,46 +10,30 @@
   <header>
     <div class="top-bar">
       <div class="user-profile">
-        <img src="https://via.placeholder.com/36" alt="User" />
-        <span>Selamat Datang Rudi</span>
+        <span>Total Saldo Saat Ini : Rp.726.000</span>
       </div>
+
       <button id="btnSettings" aria-label="Pengaturan">
         <svg><use href="icons.svg#pengaturan"></use></svg>
       </button>
-    </div>
-    <div id="settingsPanel" class="settings-panel">
-      <p>🔧 Pengaturan aplikasi</p>
+
+      <div id="panelSettings" class="settings-panel" aria-hidden="true">
+        <h3>Pengaturan</h3>
+        <p>Menu pengaturan aplikasi di sini.</p>
+      </div>
     </div>
   </header>
 
   <main>
-    <section id="beranda" class="active">
-      <div class="card">
-        <h3>Arus Kas Bulanan</h3>
-        <canvas id="cashflowChart" height="150"></canvas>
-      </div>
-    </section>
-
-    <section id="transaksi">
-      <div class="card">
-        <h3>Daftar Transaksi</h3>
-        <div id="daftarTransaksi"><p>Data transaksi akan tampil di sini.</p></div>
-        <button>+ Tambah Transaksi Pembelian</button>
-        <button>+ Tambah Transaksi Penjualan</button>
-      </div>
-    </section>
-
-    <section id="perbaikan">
-      <div class="card"><h3>Form Perbaikan</h3></div>
-    </section>
-
-    <section id="master">
+    <!-- Master -->
+    <section id="master" class="active">
       <div class="card">
         <div class="search-filter">
-          <input type="text" id="searchInput" placeholder="Cari item..." />
+          <input type="text" id="searchInput" placeholder="Cari item...">
           <svg><use href="icons.svg#filter"></use></svg>
         </div>
 
+        <!-- Filter jadi satu baris -->
         <div class="filters-inline">
           <select id="filterKategori"><option value="">Semua Kategori</option></select>
           <select id="filterStok">
@@ -57,49 +41,33 @@
             <option value="habis">Stok Habis</option>
             <option value="tersedia">Masih Ada</option>
           </select>
-          <select id="filterJenis"><option value="">Semua Kondisi</option></select>
+          <select id="filterJenis"><option value="">Semua Jenis</option></select>
         </div>
 
-        <div id="itemsList"></div>
+        <div id="itemsList" aria-live="polite"></div>
+
         <button class="add-btn" aria-label="Tambah Item">
           <svg><use href="icons.svg#add"></use></svg>
         </button>
       </div>
     </section>
-
-    <section id="pengaturan">
-      <div class="card">
-        <h3>Pengaturan</h3>
-        <p>Menu pengaturan aplikasi di sini.</p>
-      </div>
-    </section>
   </main>
 
   <nav class="bottom-nav" aria-label="Navigasi bawah">
-    <button data-target="beranda" class="active">
-      <svg><use href="icons.svg#home"></use></svg><span>Beranda</span>
-    </button>
-    <button data-target="transaksi">
-      <svg><use href="icons.svg#transaksi"></use></svg><span>Transaksi</span>
-    </button>
-    <button data-target="perbaikan">
-      <svg><use href="icons.svg#perbaikan"></use></svg><span>Perbaikan</span>
-    </button>
-    <button data-target="master">
-      <svg><use href="icons.svg#master"></use></svg><span>Master</span>
-    </button>
-    <button data-target="pengaturan">
-      <svg><use href="icons.svg#pengaturan"></use></svg><span>Pengaturan</span>
-    </button>
+    <button data-target="beranda"><svg><use href="icons.svg#home"></use></svg><span>Beranda</span></button>
+    <button data-target="transaksi"><svg><use href="icons.svg#transaksi"></use></svg><span>Transaksi</span></button>
+    <button data-target="perbaikan"><svg><use href="icons.svg#perbaikan"></use></svg><span>Perbaikan</span></button>
+    <button data-target="master" class="active"><svg><use href="icons.svg#master"></use></svg><span>Master</span></button>
   </nav>
 
-  <!-- Supabase Client -->
+  <!-- Supabase -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script>
     const SUPABASE_URL = "https://tvesoylwadcxtwtacnsn.supabase.co";
-    const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...";
+    const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InR2ZXNveWx3YWRjeHR3dGFjbnNuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTgzMDIyNjcsImV4cCI6MjA3Mzg3ODI2N30.j1ot_YnQ3PyeJl2EZbCmVnh33BXD4flkDhQ8uncL_u0";
     window.supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
   </script>
+
   <script src="script.js"></script>
 </body>
 </html>
