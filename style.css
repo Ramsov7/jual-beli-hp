@@ -115,5 +115,31 @@ section.active { display: block; }
 .bottom-nav button.active { color: var(--primary); font-weight: 700; }
 .bottom-nav svg { width: 20px; height: 20px; }
 
+/* Animasi transisi section */
+section {
+  position: absolute;
+  top: 0; left: 0; width: 100%; height: calc(100vh - 56px - 56px);
+  opacity: 0;
+  transform: translateX(100%);
+  transition: transform 0.35s ease, opacity 0.35s ease;
+  pointer-events: none;
+}
+
+section.active {
+  opacity: 1;
+  transform: translateX(0);
+  pointer-events: auto;
+}
+
+section.exit-left {
+  transform: translateX(-100%);
+  opacity: 0;
+}
+
+section.exit-right {
+  transform: translateX(100%);
+  opacity: 0;
+}
+
 /* Responsive */
 @media (max-width: 480px) { #itemsList { grid-template-columns: repeat(2, 1fr); } }
