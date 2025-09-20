@@ -39,16 +39,28 @@ section.active { display: block; }
 }
 
 /* Search & Filters */
-.search-filter { display: flex; gap: 8px; align-items: center; margin-bottom: 10px; }
+.search-filter {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
 .search-filter input {
-  flex: 1; padding: 10px; border-radius: 10px; border: 1px solid #e6e6e6;
+  flex: 1;
+  padding: 10px;
+  border-radius: 10px;
+  border: 1px solid #e6e6e6;
   background: #fafafa;
 }
-.filters-inline { display: flex; gap: 10px; margin-bottom: 14px; flex-wrap: nowrap; }
-.filters-inline select {
-  flex: 1; padding: 8px; border-radius: 10px; border: 1px solid #e6e6e6;
-  background: #fff;
+
+.search-filter svg {
+  width: 18px;   /* ukuran kecil */
+  height: 18px;
+  opacity: .6;
+  flex-shrink: 0;
 }
+
 
 /* Items grid minimal 2 kolom */
 #itemsList {
