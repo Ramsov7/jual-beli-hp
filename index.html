@@ -7,27 +7,34 @@
   <link rel="stylesheet" href="style.css" />
   <style>
     /* Main container untuk animasi transisi */
-    main {
-      position: relative;
-      flex: 1 0 auto;
-      min-height: calc(100vh - 56px - 56px); /* tinggi layar minus header & nav */
-      overflow: hidden;
-      padding-bottom: 16px; /* ruang untuk nav */
+    html, body {
+      height: 100%;
+      margin: 0;
+      padding: 0;
       display: flex;
       flex-direction: column;
+      background: var(--bg, #f7f8fa);
+    }
+
+    main {
+      flex: 1 0 auto;
+      overflow: hidden;
+      position: relative;
+      display: flex;
     }
 
     section {
+      flex: 0 0 100%;
+      min-height: calc(100vh - 56px - 56px);
+      box-sizing: border-box;
+      padding: 20px;
       position: absolute;
       top: 0; left: 0; right: 0; bottom: 0;
-      width: 100%;
       opacity: 0;
       transform: translateX(100%);
       transition: opacity 0.35s ease, transform 0.35s cubic-bezier(0.25,0.1,0.25,1);
-      pointer-events: none;
       overflow-y: auto;
-      padding: 20px;
-      box-sizing: border-box;
+      pointer-events: none;
     }
 
     section.active {
@@ -44,13 +51,39 @@
       pointer-events: none;
     }
 
-    /* Pastikan body full tinggi dan bottom-nav terlihat */
-    html, body {
-      height: 100%;
-      margin: 0;
-      padding: 0;
+    header {
+      background: #111;
+      color: #fff;
+      padding: 10px 16px;
+      position: relative;
+    }
+
+    .bottom-nav {
+      position: fixed;
+      left: 0; right: 0; bottom: 0;
+      display: flex;
+      background: #111;
+      padding: 8px 0;
+      z-index: 999;
+    }
+
+    .bottom-nav button {
+      flex: 1;
+      background: none;
+      border: none;
+      color: #ccc;
       display: flex;
       flex-direction: column;
+      align-items: center;
+      gap: 2px;
+      font-size: 12px;
+      padding: 6px 0;
+      transition: color 0.3s ease;
+    }
+
+    .bottom-nav button.active {
+      color: var(--primary, #6c63ff);
+      font-weight: 700;
     }
   </style>
 </head>
@@ -128,11 +161,18 @@
   </nav>
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="script.js"></script>
   <script>
-    // Navigasi antar section dengan animasi fade/slide
-    const sections = document.querySelectorAll('main section');
-    const navButtons = document.querySelectorAll('.bottom-nav button');
+    // Panel pengaturan
+    const btnSettings = document.getElementById("btnSettings");
+    const panelSettings = document.getElementById("panelSettings");
+    btnSettings.addEventListener("click", () => {
+      panelSettings.classList.toggle("active");
+      panelSettings.setAttribute("aria-hidden", !panelSettings.classList.contains("active"));
+    });
 
+    // Navigasi antar section (fade/slide)
+    const navButtons = document.querySelectorAll('.bottom-nav button');
     navButtons.forEach(btn => {
       btn.addEventListener('click', () => {
         const targetId = btn.dataset.target;
@@ -151,15 +191,6 @@
         }
       });
     });
-
-    // Panel pengaturan
-    const btnSettings = document.getElementById("btnSettings");
-    const panelSettings = document.getElementById("panelSettings");
-    btnSettings.addEventListener("click", () => {
-      panelSettings.classList.toggle("active");
-      panelSettings.setAttribute("aria-hidden", !panelSettings.classList.contains("active"));
-    });
   </script>
-  <script src="script.js"></script>
 </body>
 </html>
