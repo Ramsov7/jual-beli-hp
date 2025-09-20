@@ -5,103 +5,6 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Servisel</title>
   <link rel="stylesheet" href="style.css" />
-  <style>
-    :root {
-      --primary: #6c63ff;
-      --bg: #f7f8fa;
-    }
-
-    html, body {
-      height: 100%;
-      margin: 0;
-      padding: 0;
-      display: flex;
-      flex-direction: column;
-      background: var(--bg);
-    }
-
-    header {
-      background: #111;
-      color: #fff;
-      padding: 10px 16px;
-      z-index: 1000;
-      position: relative;
-    }
-
-    main {
-      flex: 1 0 auto;
-      overflow: hidden;
-      position: relative;
-    }
-
-    section {
-      flex: 0 0 100%;
-      min-height: calc(100vh - 56px - 56px);
-      box-sizing: border-box;
-      padding: 20px;
-      position: absolute;
-      top: 0; left: 0; right: 0; bottom: 0;
-      opacity: 0;
-      transform: translateX(100%);
-      transition: opacity 0.35s ease, transform 0.35s cubic-bezier(0.25,0.1,0.25,1);
-      overflow-y: auto;
-      pointer-events: none;
-    }
-
-    section.active {
-      opacity: 1;
-      transform: translateX(0);
-      pointer-events: auto;
-      position: relative;
-      z-index: 1;
-    }
-
-    section.exit-left {
-      transform: translateX(-100%);
-      opacity: 0;
-      pointer-events: none;
-    }
-
-    .bottom-nav {
-      position: fixed;
-      left: 0; right: 0; bottom: 0;
-      display: flex;
-      background: #111;
-      padding: 8px 0;
-      z-index: 999;
-    }
-
-    .bottom-nav button {
-      flex: 1;
-      background: none;
-      border: none;
-      color: #ccc;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 2px;
-      font-size: 12px;
-      padding: 6px 0;
-      transition: color 0.3s ease;
-    }
-
-    .bottom-nav button span {
-      max-width: 0;
-      opacity: 0;
-      overflow: hidden;
-      white-space: nowrap;
-      transition: max-width 0.3s ease, opacity 0.3s ease;
-    }
-
-    .bottom-nav button.active {
-      color: var(--primary);
-      font-weight: 700;
-    }
-    .bottom-nav button.active span {
-      max-width: 80px;
-      opacity: 1;
-    }
-  </style>
 </head>
 <body>
   <header>
@@ -109,11 +12,9 @@
       <div class="user-profile">
         <span>Total Saldo Saat Ini : Rp.726.000</span>
       </div>
-
       <button id="btnSettings" aria-label="Pengaturan">
         <svg><use href="icons.svg#pengaturan"></use></svg>
       </button>
-
       <div id="panelSettings" class="settings-panel" aria-hidden="true">
         <h3>Pengaturan</h3>
         <p>Menu pengaturan aplikasi di sini.</p>
@@ -178,35 +79,5 @@
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="script.js"></script>
-  <script>
-    // Panel pengaturan
-    const btnSettings = document.getElementById("btnSettings");
-    const panelSettings = document.getElementById("panelSettings");
-    btnSettings.addEventListener("click", () => {
-      panelSettings.classList.toggle("active");
-      panelSettings.setAttribute("aria-hidden", !panelSettings.classList.contains("active"));
-    });
-
-    // Navigasi antar section
-    const navButtons = document.querySelectorAll('.bottom-nav button');
-    navButtons.forEach(btn => {
-      btn.addEventListener('click', () => {
-        const targetId = btn.dataset.target;
-        const activeSection = document.querySelector('section.active');
-
-        if (activeSection.id !== targetId) {
-          activeSection.classList.remove('active');
-          activeSection.classList.add('exit-left');
-
-          const targetSection = document.getElementById(targetId);
-          targetSection.classList.add('active');
-          targetSection.classList.remove('exit-left');
-
-          navButtons.forEach(b => b.classList.remove('active'));
-          btn.classList.add('active');
-        }
-      });
-    });
-  </script>
 </body>
 </html>
