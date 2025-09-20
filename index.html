@@ -5,6 +5,40 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Servisel</title>
   <link rel="stylesheet" href="style.css" />
+  <style>
+    /* Tambahan animasi transisi antar halaman */
+    main {
+      position: relative;
+      overflow: hidden;
+      min-height: 70vh;
+      padding-bottom: 100px; /* ruang untuk nav */
+    }
+
+    section {
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      width: 100%;
+      opacity: 0;
+      transform: translateX(100%);
+      transition: opacity 0.35s ease, transform 0.35s cubic-bezier(0.25,0.1,0.25,1);
+      pointer-events: none;
+    }
+
+    section.active {
+      opacity: 1;
+      transform: translateX(0);
+      pointer-events: auto;
+      position: relative;
+      z-index: 1;
+    }
+
+    /* Supaya halaman lama geser ke kiri saat berganti */
+    section.exit-left {
+      transform: translateX(-100%);
+      opacity: 0;
+      pointer-events: none;
+    }
+  </style>
 </head>
 <body>
   <header>
@@ -26,7 +60,7 @@
 
   <main>
     <!-- Beranda -->
-    <section id="beranda">
+    <section id="beranda" class="active">
       <div class="card">
         <h2>Beranda</h2>
         <p>Ringkasan bisnis ditampilkan di sini.</p>
@@ -50,7 +84,7 @@
     </section>
 
     <!-- Master -->
-    <section id="master" class="active">
+    <section id="master">
       <div class="card">
         <div class="search-filter">
           <input type="text" id="searchInput" placeholder="Cari item...">
@@ -77,10 +111,10 @@
   </main>
 
   <nav class="bottom-nav" aria-label="Navigasi bawah">
-    <button data-target="beranda"><svg><use href="icons.svg#home"></use></svg><span>Beranda</span></button>
+    <button data-target="beranda" class="active"><svg><use href="icons.svg#home"></use></svg><span>Beranda</span></button>
     <button data-target="transaksi"><svg><use href="icons.svg#transaksi"></use></svg><span>Transaksi</span></button>
     <button data-target="perbaikan"><svg><use href="icons.svg#perbaikan"></use></svg><span>Perbaikan</span></button>
-    <button data-target="master" class="active"><svg><use href="icons.svg#master"></use></svg><span>Master</span></button>
+    <button data-target="master"><svg><use href="icons.svg#master"></use></svg><span>Master</span></button>
   </nav>
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
