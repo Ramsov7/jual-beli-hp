@@ -50,7 +50,6 @@
           <input type="text" id="searchInput" placeholder="Cari item...">
           <svg><use href="icons.svg#filter"></use></svg>
         </div>
-
         <div class="filters-inline">
           <select id="filterKategori"><option value="">Semua Kategori</option></select>
           <select id="filterStok">
@@ -60,9 +59,7 @@
           </select>
           <select id="filterJenis"><option value="">Semua Jenis</option></select>
         </div>
-
         <div id="itemsList" aria-live="polite"></div>
-
         <button class="add-btn" aria-label="Tambah Item">
           <svg><use href="icons.svg#add"></use></svg>
         </button>
@@ -71,10 +68,10 @@
   </main>
 
   <nav class="bottom-nav" aria-label="Navigasi bawah">
-    <button data-target="beranda" class="active"><svg><use href="icons.svg#home"></use></svg><span>Beranda</span></button>
-    <button data-target="transaksi"><svg><use href="icons.svg#transaksi"></use></svg><span>Transaksi</span></button>
-    <button data-target="perbaikan"><svg><use href="icons.svg#perbaikan"></use></svg><span>Perbaikan</span></button>
-    <button data-target="master"><svg><use href="icons.svg#master"></use></svg><span>Master</span></button>
+    <button data-index="0" class="active"><svg><use href="icons.svg#home"></use></svg><span>Beranda</span></button>
+    <button data-index="1"><svg><use href="icons.svg#transaksi"></use></svg><span>Transaksi</span></button>
+    <button data-index="2"><svg><use href="icons.svg#perbaikan"></use></svg><span>Perbaikan</span></button>
+    <button data-index="3"><svg><use href="icons.svg#master"></use></svg><span>Master</span></button>
   </nav>
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
