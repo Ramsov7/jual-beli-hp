@@ -29,7 +29,12 @@ header { background: #111; color: #fff; padding: 10px 16px; position: relative; 
 .settings-panel.active { display: block; }
 
 /* Main */
-main { padding: 20px; padding-bottom: 120px; position: relative; z-index: 0; }
+main { 
+  padding: 20px; 
+  padding-bottom: 100px;   /* ✅ tambah ruang untuk nav */
+  position: relative;
+  z-index: 0;
+}
 section { display: none; }
 section.active { display: block; }
 .card {
@@ -53,11 +58,11 @@ section.active { display: block; }
   background: #fafafa;
 }
 .search-filter svg {
-  width: 18px;
-  height: 18px;
+  width: 18px; height: 18px;
   opacity: .6;
   flex-shrink: 0;
 }
+
 .filters-inline { display: flex; gap: 10px; margin-bottom: 14px; flex-wrap: nowrap; }
 .filters-inline select {
   flex: 1; padding: 8px; border-radius: 10px; border: 1px solid #e6e6e6;
@@ -103,7 +108,8 @@ section.active { display: block; }
 /* Floating add button */
 .add-btn {
   position: fixed; right: 20px; bottom: 84px;
-  width: 52px; height: 52px; border-radius: 50%;
+  width: 48px; height: 48px;  /* ✅ lebih proporsional */
+  border-radius: 50%;
   background: var(--primary); color: #fff;
   display: flex; align-items: center; justify-content: center;
   border: none; cursor: pointer;
@@ -116,12 +122,12 @@ section.active { display: block; }
 .bottom-nav {
   position: fixed; left: 0; right: 0; bottom: 0;
   display: flex; background: #111; padding: 8px 0;
-  z-index: 999;
+  z-index: 999;   /* ✅ selalu di atas */
 }
 .bottom-nav button {
   flex: 1; background: none; border: none; color: #ccc;
   display: flex; flex-direction: column; align-items: center; gap: 4px;
-  font-size: 12px; padding: 6px 0; cursor: pointer;
+  font-size: 12px; padding: 6px 0;
 }
 .bottom-nav button.active { color: var(--primary); font-weight: 700; }
 .bottom-nav svg { width: 20px; height: 20px; }
