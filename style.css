@@ -44,17 +44,17 @@ main {
   display: flex;
   margin-top: 56px;
   margin-bottom: 56px;
-  width: 400%; /* 4 sections */
-  transition: transform 0.35s ease;
+  width: 100%; /* 4 sections */
   overflow: hidden;
 }
 
 main section {
-  flex: 0 0 25%; /* 1/4 dari main */
-  max-width: 25%;
+  flex: 0 0 100%; /* section full viewport */
+  width: 100%;
   padding: 20px;
   min-height: calc(100vh - 56px - 56px);
   box-sizing: border-box;
+  transition: transform 0.35s ease;
 }
 
 /* Card */
