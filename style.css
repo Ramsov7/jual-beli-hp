@@ -11,6 +11,7 @@ body {
   margin: 0;
   background: var(--bg);
   color: #222;
+  overflow-x: hidden; /* ✅ cegah scroll horizontal */
 }
 
 /* Header */
@@ -60,16 +61,17 @@ header {
 }
 .settings-panel.active { display: block; }
 
-/* Main */
+/* Main container untuk slide antar halaman */
 main {
-  display: flex;                 /* ✅ letakkan section berdampingan */
-  width: 400%;                   /* misal ada 4 halaman */
+  display: flex;                 
+  width: 400%;                   /* ✅ 4 halaman */
+  transform: translateX(0);      /* posisi awal */
   transition: transform 0.35s cubic-bezier(0.25, 0.1, 0.25, 1);
   min-height: 70vh;
-  overflow: hidden;
   padding-bottom: 100px; /* ruang untuk nav */
 }
 
+/* Halaman */
 section {
   flex: 0 0 100%;                /* ✅ tiap section = 100% layar */
   padding: 20px;
