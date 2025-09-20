@@ -51,6 +51,7 @@ main {
 }
 main section {
   flex: 0 0 25%; /* 1/4 karena 4 section */
+  max-width: 100%; /* pastikan tidak melebihi viewport */
   padding: 20px;
   min-height: calc(100vh - 56px - 56px);
   box-sizing: border-box;
