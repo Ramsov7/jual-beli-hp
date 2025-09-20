@@ -23,6 +23,7 @@
   </header>
 
   <main>
+    <!-- Beranda -->
     <section id="beranda" class="active">
       <div class="card">
         <h3>Arus Kas Bulanan</h3>
@@ -30,6 +31,7 @@
       </div>
     </section>
 
+    <!-- Transaksi -->
     <section id="transaksi">
       <div class="card">
         <h3>Daftar Transaksi</h3>
@@ -39,10 +41,12 @@
       </div>
     </section>
 
+    <!-- Perbaikan -->
     <section id="perbaikan">
       <div class="card"><h3>Form Perbaikan</h3></div>
     </section>
 
+    <!-- Master -->
     <section id="master">
       <div class="card">
         <div class="search-filter">
@@ -69,6 +73,7 @@
     </section>
   </main>
 
+  <!-- Bottom Navigation -->
   <nav class="bottom-nav" aria-label="Navigasi bawah">
     <button data-target="beranda" class="active"><svg><use href="icons.svg#home"></use></svg><span>Beranda</span></button>
     <button data-target="transaksi"><svg><use href="icons.svg#transaksi"></use></svg><span>Transaksi</span></button>
@@ -76,11 +81,11 @@
     <button data-target="master"><svg><use href="icons.svg#master"></use></svg><span>Master</span></button>
   </nav>
 
-  <!-- Supabase Client -->
+  <!-- Supabase -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script>
     const SUPABASE_URL = "https://tvesoylwadcxtwtacnsn.supabase.co";
-    const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InR2ZXNveWx3YWRjeHR3dGFjbnNuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTgzMDIyNjcsImV4cCI6MjA3Mzg3ODI2N30.j1ot_YnQ3PyeJl2EZbCmVnh33BXD4flkDhQ8uncL_u0";
+    const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...";
     window.supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
   </script>
   <script src="script.js"></script>
