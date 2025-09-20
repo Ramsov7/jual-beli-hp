@@ -9,8 +9,12 @@ const main = document.querySelector("main");
 const bottomNavButtons = document.querySelectorAll(".bottom-nav button");
 
 function updateMainWidth() {
+  main.style.display = "flex";
   main.style.width = `${sections.length * 100}%`;
-  sections.forEach(sec => sec.style.flex = `0 0 ${100 / sections.length}%`);
+  sections.forEach(sec => {
+    sec.style.flex = `0 0 ${100 / sections.length}%`;
+    sec.style.minHeight = "calc(100vh - 56px - 56px)"; // tinggi viewport minus header & bottom-nav
+  });
 }
 
 window.addEventListener("resize", updateMainWidth);
@@ -99,7 +103,6 @@ const App = {
 
     this.refs.filterJenis.innerHTML = '<option value="">Semua Jenis</option>';
     jenisSet.forEach(j => this.refs.filterJenis.innerHTML += `<option value="${this.escapeHtml(j)}">${this.escapeHtml(j)}</option>`);
-
   },
 
   bindFilters() {
