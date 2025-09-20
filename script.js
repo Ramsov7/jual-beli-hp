@@ -3,13 +3,23 @@ const SUPABASE_URL = "https://tvesoylwadcxtwtacnsn.supabase.co";
 const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InR2ZXNveWx3YWRjeHR3dGFjbnNuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTgzMDIyNjcsImV4cCI6MjA3Mzg3ODI2N30.j1ot_YnQ3PyeJl2EZbCmVnh33BXD4flkDhQ8uncL_u0";
 window.supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-// Navigasi antar section dengan slide
-const bottomNavButtons = document.querySelectorAll(".bottom-nav button");
+// Setup slide responsif
+const sections = document.querySelectorAll("main section");
 const main = document.querySelector("main");
+const bottomNavButtons = document.querySelectorAll(".bottom-nav button");
 
+function updateMainWidth() {
+  main.style.width = `${sections.length * 100}%`;
+  sections.forEach(sec => sec.style.flex = `0 0 ${100 / sections.length}%`);
+}
+
+window.addEventListener("resize", updateMainWidth);
+updateMainWidth();
+
+// Navigasi antar section
 bottomNavButtons.forEach((btn, index) => {
   btn.addEventListener("click", () => {
-    main.style.transform = `translateX(-${index * 100}%)`; // geser sesuai index
+    main.style.transform = `translateX(-${index * 100}%)`;
 
     bottomNavButtons.forEach(b => b.classList.remove("active"));
     btn.classList.add("active");
@@ -89,6 +99,7 @@ const App = {
 
     this.refs.filterJenis.innerHTML = '<option value="">Semua Jenis</option>';
     jenisSet.forEach(j => this.refs.filterJenis.innerHTML += `<option value="${this.escapeHtml(j)}">${this.escapeHtml(j)}</option>`);
+
   },
 
   bindFilters() {
