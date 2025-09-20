@@ -3,13 +3,11 @@ const SUPABASE_URL = "https://tvesoylwadcxtwtacnsn.supabase.co";
 const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InR2ZXNveWx3YWRjeHR3dGFjbnNuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTgzMDIyNjcsImV4cCI6MjA3Mzg3ODI2N30.j1ot_YnQ3PyeJl2EZbCmVnh33BXD4flkDhQ8uncL_u0";
 window.supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-// Navigasi antar section
-document.querySelectorAll(".bottom-nav button").forEach(btn => {
+// Navigasi antar section dengan slide
+document.querySelectorAll(".bottom-nav button").forEach((btn, index) => {
   btn.addEventListener("click", () => {
-    const target = btn.getAttribute("data-target");
-
-    document.querySelectorAll("main section").forEach(sec => sec.classList.remove("active"));
-    document.getElementById(target).classList.add("active");
+    const main = document.querySelector("main");
+    main.style.transform = `translateX(-${index * 100}%)`;
 
     document.querySelectorAll(".bottom-nav button").forEach(b => b.classList.remove("active"));
     btn.classList.add("active");
