@@ -23,6 +23,7 @@ let isDragging = false;
 
 function updateView() {
   sections.forEach((sec, i) => {
+    sec.style.transition = "transform 0.35s ease";
     sec.style.transform = `translateX(${(i - currentIndex) * 100}%)`;
   });
   bottomNavButtons.forEach(b => b.classList.remove("active"));
@@ -55,10 +56,8 @@ main.addEventListener("touchmove", e => {
 main.addEventListener("touchend", e => {
   if (!isDragging) return;
   const deltaX = e.changedTouches[0].clientX - startX;
-  if (deltaX > 50 && currentIndex > 0) currentIndex--;         // swipe kanan
+  if (deltaX > 50 && currentIndex > 0) currentIndex--;          // swipe kanan
   else if (deltaX < -50 && currentIndex < sections.length - 1) currentIndex++; // swipe kiri
-
-  sections.forEach(sec => sec.style.transition = "transform 0.35s ease");
   updateView();
   isDragging = false;
 });
