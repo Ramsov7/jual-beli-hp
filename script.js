@@ -3,44 +3,67 @@ const SUPABASE_URL = "https://tvesoylwadcxtwtacnsn.supabase.co";
 const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InR2ZXNveWx3YWRjeHR3dGFjbnNuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTgzMDIyNjcsImV4cCI6MjA3Mzg3ODI2N30.j1ot_YnQ3PyeJl2EZbCmVnh33BXD4flkDhQ8uncL_u0";
 window.supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-// Panel pengaturan
+// Refs
+const main = document.querySelector("main");
+const sections = document.querySelectorAll("main section");
+const bottomNavButtons = document.querySelectorAll(".bottom-nav button");
 const btnSettings = document.getElementById("btnSettings");
 const panelSettings = document.getElementById("panelSettings");
+
+// ===== Panel Pengaturan =====
 btnSettings.addEventListener("click", () => {
   panelSettings.classList.toggle("active");
   panelSettings.setAttribute("aria-hidden", !panelSettings.classList.contains("active"));
 });
 
-// Navigasi & Swipe
-const sections = document.querySelectorAll("main section");
-const bottomNavButtons = document.querySelectorAll(".bottom-nav button");
-const main = document.querySelector("main");
+// ===== Navigation & Swipe =====
 let currentIndex = 0;
+let startX = 0;
+let isDragging = false;
 
-function showSection(index) {
-  if (index < 0 || index >= sections.length) return;
-  main.style.transform = `translateX(-${index * 100}%)`;
-  bottomNavButtons.forEach((btn, i) => btn.classList.toggle("active", i === index));
-  currentIndex = index;
+function updateView() {
+  sections.forEach((sec, i) => {
+    sec.style.transform = `translateX(${(i - currentIndex) * 100}%)`;
+  });
+  bottomNavButtons.forEach(b => b.classList.remove("active"));
+  bottomNavButtons[currentIndex].classList.add("active");
 }
 
 // Klik navigasi bawah
-bottomNavButtons.forEach((btn, i) => btn.addEventListener("click", () => showSection(i)));
-
-// Swipe
-let startX = 0, endX = 0;
-const swipeThreshold = 50;
-main.addEventListener("touchstart", e => startX = e.touches[0].clientX);
-main.addEventListener("touchmove", e => endX = e.touches[0].clientX);
-main.addEventListener("touchend", () => {
-  const dx = endX - startX;
-  if (Math.abs(dx) > swipeThreshold) {
-    if (dx < 0) showSection(currentIndex + 1); // swipe kiri
-    else showSection(currentIndex - 1); // swipe kanan
-  }
+bottomNavButtons.forEach((btn, i) => {
+  btn.addEventListener("click", () => {
+    currentIndex = i;
+    updateView();
+  });
 });
 
-// App untuk data Supabase
+// Swipe touch events
+main.addEventListener("touchstart", e => {
+  startX = e.touches[0].clientX;
+  isDragging = true;
+});
+
+main.addEventListener("touchmove", e => {
+  if (!isDragging) return;
+  const deltaX = e.touches[0].clientX - startX;
+  sections.forEach((sec, i) => {
+    sec.style.transition = "none";
+    sec.style.transform = `translateX(${(i - currentIndex) * 100 + (deltaX / main.offsetWidth) * 100}%)`;
+  });
+});
+
+main.addEventListener("touchend", e => {
+  if (!isDragging) return;
+  const deltaX = e.changedTouches[0].clientX - startX;
+  if (deltaX > 50 && currentIndex > 0) currentIndex--;         // swipe kanan
+  else if (deltaX < -50 && currentIndex < sections.length - 1) currentIndex++; // swipe kiri
+
+  sections.forEach(sec => sec.style.transition = "transform 0.35s ease");
+  updateView();
+  isDragging = false;
+});
+
+// ===== Supabase App =====
 const App = {
   state: { items: [] },
   refs: {},
@@ -52,15 +75,16 @@ const App = {
     this.refs.filterKategori = document.getElementById("filterKategori");
     this.refs.filterStok = document.getElementById("filterStok");
     this.refs.filterJenis = document.getElementById("filterJenis");
+
     this.bindFilters();
     this.loadItems();
   },
 
   async loadItems() {
     const { data, error } = await window.supabase.from("items").select("*").limit(200);
-    if (error) { 
-      this.refs.itemsList.innerHTML = `<p>Error: ${error.message}</p>`; 
-      return; 
+    if (error) {
+      this.refs.itemsList.innerHTML = `<p>Error: ${error.message}</p>`;
+      return;
     }
     this.state.items = data;
     this.renderItems(data);
@@ -82,8 +106,7 @@ const App = {
     const stokClass = Number(stok) > 0 ? "stock-tersedia" : "stock-habis";
 
     card.innerHTML = `
-      ${foto ? `<img src="${foto}" alt="${this.escapeHtml(nama)}" onerror="this.src='${this.PLACEHOLDER_IMG}'">` 
-             : `<div class="placeholder">No Image</div>`}
+      ${foto ? `<img src="${foto}" alt="${this.escapeHtml(nama)}" onerror="this.src='${this.PLACEHOLDER_IMG}'">` : `<div class="placeholder">No Image</div>`}
       <div class="item-info">
         <h4>${this.escapeHtml(nama)}</h4>
         <div class="price">Rp ${harga}</div>
@@ -141,4 +164,7 @@ const App = {
   }
 };
 
-document.addEventListener("DOMContentLoaded", () => App.init());
+document.addEventListener("DOMContentLoaded", () => {
+  App.init();
+  updateView(); // Inisialisasi posisi section pertama
+});
