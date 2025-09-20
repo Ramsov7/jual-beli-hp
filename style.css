@@ -65,7 +65,7 @@ section.active {
   flex: 1; background: none; border: none; color: #ccc;
   display: flex; flex-direction: column; align-items: center; gap: 2px;
   font-size: 12px; padding: 6px 0;
-  transition: color 0.3s ease;
+  transition: color 0.3s ease, transform 0.2s ease;
 }
 .bottom-nav button span {
   max-width: 0;
@@ -78,7 +78,7 @@ section.active {
   max-width: 80px;
   opacity: 1;
 }
-.bottom-nav button.active { color: var(--primary); font-weight: 700; }
+.bottom-nav button.active { color: var(--primary); font-weight: 700; transform: translateY(-2px); }
 .bottom-nav svg { width: 20px; height: 20px; }
 
 /* Responsif */
