@@ -5,28 +5,30 @@ window.supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
 // Setup slide responsif
 const sections = document.querySelectorAll("main section");
-const main = document.querySelector("main");
 const bottomNavButtons = document.querySelectorAll(".bottom-nav button");
 
-function updateMainWidth() {
-  main.style.display = "flex";
-  main.style.width = `${sections.length * 100}%`;
+function showSection(targetId) {
   sections.forEach(sec => {
-    sec.style.flex = `0 0 ${100 / sections.length}%`;
-    sec.style.minHeight = "calc(100vh - 56px - 56px)"; // tinggi viewport minus header & bottom-nav
+    if (sec.id === targetId) {
+      sec.classList.add("active");
+      sec.classList.remove("exit-left");
+    } else if (sec.classList.contains("active")) {
+      sec.classList.remove("active");
+      sec.classList.add("exit-left");
+    } else {
+      sec.classList.remove("active", "exit-left");
+    }
+  });
+
+  bottomNavButtons.forEach(btn => {
+    btn.classList.toggle("active", btn.dataset.target === targetId);
   });
 }
 
-window.addEventListener("resize", updateMainWidth);
-updateMainWidth();
-
 // Navigasi antar section
-bottomNavButtons.forEach((btn, index) => {
+bottomNavButtons.forEach(btn => {
   btn.addEventListener("click", () => {
-    main.style.transform = `translateX(-${index * 100}%)`;
-
-    bottomNavButtons.forEach(b => b.classList.remove("active"));
-    btn.classList.add("active");
+    showSection(btn.dataset.target);
   });
 });
 
