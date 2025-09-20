@@ -61,6 +61,12 @@ section.active { display: block; }
   flex-shrink: 0;
 }
 
+.filters-inline { display: flex; gap: 10px; margin-bottom: 14px; flex-wrap: nowrap; }
+.filters-inline select {
+  flex: 1; padding: 8px; border-radius: 10px; border: 1px solid #e6e6e6;
+  background: #fff;
+}
+
 
 /* Items grid minimal 2 kolom */
 #itemsList {
