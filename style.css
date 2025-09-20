@@ -71,14 +71,13 @@ header {
 
 /* Main container untuk slide antar halaman */
 main {
-  display: flex;                 
+  display: flex;
   flex: 1 0 auto;
   width: 100%;
-  transform: translateX(0);
-  transition: transform 0.35s cubic-bezier(0.25, 0.1, 0.25, 1);
   min-height: calc(100vh - 56px - 56px); /* tinggi layar minus header & nav */
   padding-bottom: 16px;
   overflow: hidden;
+  position: relative;
 }
 
 /* Halaman */
@@ -88,6 +87,28 @@ section {
   box-sizing: border-box;
   overflow-y: auto;
   min-height: 100%;
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  opacity: 0;
+  transform: translateX(100%);
+  transition: opacity 0.35s ease, transform 0.35s cubic-bezier(0.25,0.1,0.25,1);
+  pointer-events: none;
+}
+
+section.active {
+  opacity: 1;
+  transform: translateX(0);
+  pointer-events: auto;
+  position: relative;
+  z-index: 1;
+}
+
+section.exit-left {
+  transform: translateX(-100%);
+  opacity: 0;
+  pointer-events: none;
 }
 
 /* Card */
