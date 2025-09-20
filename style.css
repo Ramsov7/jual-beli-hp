@@ -11,7 +11,7 @@ body {
   margin: 0;
   background: var(--bg);
   color: #222;
-  overflow-x: hidden; /* ✅ cegah scroll horizontal */
+  overflow-x: hidden; /* cegah scroll horizontal */
 }
 
 /* Header */
@@ -64,7 +64,6 @@ header {
 /* Main container untuk slide antar halaman */
 main {
   display: flex;                 
-  width: 400%;                   /* ✅ 4 halaman */
   transform: translateX(0);      /* posisi awal */
   transition: transform 0.35s cubic-bezier(0.25, 0.1, 0.25, 1);
   min-height: 70vh;
@@ -73,7 +72,7 @@ main {
 
 /* Halaman */
 section {
-  flex: 0 0 100%;                /* ✅ tiap section = 100% layar */
+  flex: 0 0 100%;                /* tiap section = 100% layar */
   padding: 20px;
   box-sizing: border-box;
   overflow-y: auto;
