@@ -45,14 +45,14 @@ main {
   flex: 1 0 auto;
   margin-top: 56px;
   margin-bottom: 56px;
-  width: 100%; /* main hanya selebar viewport */
+  width: 400%; /* 4 sections */
   transition: transform 0.35s ease;
   overflow: hidden;
 }
 
 main section {
-  flex: 0 0 100%; /* setiap section selebar 100% viewport */
-  max-width: 100%;
+  flex: 0 0 25%; /* 1/4 dari main */
+  max-width: 25%;
   padding: 20px;
   min-height: calc(100vh - 56px - 56px);
   box-sizing: border-box;
