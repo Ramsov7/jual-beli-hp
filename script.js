@@ -19,23 +19,45 @@ btnSettings.addEventListener("click", () => {
 // =========================
 const sections = document.querySelectorAll("main section");
 const bottomNavButtons = document.querySelectorAll(".bottom-nav button");
+let currentIndex = 0;
 
-function showSection(targetId) {
-  sections.forEach(sec => {
-    if (sec.id === targetId) {
-      sec.classList.add("active");
-    } else {
-      sec.classList.remove("active");
-    }
-  });
-
-  bottomNavButtons.forEach(btn => {
-    btn.classList.toggle("active", btn.dataset.target === targetId);
-  });
+function showSection(index) {
+  if (index < 0 || index >= sections.length) return;
+  currentIndex = index;
+  sections.forEach((sec, i) => sec.classList.toggle("active", i === index));
+  bottomNavButtons.forEach((btn, i) => btn.classList.toggle("active", i === index));
 }
 
-bottomNavButtons.forEach(btn => {
-  btn.addEventListener("click", () => showSection(btn.dataset.target));
+bottomNavButtons.forEach((btn, i) => {
+  btn.addEventListener("click", () => showSection(i));
+});
+
+// =========================
+// Swipe gesture (mobile)
+// =========================
+let startX = 0;
+let endX = 0;
+const swipeThreshold = 50; // minimal piksel untuk swipe
+
+document.querySelector("main").addEventListener("touchstart", e => {
+  startX = e.touches[0].clientX;
+});
+
+document.querySelector("main").addEventListener("touchmove", e => {
+  endX = e.touches[0].clientX;
+});
+
+document.querySelector("main").addEventListener("touchend", () => {
+  const dx = endX - startX;
+  if (Math.abs(dx) > swipeThreshold) {
+    if (dx < 0) {
+      // swipe kiri => next
+      showSection(currentIndex + 1);
+    } else {
+      // swipe kanan => prev
+      showSection(currentIndex - 1);
+    }
+  }
 });
 
 // =========================
