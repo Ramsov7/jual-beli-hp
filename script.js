@@ -3,68 +3,44 @@ const SUPABASE_URL = "https://tvesoylwadcxtwtacnsn.supabase.co";
 const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InR2ZXNveWx3YWRjeHR3dGFjbnNuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTgzMDIyNjcsImV4cCI6MjA3Mzg3ODI2N30.j1ot_YnQ3PyeJl2EZbCmVnh33BXD4flkDhQ8uncL_u0";
 window.supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-// =========================
-// Panel Pengaturan
-// =========================
+// Panel pengaturan
 const btnSettings = document.getElementById("btnSettings");
 const panelSettings = document.getElementById("panelSettings");
-
 btnSettings.addEventListener("click", () => {
   panelSettings.classList.toggle("active");
   panelSettings.setAttribute("aria-hidden", !panelSettings.classList.contains("active"));
 });
 
-// =========================
-// Navigasi antar section dengan animasi
-// =========================
+// Navigasi & Swipe
 const sections = document.querySelectorAll("main section");
 const bottomNavButtons = document.querySelectorAll(".bottom-nav button");
+const main = document.querySelector("main");
 let currentIndex = 0;
 
-function showSection(index, direction = "left") {
-  if (index < 0 || index >= sections.length || index === currentIndex) return;
-
-  const current = sections[currentIndex];
-  const next = sections[index];
-
-  // Tambahkan class animasi
-  current.classList.remove("active");
-  current.classList.add(direction === "left" ? "exit-left" : "exit-right");
-
-  next.classList.add("active");
-  next.classList.remove("exit-left", "exit-right");
-
+function showSection(index) {
+  if (index < 0 || index >= sections.length) return;
+  main.style.transform = `translateX(-${index * 100}%)`;
   bottomNavButtons.forEach((btn, i) => btn.classList.toggle("active", i === index));
   currentIndex = index;
 }
 
-// Tombol navigasi bawah
-bottomNavButtons.forEach((btn, i) => {
-  btn.addEventListener("click", () => {
-    showSection(i, i > currentIndex ? "left" : "right");
-  });
-});
+// Klik navigasi bawah
+bottomNavButtons.forEach((btn, i) => btn.addEventListener("click", () => showSection(i)));
 
-// =========================
-// Swipe gesture (mobile)
-// =========================
-let startX = 0;
-let endX = 0;
+// Swipe
+let startX = 0, endX = 0;
 const swipeThreshold = 50;
-
-document.querySelector("main").addEventListener("touchstart", e => startX = e.touches[0].clientX);
-document.querySelector("main").addEventListener("touchmove", e => endX = e.touches[0].clientX);
-document.querySelector("main").addEventListener("touchend", () => {
+main.addEventListener("touchstart", e => startX = e.touches[0].clientX);
+main.addEventListener("touchmove", e => endX = e.touches[0].clientX);
+main.addEventListener("touchend", () => {
   const dx = endX - startX;
   if (Math.abs(dx) > swipeThreshold) {
-    if (dx < 0) showSection(currentIndex + 1, "left"); // swipe kiri
-    else showSection(currentIndex - 1, "right"); // swipe kanan
+    if (dx < 0) showSection(currentIndex + 1); // swipe kiri
+    else showSection(currentIndex - 1); // swipe kanan
   }
 });
 
-// =========================
-// App Supabase
-// =========================
+// App untuk data Supabase
 const App = {
   state: { items: [] },
   refs: {},
@@ -76,7 +52,6 @@ const App = {
     this.refs.filterKategori = document.getElementById("filterKategori");
     this.refs.filterStok = document.getElementById("filterStok");
     this.refs.filterJenis = document.getElementById("filterJenis");
-
     this.bindFilters();
     this.loadItems();
   },
@@ -107,7 +82,8 @@ const App = {
     const stokClass = Number(stok) > 0 ? "stock-tersedia" : "stock-habis";
 
     card.innerHTML = `
-      ${foto ? `<img src="${foto}" alt="${this.escapeHtml(nama)}" onerror="this.src='${this.PLACEHOLDER_IMG}'">` : `<div class="placeholder">No Image</div>`}
+      ${foto ? `<img src="${foto}" alt="${this.escapeHtml(nama)}" onerror="this.src='${this.PLACEHOLDER_IMG}'">` 
+             : `<div class="placeholder">No Image</div>`}
       <div class="item-info">
         <h4>${this.escapeHtml(nama)}</h4>
         <div class="price">Rp ${harga}</div>
