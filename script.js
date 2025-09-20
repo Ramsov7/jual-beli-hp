@@ -3,30 +3,44 @@ const SUPABASE_URL = "https://tvesoylwadcxtwtacnsn.supabase.co";
 const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InR2ZXNveWx3YWRjeHR3dGFjbnNuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTgzMDIyNjcsImV4cCI6MjA3Mzg3ODI2N30.j1ot_YnQ3PyeJl2EZbCmVnh33BXD4flkDhQ8uncL_u0";
 window.supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-// Panel pengaturan
+// =========================
+// Panel Pengaturan
+// =========================
 const btnSettings = document.getElementById("btnSettings");
 const panelSettings = document.getElementById("panelSettings");
+
 btnSettings.addEventListener("click", () => {
   panelSettings.classList.toggle("active");
   panelSettings.setAttribute("aria-hidden", !panelSettings.classList.contains("active"));
 });
 
+// =========================
 // Navigasi antar section
-const main = document.querySelector("main");
+// =========================
 const sections = document.querySelectorAll("main section");
 const bottomNavButtons = document.querySelectorAll(".bottom-nav button");
 
 function showSection(targetId) {
-  const index = Array.from(sections).findIndex(sec => sec.id === targetId);
-  if (index === -1) return;
-  main.style.transform = `translateX(-${index * 100}%)`;
-  bottomNavButtons.forEach(b => b.classList.remove("active"));
-  document.querySelector(`.bottom-nav button[data-target="${targetId}"]`)?.classList.add("active");
+  sections.forEach(sec => {
+    if (sec.id === targetId) {
+      sec.classList.add("active");
+    } else {
+      sec.classList.remove("active");
+    }
+  });
+
+  bottomNavButtons.forEach(btn => {
+    btn.classList.toggle("active", btn.dataset.target === targetId);
+  });
 }
 
-bottomNavButtons.forEach(btn => btn.addEventListener("click", () => showSection(btn.dataset.target)));
+bottomNavButtons.forEach(btn => {
+  btn.addEventListener("click", () => showSection(btn.dataset.target));
+});
 
+// =========================
 // App untuk data Supabase
+// =========================
 const App = {
   state: { items: [] },
   refs: {},
