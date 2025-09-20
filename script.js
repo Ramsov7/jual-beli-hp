@@ -22,6 +22,7 @@ let startX = 0;
 let isDragging = false;
 
 function updateView() {
+  main.style.transition = "transform 0.35s ease";
   main.style.transform = `translateX(-${currentIndex * 25}%)`;
   bottomNavButtons.forEach(b => b.classList.remove("active"));
   bottomNavButtons[currentIndex].classList.add("active");
@@ -39,15 +40,13 @@ bottomNavButtons.forEach((btn, i) => {
 main.addEventListener("touchstart", e => {
   startX = e.touches[0].clientX;
   isDragging = true;
+  main.style.transition = "none";
 });
 
 main.addEventListener("touchmove", e => {
   if (!isDragging) return;
   const deltaX = e.touches[0].clientX - startX;
-  sections.forEach((sec, i) => {
-    sec.style.transition = "none";
-    sec.style.transform = `translateX(${(i - currentIndex) * 100 + (deltaX / main.offsetWidth) * 100}%)`;
-  });
+  main.style.transform = `translateX(calc(-${currentIndex * 25}% + ${deltaX / window.innerWidth * 100}%))`;
 });
 
 main.addEventListener("touchend", e => {
