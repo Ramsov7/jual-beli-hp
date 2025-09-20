@@ -10,13 +10,13 @@ const bottomNavButtons = document.querySelectorAll(".bottom-nav button");
 const btnSettings = document.getElementById("btnSettings");
 const panelSettings = document.getElementById("panelSettings");
 
-// ===== Panel Pengaturan =====
+// Panel Pengaturan
 btnSettings.addEventListener("click", () => {
   panelSettings.classList.toggle("active");
   panelSettings.setAttribute("aria-hidden", !panelSettings.classList.contains("active"));
 });
 
-// ===== Navigation & Swipe =====
+// Navigation & Swipe
 let currentIndex = 0;
 let startX = 0;
 let isDragging = false;
@@ -165,5 +165,5 @@ const App = {
 
 document.addEventListener("DOMContentLoaded", () => {
   App.init();
-  updateView(); // Inisialisasi posisi section pertama
+  updateView();
 });
