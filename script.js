@@ -3,39 +3,6 @@ const SUPABASE_URL = "https://tvesoylwadcxtwtacnsn.supabase.co";
 const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InR2ZXNveWx3YWRjeHR3dGFjbnNuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTgzMDIyNjcsImV4cCI6MjA3Mzg3ODI2N30.j1ot_YnQ3PyeJl2EZbCmVnh33BXD4flkDhQ8uncL_u0";
 window.supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-const main = document.querySelector("main");
-const sections = document.querySelectorAll("main section");
-const bottomNavButtons = document.querySelectorAll(".bottom-nav button");
-
-// Set lebar main dan posisi awal section
-function setupSections() {
-  main.style.width = `${sections.length * 100}%`;
-  sections.forEach(sec => {
-    sec.style.width = `${100 / sections.length}%`;
-    sec.style.flex = `0 0 ${100 / sections.length}%`;
-  });
-}
-window.addEventListener("resize", setupSections);
-setupSections();
-
-// Fungsi pindah section
-function showSection(targetId) {
-  const index = Array.from(sections).findIndex(sec => sec.id === targetId);
-  if (index === -1) return;
-
-  main.style.transform = `translateX(-${index * 100}%)`;
-
-  bottomNavButtons.forEach(b => b.classList.remove("active"));
-  document.querySelector(`.bottom-nav button[data-target="${targetId}"]`)?.classList.add("active");
-}
-
-// Event klik navigasi bawah
-bottomNavButtons.forEach(btn => {
-  btn.addEventListener("click", () => {
-    showSection(btn.dataset.target);
-  });
-});
-
 // Panel pengaturan
 const btnSettings = document.getElementById("btnSettings");
 const panelSettings = document.getElementById("panelSettings");
@@ -44,7 +11,24 @@ btnSettings.addEventListener("click", () => {
   panelSettings.setAttribute("aria-hidden", !panelSettings.classList.contains("active"));
 });
 
-// App untuk data dari Supabase
+// Navigasi antar section
+const main = document.querySelector("main");
+const sections = document.querySelectorAll("main section");
+const bottomNavButtons = document.querySelectorAll(".bottom-nav button");
+
+function showSection(targetId) {
+  const index = Array.from(sections).findIndex(sec => sec.id === targetId);
+  if (index === -1) return;
+  main.style.transform = `translateX(-${index * 100}%)`;
+  bottomNavButtons.forEach(b => b.classList.remove("active"));
+  document.querySelector(`.bottom-nav button[data-target="${targetId}"]`)?.classList.add("active");
+}
+
+bottomNavButtons.forEach(btn => btn.addEventListener("click", () => {
+  showSection(btn.dataset.target);
+}));
+
+// App untuk data Supabase
 const App = {
   state: { items: [] },
   refs: {},
@@ -63,9 +47,9 @@ const App = {
 
   async loadItems() {
     const { data, error } = await window.supabase.from("items").select("*").limit(200);
-    if (error) {
-      this.refs.itemsList.innerHTML = `<p>Error: ${error.message}</p>`;
-      return;
+    if (error) { 
+      this.refs.itemsList.innerHTML = `<p>Error: ${error.message}</p>`; 
+      return; 
     }
     this.state.items = data;
     this.renderItems(data);
@@ -80,17 +64,14 @@ const App = {
   createCard(item) {
     const card = document.createElement("div");
     card.className = "item-card";
-
-    const foto = item.foto_url && item.foto_url.trim() ? item.foto_url : null;
+    const foto = item.foto_url?.trim() || null;
     const nama = item.nama_item || "Tanpa Nama";
     const harga = item.biaya_item ? Number(item.biaya_item).toLocaleString("id-ID") : "-";
     const stok = item.stok_item ?? "-";
     const stokClass = Number(stok) > 0 ? "stock-tersedia" : "stock-habis";
 
     card.innerHTML = `
-      ${foto
-        ? `<img src="${foto}" alt="${this.escapeHtml(nama)}" onerror="this.src='${this.PLACEHOLDER_IMG}'">`
-        : `<div class="placeholder">No Image</div>`}
+      ${foto ? `<img src="${foto}" alt="${this.escapeHtml(nama)}" onerror="this.src='${this.PLACEHOLDER_IMG}'">` : `<div class="placeholder">No Image</div>`}
       <div class="item-info">
         <h4>${this.escapeHtml(nama)}</h4>
         <div class="price">Rp ${harga}</div>
