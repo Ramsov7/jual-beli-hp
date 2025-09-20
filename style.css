@@ -73,7 +73,6 @@ header {
 main {
   display: flex;
   flex: 1 0 auto;
-  width: 100%;
   min-height: calc(100vh - 56px - 56px); /* tinggi layar minus header & nav */
   padding-bottom: 16px;
   overflow: hidden;
@@ -102,6 +101,10 @@ main {
 section {
   min-height: calc(100vh - 56px - 56px);
   overflow-y: auto;
+}
+
+main {
+  width: 400%; /* 4 section */
 }
 
 section.active {
