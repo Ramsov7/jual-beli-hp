@@ -16,7 +16,7 @@ body {
   font-family: "Inter", Arial, sans-serif;
   background: var(--bg);
   color: #222;
-  overflow-x: hidden; /* cegah scroll horizontal */
+  overflow-x: hidden;
   display: flex;
   flex-direction: column;
 }
@@ -26,7 +26,11 @@ header {
   background: #111;
   color: #fff;
   padding: 10px 16px;
-  position: relative;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 56px;
   z-index: 1000;
 }
 
@@ -65,16 +69,18 @@ header {
   width: 240px;
   padding: 14px;
   display: none;
-  z-index: 100;
+  z-index: 1010;
 }
 .settings-panel.active { display: block; }
 
 /* Main container untuk slide antar halaman */
 main {
   display: flex;
+  transition: transform 0.35s ease;
+  width: 400%; /* 4 section */
   flex: 1 0 auto;
-  min-height: calc(100vh - 56px - 56px); /* tinggi layar minus header & nav */
-  padding-bottom: 16px;
+  margin-top: 56px;   /* tinggi header */
+  margin-bottom: 56px; /* tinggi bottom-nav */
   overflow: hidden;
   position: relative;
 }
@@ -84,41 +90,8 @@ section {
   flex: 0 0 100%;
   padding: 20px;
   box-sizing: border-box;
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  opacity: 0;
-  transform: translateX(100%);
-  transition: opacity 0.35s ease, transform 0.35s cubic-bezier(0.25,0.1,0.25,1);
-  pointer-events: none;
-}
-
-main {
-  transition: transform 0.35s ease;
-}
-
-section {
   min-height: calc(100vh - 56px - 56px);
   overflow-y: auto;
-}
-
-main {
-  width: 400%; /* 4 section */
-}
-
-section.active {
-  opacity: 1;
-  transform: translateX(0);
-  pointer-events: auto;
-  position: relative;
-  z-index: 1;
-}
-
-section.exit-left {
-  transform: translateX(-100%);
-  opacity: 0;
-  pointer-events: none;
 }
 
 /* Card */
@@ -265,8 +238,9 @@ section.exit-left {
   left: 0; right: 0; bottom: 0;
   display: flex;
   background: #111;
+  height: 56px;
   padding: 8px 0;
-  z-index: 999;
+  z-index: 1000;
 }
 .bottom-nav button {
   flex: 1;
