@@ -3,20 +3,33 @@ const SUPABASE_URL = "https://tvesoylwadcxtwtacnsn.supabase.co";
 const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InR2ZXNveWx3YWRjeHR3dGFjbnNuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTgzMDIyNjcsImV4cCI6MjA3Mzg3ODI2N30.j1ot_YnQ3PyeJl2EZbCmVnh33BXD4flkDhQ8uncL_u0";
 window.supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-// Setup slide responsif
+const main = document.querySelector("main");
 const sections = document.querySelectorAll("main section");
 const bottomNavButtons = document.querySelectorAll(".bottom-nav button");
 
-bottomNavButtons.forEach((btn, index) => {
-  btn.addEventListener("click", () => {
-    document.querySelector(".bottom-nav button.active")?.classList.remove("active");
-    btn.classList.add("active");
-
-    document.querySelector("main").style.transform = `translateX(-${index * 100}%)`;
+// Set lebar main dan posisi awal section
+function setupSections() {
+  main.style.width = `${sections.length * 100}%`;
+  sections.forEach(sec => {
+    sec.style.width = `${100 / sections.length}%`;
+    sec.style.flex = `0 0 ${100 / sections.length}%`;
   });
-});
+}
+window.addEventListener("resize", setupSections);
+setupSections();
 
-// Navigasi antar section
+// Fungsi pindah section
+function showSection(targetId) {
+  const index = Array.from(sections).findIndex(sec => sec.id === targetId);
+  if (index === -1) return;
+
+  main.style.transform = `translateX(-${index * 100}%)`;
+
+  bottomNavButtons.forEach(b => b.classList.remove("active"));
+  document.querySelector(`.bottom-nav button[data-target="${targetId}"]`)?.classList.add("active");
+}
+
+// Event klik navigasi bawah
 bottomNavButtons.forEach(btn => {
   btn.addEventListener("click", () => {
     showSection(btn.dataset.target);
