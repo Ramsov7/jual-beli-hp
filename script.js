@@ -22,10 +22,7 @@ let startX = 0;
 let isDragging = false;
 
 function updateView() {
-  sections.forEach((sec, i) => {
-    sec.style.transition = "transform 0.35s ease";
-    sec.style.transform = `translateX(${(i - currentIndex) * 100}%)`;
-  });
+  main.style.transform = `translateX(-${currentIndex * 25}%)`;
   bottomNavButtons.forEach(b => b.classList.remove("active"));
   bottomNavButtons[currentIndex].classList.add("active");
 }
