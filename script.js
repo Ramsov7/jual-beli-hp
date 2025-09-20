@@ -15,21 +15,34 @@ btnSettings.addEventListener("click", () => {
 });
 
 // =========================
-// Navigasi antar section
+// Navigasi antar section dengan animasi
 // =========================
 const sections = document.querySelectorAll("main section");
 const bottomNavButtons = document.querySelectorAll(".bottom-nav button");
 let currentIndex = 0;
 
-function showSection(index) {
-  if (index < 0 || index >= sections.length) return;
-  currentIndex = index;
-  sections.forEach((sec, i) => sec.classList.toggle("active", i === index));
+function showSection(index, direction = "left") {
+  if (index < 0 || index >= sections.length || index === currentIndex) return;
+
+  const current = sections[currentIndex];
+  const next = sections[index];
+
+  // Tambahkan class animasi
+  current.classList.remove("active");
+  current.classList.add(direction === "left" ? "exit-left" : "exit-right");
+
+  next.classList.add("active");
+  next.classList.remove("exit-left", "exit-right");
+
   bottomNavButtons.forEach((btn, i) => btn.classList.toggle("active", i === index));
+  currentIndex = index;
 }
 
+// Tombol navigasi bawah
 bottomNavButtons.forEach((btn, i) => {
-  btn.addEventListener("click", () => showSection(i));
+  btn.addEventListener("click", () => {
+    showSection(i, i > currentIndex ? "left" : "right");
+  });
 });
 
 // =========================
@@ -37,31 +50,20 @@ bottomNavButtons.forEach((btn, i) => {
 // =========================
 let startX = 0;
 let endX = 0;
-const swipeThreshold = 50; // minimal piksel untuk swipe
+const swipeThreshold = 50;
 
-document.querySelector("main").addEventListener("touchstart", e => {
-  startX = e.touches[0].clientX;
-});
-
-document.querySelector("main").addEventListener("touchmove", e => {
-  endX = e.touches[0].clientX;
-});
-
+document.querySelector("main").addEventListener("touchstart", e => startX = e.touches[0].clientX);
+document.querySelector("main").addEventListener("touchmove", e => endX = e.touches[0].clientX);
 document.querySelector("main").addEventListener("touchend", () => {
   const dx = endX - startX;
   if (Math.abs(dx) > swipeThreshold) {
-    if (dx < 0) {
-      // swipe kiri => next
-      showSection(currentIndex + 1);
-    } else {
-      // swipe kanan => prev
-      showSection(currentIndex - 1);
-    }
+    if (dx < 0) showSection(currentIndex + 1, "left"); // swipe kiri
+    else showSection(currentIndex - 1, "right"); // swipe kanan
   }
 });
 
 // =========================
-// App untuk data Supabase
+// App Supabase
 // =========================
 const App = {
   state: { items: [] },
