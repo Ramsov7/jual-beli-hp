@@ -7,23 +7,14 @@ window.supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 const sections = document.querySelectorAll("main section");
 const bottomNavButtons = document.querySelectorAll(".bottom-nav button");
 
-function showSection(targetId) {
-  sections.forEach(sec => {
-    if (sec.id === targetId) {
-      sec.classList.add("active");
-      sec.classList.remove("exit-left");
-    } else if (sec.classList.contains("active")) {
-      sec.classList.remove("active");
-      sec.classList.add("exit-left");
-    } else {
-      sec.classList.remove("active", "exit-left");
-    }
-  });
+bottomNavButtons.forEach((btn, index) => {
+  btn.addEventListener("click", () => {
+    document.querySelector(".bottom-nav button.active")?.classList.remove("active");
+    btn.classList.add("active");
 
-  bottomNavButtons.forEach(btn => {
-    btn.classList.toggle("active", btn.dataset.target === targetId);
+    document.querySelector("main").style.transform = `translateX(-${index * 100}%)`;
   });
-}
+});
 
 // Navigasi antar section
 bottomNavButtons.forEach(btn => {
