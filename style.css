@@ -90,13 +90,13 @@ section.active { display: block; }
 .stock-tersedia { background: rgba(106, 197, 108, 0.12); color: #2e7d32; }
 .stock-habis { background: rgba(255, 82, 82, 0.12); color: #b71c1c; }
 
-/* Floating add button (FAB style - default medium) */
+/* Floating add button (FAB ergonomis) */
 .add-btn {
-  position: fixed; /* lebih baik fixed daripada absolute agar tetap di layar */
-  right: 16px;
-  bottom: 72px; /* agak naik dari bottom-nav agar nyaman di jempol kanan */
-  width: 40px;
-  height: 40px;
+  position: fixed;
+  right: 20px;   /* agak masuk biar nggak terlalu pojok */
+  bottom: 84px;  /* naik dari bottom-nav supaya nyaman dijangkau jempol */
+  width: 48px;
+  height: 48px;
   background: var(--primary);
   color: #fff;
   border: none;
@@ -105,27 +105,27 @@ section.active { display: block; }
   display: flex;
   align-items: center;
   justify-content: center;
-  box-shadow: 0 4px 10px rgba(108, 99, 255, .25);
-  z-index: 20; /* supaya tidak ketutup navigasi */
+  box-shadow: 0 6px 14px rgba(108, 99, 255, .25);
+  z-index: 20;
 }
 
 .add-btn svg {
-  width: 20px;
-  height: 20px;
+  width: 22px;
+  height: 22px;
 }
 
-/* Versi small FAB untuk layar kecil */
+/* Responsive - di layar kecil (<480px), tetap proporsional */
 @media (max-width: 480px) {
   .add-btn {
-    width: 32px;
-    height: 32px;
-    bottom: 68px; /* sedikit di atas bottom-nav */
-    right: 14px;
+    width: 44px;
+    height: 44px;
+    right: 18px;
+    bottom: 78px;
   }
 
   .add-btn svg {
-    width: 16px;
-    height: 16px;
+    width: 20px;
+    height: 20px;
   }
 }
 
