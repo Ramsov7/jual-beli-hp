@@ -4,7 +4,6 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Servisel</title>
-
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
@@ -13,9 +12,13 @@
       <div class="user-profile">
         <span>Total Saldo Saat Ini : Rp.726.000</span>
       </div>
-      <button class="notif-btn" aria-label="Notifikasi">
+      <button id="btnSettings" aria-label="Pengaturan">
         <svg><use href="icons.svg#pengaturan"></use></svg>
       </button>
+      <div id="panelSettings" class="settings-panel">
+        <h3>Pengaturan</h3>
+        <p>Menu pengaturan aplikasi di sini.</p>
+      </div>
     </div>
   </header>
 
@@ -57,18 +60,11 @@
           <select id="filterJenis"><option value="">Semua Jenis</option></select>
         </div>
 
-        <div id="items-list"></div>
+        <div id="itemsList"></div>
 
         <button class="add-btn" aria-label="Tambah Item">
           <svg><use href="icons.svg#add"></use></svg>
         </button>
-      </div>
-    </section>
-
-    <section id="pengaturan">
-      <div class="card">
-        <h3>Pengaturan</h3>
-        <p>Menu pengaturan aplikasi di sini.</p>
       </div>
     </section>
   </main>
@@ -78,19 +74,15 @@
     <button data-target="transaksi"><svg><use href="icons.svg#transaksi"></use></svg><span>Transaksi</span></button>
     <button data-target="perbaikan"><svg><use href="icons.svg#perbaikan"></use></svg><span>Perbaikan</span></button>
     <button data-target="master"><svg><use href="icons.svg#master"></use></svg><span>Master</span></button>
-    <button data-target="pengaturan"><svg><use href="icons.svg#pengaturan"></use></svg><span>Pengaturan</span></button>
   </nav>
 
   <!-- Supabase Client -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script>
-    // Saya pertahankan kredensial yang kamu pakai sebelumnya
     const SUPABASE_URL = "https://tvesoylwadcxtwtacnsn.supabase.co";
     const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InR2ZXNveWx3YWRjeHR3dGFjbnNuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTgzMDIyNjcsImV4cCI6MjA3Mzg3ODI2N30.j1ot_YnQ3PyeJl2EZbCmVnh33BXD4flkDhQ8uncL_u0";
-
     window.supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
   </script>
-
   <script src="script.js"></script>
 </body>
 </html>
