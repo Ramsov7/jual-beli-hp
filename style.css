@@ -6,12 +6,19 @@
 
 * { box-sizing: border-box; }
 
+html, body {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+}
+
 body {
   font-family: "Inter", Arial, sans-serif;
-  margin: 0;
   background: var(--bg);
   color: #222;
   overflow-x: hidden; /* cegah scroll horizontal */
+  display: flex;
+  flex-direction: column;
 }
 
 /* Header */
@@ -20,6 +27,7 @@ header {
   color: #fff;
   padding: 10px 16px;
   position: relative;
+  z-index: 1000;
 }
 
 .top-bar {
@@ -64,18 +72,22 @@ header {
 /* Main container untuk slide antar halaman */
 main {
   display: flex;                 
-  transform: translateX(0);      /* posisi awal */
+  flex: 1 0 auto;
+  width: 100%;
+  transform: translateX(0);
   transition: transform 0.35s cubic-bezier(0.25, 0.1, 0.25, 1);
-  min-height: 70vh;
-  padding-bottom: 100px; /* ruang untuk nav */
+  min-height: calc(100vh - 56px - 56px); /* tinggi layar minus header & nav */
+  padding-bottom: 16px;
+  overflow: hidden;
 }
 
 /* Halaman */
 section {
-  flex: 0 0 100%;                /* tiap section = 100% layar */
+  flex: 0 0 100%;
   padding: 20px;
   box-sizing: border-box;
   overflow-y: auto;
+  min-height: 100%;
 }
 
 /* Card */
