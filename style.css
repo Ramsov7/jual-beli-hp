@@ -1,10 +1,13 @@
-:root { --primary: #6c63ff; --card-radius: 12px; }
+:root {
+  --primary: #6c63ff;
+  --card-radius: 14px;
+}
 
 * { box-sizing: border-box; }
 body {
-  font-family: Arial, sans-serif;
+  font-family: "Inter", Arial, sans-serif;
   margin: 0;
-  background: #f7f7f7;
+  background: #f7f8fa;
   color: #222;
 }
 
@@ -17,17 +20,12 @@ header { background: #111; color: #fff; padding: 10px 16px; position: relative; 
 
 /* Settings Panel */
 .settings-panel {
-  position: absolute;
-  right: 16px;
-  top: 56px;
-  background: #fff;
-  color: #000;
-  border-radius: 8px;
-  box-shadow: 0 4px 12px rgba(0,0,0,.15);
-  width: 220px;
-  padding: 12px;
-  display: none;
-  z-index: 100;
+  position: absolute; right: 16px; top: 56px;
+  background: #fff; color: #000;
+  border-radius: 10px;
+  box-shadow: 0 6px 16px rgba(0,0,0,.15);
+  width: 240px; padding: 14px;
+  display: none; z-index: 100;
 }
 .settings-panel.active { display: block; }
 
@@ -37,13 +35,16 @@ section { display: none; }
 section.active { display: block; }
 .card {
   background: #fff; padding: 16px;
-  border-radius: 10px; box-shadow: 0 2px 6px rgba(0,0,0,.06);
+  border-radius: var(--card-radius);
+  box-shadow: 0 2px 8px rgba(0,0,0,.05);
   margin-bottom: 20px;
 }
 
 /* Search & Filters */
 .search-filter { display: flex; gap: 8px; align-items: center; margin-bottom: 10px; }
-.search-filter input { flex: 1; padding: 8px; border-radius: 8px; border: 1px solid #ddd; }
+.search-filter input {
+  flex: 1; padding: 10px; border-radius: 8px; border: 1px solid #ddd;
+}
 .search-filter svg { width: 22px; height: 22px; opacity: .6; }
 .dropdowns { display: flex; gap: 10px; margin-bottom: 12px; flex-wrap: wrap; }
 .dropdowns select {
@@ -51,19 +52,38 @@ section.active { display: block; }
 }
 
 /* Items grid */
-#itemsList { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; margin-top: 6px; }
+#itemsList {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+  gap: 14px;
+  margin-top: 6px;
+}
 
 /* Card item */
 .item-card {
   background: #fff; border-radius: var(--card-radius);
-  overflow: hidden; box-shadow: 0 1px 4px rgba(0,0,0,.06);
+  overflow: hidden; box-shadow: 0 2px 6px rgba(0,0,0,.06);
   cursor: pointer; position: relative;
   transition: transform 150ms ease, box-shadow 150ms ease;
 }
-.item-card:hover { transform: translateY(-4px); box-shadow: 0 6px 20px rgba(0,0,0,.08); }
-.item-card img { width: 100%; height: 160px; object-fit: cover; }
+.item-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 6px 16px rgba(0,0,0,.08);
+}
+.item-card img {
+  width: 100%; height: 140px; object-fit: cover;
+  background: #f0f0f0;
+}
+.item-card .placeholder {
+  width: 100%; height: 140px;
+  display: flex; align-items: center; justify-content: center;
+  background: #eee; color: #888; font-size: 13px;
+}
 .item-info { padding: 10px; display: flex; flex-direction: column; gap: 4px; }
-.item-info h4 { margin: 0; font-size: 14px; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.item-info h4 {
+  margin: 0; font-size: 14px; font-weight: 700;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
 .item-info .price { font-size: 13px; color: #111; }
 .item-info .stock { font-size: 12px; color: #666; }
 
@@ -93,41 +113,16 @@ section.active { display: block; }
 /* Floating add button (FAB ergonomis) */
 .add-btn {
   position: fixed;
-  right: 20px;   /* agak masuk biar nggak terlalu pojok */
-  bottom: 84px;  /* naik dari bottom-nav supaya nyaman dijangkau jempol */
-  width: 48px;
-  height: 48px;
-  background: var(--primary);
-  color: #fff;
-  border: none;
-  border-radius: 50%;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  right: 20px;
+  bottom: 84px;
+  width: 52px; height: 52px;
+  background: var(--primary); color: #fff;
+  border: none; border-radius: 50%;
+  cursor: pointer; display: flex; align-items: center; justify-content: center;
   box-shadow: 0 6px 14px rgba(108, 99, 255, .25);
   z-index: 20;
 }
-
-.add-btn svg {
-  width: 22px;
-  height: 22px;
-}
-
-/* Responsive - di layar kecil (<480px), tetap proporsional */
-@media (max-width: 480px) {
-  .add-btn {
-    width: 44px;
-    height: 44px;
-    right: 18px;
-    bottom: 78px;
-  }
-
-  .add-btn svg {
-    width: 20px;
-    height: 20px;
-  }
-}
+.add-btn svg { width: 24px; height: 24px; }
 
 /* Bottom nav */
 .bottom-nav {
@@ -145,5 +140,5 @@ section.active { display: block; }
 /* Responsive */
 @media (max-width: 640px) {
   #itemsList { grid-template-columns: 1fr; }
-  .item-card img { height: 180px; }
+  .item-card img, .item-card .placeholder { height: 180px; }
 }
