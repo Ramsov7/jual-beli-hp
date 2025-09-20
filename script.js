@@ -52,8 +52,8 @@ main.addEventListener("touchmove", e => {
 main.addEventListener("touchend", e => {
   if (!isDragging) return;
   const deltaX = e.changedTouches[0].clientX - startX;
-  if (deltaX > 50 && currentIndex > 0) currentIndex--;          // swipe kanan
-  else if (deltaX < -50 && currentIndex < sections.length - 1) currentIndex++; // swipe kiri
+  if (deltaX > 50 && currentIndex > 0) currentIndex--;          
+  else if (deltaX < -50 && currentIndex < sections.length - 1) currentIndex++; 
   updateView();
   isDragging = false;
 });
