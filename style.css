@@ -62,34 +62,22 @@ header {
 
 /* Main */
 main {
-  padding: 20px;
-  padding-bottom: 100px; /* ruang untuk nav */
-  position: relative;
-  z-index: 0;
+  display: flex;                 /* ✅ letakkan section berdampingan */
+  width: 400%;                   /* misal ada 4 halaman */
+  transition: transform 0.35s cubic-bezier(0.25, 0.1, 0.25, 1);
   min-height: 70vh;
-  overflow-x: hidden; /* biar tidak scroll horizontal saat animasi */
+  overflow: hidden;
+  padding-bottom: 100px; /* ruang untuk nav */
 }
 
 section {
-  position: absolute;
-  top: 0; left: 0; right: 0;
-  width: 100%;
-  opacity: 0;
-  transform: translateX(20px);
-  pointer-events: none;
-  transition: opacity 0.35s ease, transform 0.35s cubic-bezier(0.25, 0.1, 0.25, 1);
-
+  flex: 0 0 100%;                /* ✅ tiap section = 100% layar */
+  padding: 20px;
+  box-sizing: border-box;
+  overflow-y: auto;
 }
 
-section.active {
-  position: relative;
-  opacity: 1;
-  transform: translateX(0);
-  pointer-events: auto;
-  z-index: 1;
-}
-
-
+/* Card */
 .card {
   background: #fff;
   padding: 16px;
