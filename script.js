@@ -24,9 +24,7 @@ function showSection(targetId) {
   document.querySelector(`.bottom-nav button[data-target="${targetId}"]`)?.classList.add("active");
 }
 
-bottomNavButtons.forEach(btn => btn.addEventListener("click", () => {
-  showSection(btn.dataset.target);
-}));
+bottomNavButtons.forEach(btn => btn.addEventListener("click", () => showSection(btn.dataset.target)));
 
 // App untuk data Supabase
 const App = {
