@@ -25,6 +25,30 @@
   </header>
 
   <main>
+    <!-- Beranda -->
+    <section id="beranda">
+      <div class="card">
+        <h2>Beranda</h2>
+        <p>Ringkasan bisnis ditampilkan di sini.</p>
+      </div>
+    </section>
+
+    <!-- Transaksi -->
+    <section id="transaksi">
+      <div class="card">
+        <h2>Transaksi</h2>
+        <p>Data transaksi ditampilkan di sini.</p>
+      </div>
+    </section>
+
+    <!-- Perbaikan -->
+    <section id="perbaikan">
+      <div class="card">
+        <h2>Perbaikan</h2>
+        <p>Daftar perbaikan ditampilkan di sini.</p>
+      </div>
+    </section>
+
     <!-- Master -->
     <section id="master" class="active">
       <div class="card">
@@ -69,5 +93,30 @@
   </script>
 
   <script src="script.js"></script>
+  <script>
+    // Navigasi antar section
+    document.querySelectorAll(".bottom-nav button").forEach(btn => {
+      btn.addEventListener("click", () => {
+        const target = btn.getAttribute("data-target");
+
+        // hide semua section
+        document.querySelectorAll("main section").forEach(sec => sec.classList.remove("active"));
+        // show target
+        document.getElementById(target).classList.add("active");
+
+        // update nav aktif
+        document.querySelectorAll(".bottom-nav button").forEach(b => b.classList.remove("active"));
+        btn.classList.add("active");
+      });
+    });
+
+    // Panel pengaturan
+    const btnSettings = document.getElementById("btnSettings");
+    const panelSettings = document.getElementById("panelSettings");
+    btnSettings.addEventListener("click", () => {
+      panelSettings.classList.toggle("active");
+      panelSettings.setAttribute("aria-hidden", !panelSettings.classList.contains("active"));
+    });
+  </script>
 </body>
 </html>
