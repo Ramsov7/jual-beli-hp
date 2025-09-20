@@ -4,12 +4,14 @@ const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBh
 window.supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
 // Navigasi antar section dengan slide
-document.querySelectorAll(".bottom-nav button").forEach((btn, index) => {
-  btn.addEventListener("click", () => {
-    const main = document.querySelector("main");
-    main.style.transform = `translateX(-${index * 100}%)`;
+const bottomNavButtons = document.querySelectorAll(".bottom-nav button");
+const main = document.querySelector("main");
 
-    document.querySelectorAll(".bottom-nav button").forEach(b => b.classList.remove("active"));
+bottomNavButtons.forEach((btn, index) => {
+  btn.addEventListener("click", () => {
+    main.style.transform = `translateX(-${index * 100}%)`; // geser sesuai index
+
+    bottomNavButtons.forEach(b => b.classList.remove("active"));
     btn.classList.add("active");
   });
 });
@@ -75,7 +77,6 @@ const App = {
         <div><span class="stock-badge ${stokClass}">Stok: ${stok}</span></div>
       </div>
     `;
-
     return card;
   },
 
