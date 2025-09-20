@@ -6,22 +6,28 @@
   <title>Servisel</title>
   <link rel="stylesheet" href="style.css" />
   <style>
-    /* Tambahan animasi transisi antar halaman */
+    /* Main container untuk animasi transisi */
     main {
       position: relative;
+      flex: 1 0 auto;
+      min-height: calc(100vh - 56px - 56px); /* tinggi layar minus header & nav */
       overflow: hidden;
-      min-height: 70vh;
-      padding-bottom: 100px; /* ruang untuk nav */
+      padding-bottom: 16px; /* ruang untuk nav */
+      display: flex;
+      flex-direction: column;
     }
 
     section {
       position: absolute;
-      top: 0; left: 0; right: 0;
+      top: 0; left: 0; right: 0; bottom: 0;
       width: 100%;
       opacity: 0;
       transform: translateX(100%);
       transition: opacity 0.35s ease, transform 0.35s cubic-bezier(0.25,0.1,0.25,1);
       pointer-events: none;
+      overflow-y: auto;
+      padding: 20px;
+      box-sizing: border-box;
     }
 
     section.active {
@@ -32,11 +38,19 @@
       z-index: 1;
     }
 
-    /* Supaya halaman lama geser ke kiri saat berganti */
     section.exit-left {
       transform: translateX(-100%);
       opacity: 0;
       pointer-events: none;
+    }
+
+    /* Pastikan body full tinggi dan bottom-nav terlihat */
+    html, body {
+      height: 100%;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      flex-direction: column;
     }
   </style>
 </head>
@@ -59,7 +73,6 @@
   </header>
 
   <main>
-    <!-- Beranda -->
     <section id="beranda" class="active">
       <div class="card">
         <h2>Beranda</h2>
@@ -67,7 +80,6 @@
       </div>
     </section>
 
-    <!-- Transaksi -->
     <section id="transaksi">
       <div class="card">
         <h2>Transaksi</h2>
@@ -75,7 +87,6 @@
       </div>
     </section>
 
-    <!-- Perbaikan -->
     <section id="perbaikan">
       <div class="card">
         <h2>Perbaikan</h2>
@@ -83,7 +94,6 @@
       </div>
     </section>
 
-    <!-- Master -->
     <section id="master">
       <div class="card">
         <div class="search-filter">
@@ -118,6 +128,38 @@
   </nav>
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script>
+    // Navigasi antar section dengan animasi fade/slide
+    const sections = document.querySelectorAll('main section');
+    const navButtons = document.querySelectorAll('.bottom-nav button');
+
+    navButtons.forEach(btn => {
+      btn.addEventListener('click', () => {
+        const targetId = btn.dataset.target;
+        const activeSection = document.querySelector('section.active');
+
+        if (activeSection.id !== targetId) {
+          activeSection.classList.remove('active');
+          activeSection.classList.add('exit-left');
+
+          const targetSection = document.getElementById(targetId);
+          targetSection.classList.add('active');
+          targetSection.classList.remove('exit-left');
+
+          navButtons.forEach(b => b.classList.remove('active'));
+          btn.classList.add('active');
+        }
+      });
+    });
+
+    // Panel pengaturan
+    const btnSettings = document.getElementById("btnSettings");
+    const panelSettings = document.getElementById("panelSettings");
+    btnSettings.addEventListener("click", () => {
+      panelSettings.classList.toggle("active");
+      panelSettings.setAttribute("aria-hidden", !panelSettings.classList.contains("active"));
+    });
+  </script>
   <script src="script.js"></script>
 </body>
 </html>
