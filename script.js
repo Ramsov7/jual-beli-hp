@@ -1,17 +1,7 @@
 const App = {
   state: { items: [] },
 
-  refs: {
-    navBtns: null,
-    sections: null,
-    itemsList: null,
-    searchInput: null,
-    filterKategori: null,
-    filterStok: null,
-    filterJenis: null,
-    btnSettings: null,
-    panelSettings: null,
-  },
+  refs: {},
 
   init() {
     this.refs.navBtns = document.querySelectorAll(".bottom-nav button");
@@ -87,14 +77,16 @@ const App = {
     card.className = "item-card";
     card.tabIndex = 0;
 
-    const foto = item.foto_url || "https://via.placeholder.com/400x300?text=No+Image";
+    const foto = item.foto_url;
     const nama = item.nama_item || "Tanpa Nama";
     const harga = item.biaya_item ? Number(item.biaya_item).toLocaleString("id-ID") : "-";
     const stok = item.stok_item ?? "-";
     const stokClass = item.stok_item > 0 ? "stock-tersedia" : "stock-habis";
 
     card.innerHTML = `
-      <img src="${foto}" alt="${nama}">
+      ${foto
+        ? `<img src="${foto}" alt="${nama}">`
+        : `<div class="placeholder">No Image</div>`}
       <div class="item-info">
         <h4>${nama}</h4>
         <div class="price">Rp ${harga}</div>
