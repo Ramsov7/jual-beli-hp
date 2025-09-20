@@ -57,7 +57,6 @@
           <svg><use href="icons.svg#filter"></use></svg>
         </div>
 
-        <!-- Filter jadi satu baris -->
         <div class="filters-inline">
           <select id="filterKategori"><option value="">Semua Kategori</option></select>
           <select id="filterStok">
@@ -84,39 +83,7 @@
     <button data-target="master" class="active"><svg><use href="icons.svg#master"></use></svg><span>Master</span></button>
   </nav>
 
-  <!-- Supabase -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script>
-    const SUPABASE_URL = "https://tvesoylwadcxtwtacnsn.supabase.co";
-    const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InR2ZXNveWx3YWRjeHR3dGFjbnNuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTgzMDIyNjcsImV4cCI6MjA3Mzg3ODI2N30.j1ot_YnQ3PyeJl2EZbCmVnh33BXD4flkDhQ8uncL_u0";
-    window.supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-  </script>
-
   <script src="script.js"></script>
-  <script>
-    // Navigasi antar section
-    document.querySelectorAll(".bottom-nav button").forEach(btn => {
-      btn.addEventListener("click", () => {
-        const target = btn.getAttribute("data-target");
-
-        // hide semua section
-        document.querySelectorAll("main section").forEach(sec => sec.classList.remove("active"));
-        // show target
-        document.getElementById(target).classList.add("active");
-
-        // update nav aktif
-        document.querySelectorAll(".bottom-nav button").forEach(b => b.classList.remove("active"));
-        btn.classList.add("active");
-      });
-    });
-
-    // Panel pengaturan
-    const btnSettings = document.getElementById("btnSettings");
-    const panelSettings = document.getElementById("panelSettings");
-    btnSettings.addEventListener("click", () => {
-      panelSettings.classList.toggle("active");
-      panelSettings.setAttribute("aria-hidden", !panelSettings.classList.contains("active"));
-    });
-  </script>
 </body>
 </html>
