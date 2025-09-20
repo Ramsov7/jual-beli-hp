@@ -12,10 +12,14 @@
       <div class="user-profile">
         <span>Total Saldo Saat Ini : Rp.726.000</span>
       </div>
+
+      <!-- Settings button in header -->
       <button id="btnSettings" aria-label="Pengaturan">
         <svg><use href="icons.svg#pengaturan"></use></svg>
       </button>
-      <div id="panelSettings" class="settings-panel">
+
+      <!-- Settings panel (toggle) -->
+      <div id="panelSettings" class="settings-panel" aria-hidden="true">
         <h3>Pengaturan</h3>
         <p>Menu pengaturan aplikasi di sini.</p>
       </div>
@@ -64,7 +68,7 @@
           <select id="filterJenis"><option value="">Semua Jenis</option></select>
         </div>
 
-        <div id="itemsList"></div>
+        <div id="itemsList" aria-live="polite"></div>
 
         <button class="add-btn" aria-label="Tambah Item">
           <svg><use href="icons.svg#add"></use></svg>
@@ -73,7 +77,6 @@
     </section>
   </main>
 
-  <!-- Bottom Navigation -->
   <nav class="bottom-nav" aria-label="Navigasi bawah">
     <button data-target="beranda" class="active"><svg><use href="icons.svg#home"></use></svg><span>Beranda</span></button>
     <button data-target="transaksi"><svg><use href="icons.svg#transaksi"></use></svg><span>Transaksi</span></button>
@@ -81,13 +84,14 @@
     <button data-target="master"><svg><use href="icons.svg#master"></use></svg><span>Master</span></button>
   </nav>
 
-  <!-- Supabase -->
+  <!-- Supabase Client (kamu sebelumnya memberi ANON KEY; saya masukkan sesuai file lama) -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script>
     const SUPABASE_URL = "https://tvesoylwadcxtwtacnsn.supabase.co";
-    const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...";
+    const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InR2ZXNveWx3YWRjeHR3dGFjbnNuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTgzMDIyNjcsImV4cCI6MjA3Mzg3ODI2N30.j1ot_YnQ3PyeJl2EZbCmVnh33BXD4flkDhQ8uncL_u0";
     window.supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
   </script>
+
   <script src="script.js"></script>
 </body>
 </html>
